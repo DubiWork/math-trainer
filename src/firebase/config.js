@@ -8,6 +8,10 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
+import { validateFirebaseEnv } from './validateEnv'
+
+// Validate all required environment variables before initialization
+validateFirebaseEnv(import.meta.env)
 
 // Firebase configuration from environment variables
 const firebaseConfig = {
@@ -17,25 +21,6 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
-}
-
-// Validate required environment variables
-const requiredEnvVars = [
-  'VITE_FIREBASE_API_KEY',
-  'VITE_FIREBASE_AUTH_DOMAIN',
-  'VITE_FIREBASE_PROJECT_ID',
-  'VITE_FIREBASE_APP_ID',
-]
-
-const missingEnvVars = requiredEnvVars.filter(
-  (envVar) => !import.meta.env[envVar]
-)
-
-if (missingEnvVars.length > 0) {
-  throw new Error(
-    `Missing required Firebase environment variables: ${missingEnvVars.join(', ')}. ` +
-    'Please check your .env.local file.'
-  )
 }
 
 // Initialize Firebase
@@ -48,8 +33,10 @@ try {
   auth = getAuth(app)
   db = getFirestore(app)
 } catch (error) {
-  console.error('Firebase initialization failed:', error.message)
-  throw new Error(`Firebase initialization failed: ${error.message}`)
+  throw new Error(
+    `Firebase initialization failed: ${error.message}. ` +
+    'Check that your Firebase configuration values are correct.'
+  )
 }
 
 export { app, auth, db }

@@ -1,6 +1,10 @@
 # Math Trainer - Sonic Edition
 
+[![Deploy to Firebase Hosting](https://github.com/DubiWork/math-trainer/actions/workflows/deploy.yml/badge.svg)](https://github.com/DubiWork/math-trainer/actions/workflows/deploy.yml)
+
 A Sonic-themed math training game for kids, designed to make learning addition and subtraction fun!
+
+Live Demo: https://math-trainer-1a632.web.app
 
 ## Features (Planned)
 

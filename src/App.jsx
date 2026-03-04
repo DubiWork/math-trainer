@@ -1,17 +1,146 @@
+import { useState, useCallback } from 'react'
+import { useFirebase, useGameProgress } from './hooks'
+import { StartScreen, GameScreen, ResultScreen } from './components'
+
+/**
+ * App Component - Main application with screen navigation
+ *
+ * Navigation Flow:
+ * StartScreen -> GameScreen -> ResultScreen
+ *      ^            |              |
+ *      +------------+--------------+
+ *
+ * Manages:
+ * - Screen state ('start', 'game', 'result')
+ * - Firebase authentication
+ * - Game progress persistence
+ * - Session statistics between screens
+ */
 function App() {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900 flex flex-col items-center justify-center p-4">
-      <h1 className="text-4xl md:text-6xl font-game text-sonic-gold drop-shadow-lg text-center">
-        Math Trainer
-      </h1>
-      <p className="text-xl md:text-2xl text-white mt-4 font-game text-center">
-        Sonic Edition
-      </p>
-      <div className="mt-8 text-white text-center">
-        <p className="text-lg">Coming Soon: Addition and Subtraction Practice!</p>
-        <p className="text-sm mt-2 opacity-75">For kids learning numbers 1-10</p>
+  const { user, loading: authLoading, error: authError } = useFirebase()
+  const {
+    progress,
+    updateProgress,
+    loading: progressLoading,
+  } = useGameProgress(user?.uid)
+
+  // Screen navigation state
+  const [screen, setScreen] = useState('start')
+
+  // Session statistics (captured when game ends, passed to ResultScreen)
+  const [sessionStats, setSessionStats] = useState(null)
+
+  // Combine loading states
+  const loading = authLoading || progressLoading
+
+  // Handle game end - capture session stats and navigate to result screen
+  const handleGameEnd = useCallback((stats) => {
+    if (stats) {
+      // Calculate accuracy if not provided
+      const accuracy =
+        stats.accuracy ??
+        (stats.totalProblems > 0
+          ? Math.round((stats.correctAnswers / stats.totalProblems) * 100)
+          : 0)
+
+      setSessionStats({
+        score: stats.score ?? 0,
+        streak: stats.streak ?? 0,
+        totalProblems: stats.totalProblems ?? 0,
+        correctAnswers: stats.correctAnswers ?? 0,
+        accuracy,
+      })
+      setScreen('result')
+    } else {
+      // If no stats provided (user clicked exit), go back to start
+      setScreen('start')
+    }
+  }, [])
+
+  // Handle starting a new game
+  const handleStartGame = useCallback(() => {
+    setSessionStats(null) // Clear previous session stats
+    setScreen('game')
+  }, [])
+
+  // Handle play again from result screen
+  const handlePlayAgain = useCallback(() => {
+    setSessionStats(null) // Clear previous session stats
+    setScreen('game')
+  }, [])
+
+  // Handle exit to start screen
+  const handleExit = useCallback(() => {
+    setSessionStats(null) // Clear session stats
+    setScreen('start')
+  }, [])
+
+  // Show loading state while authenticating or loading progress
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900 flex flex-col items-center justify-center p-4">
+        <div className="animate-pulse">
+          <h1 className="text-4xl md:text-6xl font-game text-sonic-gold drop-shadow-lg text-center">
+            Loading...
+          </h1>
+          <p className="text-xl text-white mt-4 font-game text-center">
+            {authLoading ? 'Connecting to Sonic Speed!' : 'Loading your progress...'}
+          </p>
+        </div>
       </div>
-    </div>
+    )
+  }
+
+  // Show error state if authentication failed (user can still play, progress won't persist)
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900 flex flex-col items-center justify-center p-4">
+        <div className="text-center">
+          <h1 className="text-4xl md:text-6xl font-game text-red-500 drop-shadow-lg">
+            Oops!
+          </h1>
+          <p className="text-xl text-white mt-4 font-game">
+            Could not connect to save your progress
+          </p>
+          <p className="text-sm text-white mt-2 opacity-75">
+            {authError.message}
+          </p>
+          <button
+            onClick={() => setScreen('game')}
+            className="mt-6 bg-sonic-gold text-sonic-blue font-game px-8 py-4 rounded-full
+                       hover:bg-yellow-400 transform hover:scale-105 transition-all
+                       shadow-lg active:scale-95 text-xl"
+          >
+            Play Anyway!
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Render the current screen
+  return (
+    <>
+      {screen === 'start' && (
+        <StartScreen onStart={handleStartGame} progress={progress} />
+      )}
+
+      {screen === 'game' && (
+        <GameScreen
+          onGameEnd={handleGameEnd}
+          updateProgress={updateProgress}
+          initialProgress={progress}
+        />
+      )}
+
+      {screen === 'result' && sessionStats && (
+        <ResultScreen
+          sessionStats={sessionStats}
+          onPlayAgain={handlePlayAgain}
+          onExit={handleExit}
+        />
+      )}
+    </>
   )
 }
 

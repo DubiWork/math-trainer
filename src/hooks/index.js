@@ -1,12 +1,16 @@
 /**
  * Custom React hooks for Math Trainer
  *
- * This directory will contain:
- * - useGameState: Game state management hook
+ * Available hooks:
+ * - useFirebase: Firebase authentication (anonymous auth)
+ * - useGameProgress: Game progress persistence with Firestore
+ * - useGameState: Game state management (score, streak, problem flow)
+ *
+ * Future hooks:
  * - useTimer: Timer functionality for timed challenges
  * - useSound: Sound effects management
- * - useLocalStorage: Persistent storage for scores/progress
  */
 
-// Placeholder - hooks will be added as features are implemented
-export {}
+export { useFirebase } from './useFirebase'
+export { useGameProgress } from './useGameProgress'
+export { useGameState } from './useGameState'

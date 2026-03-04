@@ -15,7 +15,45 @@ export default {
       },
       fontFamily: {
         game: ['Comic Sans MS', 'cursive', 'sans-serif'],
-      }
+      },
+      animation: {
+        'feedback-correct': 'pop-in 0.3s ease-out forwards',
+        'feedback-wrong': 'slide-in 0.3s ease-out forwards',
+        'bounce-custom': 'bounce-scale 0.5s ease-in-out infinite',
+        'shake': 'shake 0.5s ease-in-out',
+        'pulse-scale': 'pulse-scale 1s ease-in-out infinite',
+        'sparkle': 'sparkle 1.5s ease-out forwards',
+      },
+      keyframes: {
+        'pop-in': {
+          '0%': { transform: 'scale(0.5)', opacity: '0' },
+          '70%': { transform: 'scale(1.1)' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'slide-in': {
+          '0%': { transform: 'translateY(-20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        'bounce-scale': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.2)' },
+        },
+        'shake': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '20%': { transform: 'translateX(-8px)' },
+          '40%': { transform: 'translateX(8px)' },
+          '60%': { transform: 'translateX(-6px)' },
+          '80%': { transform: 'translateX(6px)' },
+        },
+        'pulse-scale': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
+        },
+        'sparkle': {
+          '0%': { transform: 'translateY(0) scale(0)', opacity: '1' },
+          '100%': { transform: 'translateY(-100px) scale(1)', opacity: '0' },
+        },
+      },
     },
   },
   plugins: [],

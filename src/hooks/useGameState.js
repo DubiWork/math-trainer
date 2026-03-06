@@ -98,6 +98,7 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
       userAnswer: null,
       showFeedback: false,
       isCorrect: false,
+      score: 0, // Reset score for new session
       streak: 0, // Reset current streak on new game
     }))
   }, [])

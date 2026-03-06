@@ -21,6 +21,7 @@ function App() {
   const {
     progress,
     updateProgress,
+    forceSave,
     loading: progressLoading,
   } = useGameProgress(user?.uid)
 
@@ -71,9 +72,10 @@ function App() {
 
   // Handle exit to start screen
   const handleExit = useCallback(() => {
+    forceSave() // Save pending progress to Firebase
     setSessionStats(null) // Clear session stats
     setScreen('start')
-  }, [])
+  }, [forceSave])
 
   // Show loading state while authenticating or loading progress
   if (loading) {

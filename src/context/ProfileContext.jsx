@@ -113,6 +113,19 @@ export default function ProfileProvider({ children }) {
   }, [])
 
   /**
+   * Create a new profile and immediately activate it.
+   * Combines ADD_PROFILE + SET_ACTIVE dispatches and writes to sessionStorage
+   * in a single call for atomic profile creation flows.
+   *
+   * @param {Object} profile The newly-created profile object
+   */
+  const createAndActivate = useCallback((profile) => {
+    dispatch({ type: Actions.ADD_PROFILE, payload: profile })
+    dispatch({ type: Actions.SET_ACTIVE, payload: profile })
+    sessionStorage.setItem(SESSION_KEY, profile.id)
+  }, [])
+
+  /**
    * Update an existing profile in state + localStorage.
    * @param {string} id       Profile UUID
    * @param {Object} updates  Fields to merge
@@ -157,6 +170,7 @@ export default function ProfileProvider({ children }) {
       clearActiveProfile,
       refreshProfiles,
       addProfile,
+      createAndActivate,
       updateProfile,
       deleteProfile,
     }),
@@ -169,6 +183,7 @@ export default function ProfileProvider({ children }) {
       clearActiveProfile,
       refreshProfiles,
       addProfile,
+      createAndActivate,
       updateProfile,
       deleteProfile,
     ]

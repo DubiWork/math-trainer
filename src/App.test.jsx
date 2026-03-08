@@ -12,6 +12,7 @@ const mockProfileContext = {
   activeProfile: null,
   isLoading: false,
   clearActiveProfile: vi.fn(),
+  createAndActivate: vi.fn(),
 }
 
 vi.mock('./context/useProfile', () => ({
@@ -62,6 +63,21 @@ vi.mock('./components', () => ({
     createElement('div', { 'data-testid': 'profile-switcher' },
       createElement('button', { 'data-testid': 'create-profile', onClick: onCreateProfile }, 'Create'),
     ),
+  CreateProfile: ({ onComplete, onCancel }) =>
+    createElement('div', { 'data-testid': 'create-profile-wizard' },
+      createElement('button', {
+        'data-testid': 'complete-wizard',
+        onClick: () => onComplete({
+          id: 'new-profile-1',
+          nickname: 'NewHero',
+          theme: 'sonic',
+          pinHash: 'a'.repeat(64),
+          firebaseUid: 'firebase-uid-new',
+          currentLevel: 1,
+        }),
+      }, 'Complete'),
+      createElement('button', { 'data-testid': 'cancel-wizard', onClick: onCancel }, 'Cancel'),
+    ),
 }))
 
 // Import after mocks
@@ -76,6 +92,7 @@ describe('App', () => {
     mockProfileContext.activeProfile = null
     mockProfileContext.isLoading = false
     mockProfileContext.clearActiveProfile = vi.fn()
+    mockProfileContext.createAndActivate = vi.fn()
     mockFirebase.user = { uid: 'test-uid' }
     mockFirebase.loading = false
     mockFirebase.error = null
@@ -226,20 +243,86 @@ describe('App', () => {
     })
   })
 
-  // ── handleCreateProfile ───────────────────────────────────────────────
+  // ── Create profile flow ─────────────────────────────────────────────
 
-  describe('handleCreateProfile', () => {
-    it('does not crash when create profile is called (placeholder)', () => {
+  describe('create profile flow', () => {
+    it('shows CreateProfile wizard when create button is clicked in ProfileSwitcher', () => {
       mockProfileContext.activeProfile = null
-      const spy = vi.spyOn(console, 'info').mockImplementation(() => {})
       render(<App />)
 
+      // Initially shows ProfileSwitcher
+      expect(screen.getByTestId('profile-switcher')).toBeTruthy()
+      expect(screen.queryByTestId('create-profile-wizard')).toBeNull()
+
+      // Click "Create" in ProfileSwitcher
       fireEvent.click(screen.getByTestId('create-profile'))
-      // Should log placeholder message
-      expect(spy).toHaveBeenCalledWith(
-        expect.stringContaining('Create profile flow not yet implemented')
+
+      // Should now show CreateProfile wizard
+      expect(screen.getByTestId('create-profile-wizard')).toBeTruthy()
+      expect(screen.queryByTestId('profile-switcher')).toBeNull()
+    })
+
+    it('returns to ProfileSwitcher when CreateProfile is cancelled', () => {
+      mockProfileContext.activeProfile = null
+      render(<App />)
+
+      // Navigate to wizard
+      fireEvent.click(screen.getByTestId('create-profile'))
+      expect(screen.getByTestId('create-profile-wizard')).toBeTruthy()
+
+      // Cancel the wizard
+      fireEvent.click(screen.getByTestId('cancel-wizard'))
+
+      // Should be back to ProfileSwitcher
+      expect(screen.getByTestId('profile-switcher')).toBeTruthy()
+      expect(screen.queryByTestId('create-profile-wizard')).toBeNull()
+    })
+
+    it('calls createAndActivate and hides wizard when CreateProfile completes', () => {
+      mockProfileContext.activeProfile = null
+      render(<App />)
+
+      // Navigate to wizard
+      fireEvent.click(screen.getByTestId('create-profile'))
+
+      // Complete the wizard
+      fireEvent.click(screen.getByTestId('complete-wizard'))
+
+      // createAndActivate should have been called with the new profile
+      expect(mockProfileContext.createAndActivate).toHaveBeenCalledTimes(1)
+      expect(mockProfileContext.createAndActivate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'new-profile-1',
+          nickname: 'NewHero',
+          theme: 'sonic',
+          firebaseUid: 'firebase-uid-new',
+        })
       )
-      spy.mockRestore()
+
+      // Wizard should be hidden (showCreate reset to false)
+      expect(screen.queryByTestId('create-profile-wizard')).toBeNull()
+    })
+
+    it('does not show wizard on initial render (showCreate defaults to false)', () => {
+      mockProfileContext.activeProfile = null
+      render(<App />)
+
+      expect(screen.getByTestId('profile-switcher')).toBeTruthy()
+      expect(screen.queryByTestId('create-profile-wizard')).toBeNull()
+    })
+
+    it('does not show ProfileSwitcher or wizard when activeProfile is set', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 1,
+      }
+      render(<App />)
+
+      expect(screen.queryByTestId('profile-switcher')).toBeNull()
+      expect(screen.queryByTestId('create-profile-wizard')).toBeNull()
+      expect(screen.getByTestId('start-screen')).toBeTruthy()
     })
   })
 

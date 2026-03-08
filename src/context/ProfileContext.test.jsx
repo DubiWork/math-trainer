@@ -262,6 +262,59 @@ describe('ProfileContext + useProfile', () => {
     })
   })
 
+  // ── createAndActivate ──────────────────────────────────────────────
+
+  describe('createAndActivate', () => {
+    it('adds profile to state and sets it as active', async () => {
+      profilesUtil.__setProfiles([])
+
+      const { result } = renderHook(() => useProfile(), { wrapper })
+      await act(async () => {})
+
+      const newProfile = makeProfile({ id: 'new-hero', nickname: 'NewHero' })
+      act(() => {
+        result.current.createAndActivate(newProfile)
+      })
+
+      expect(result.current.profiles).toHaveLength(1)
+      expect(result.current.profiles[0].id).toBe('new-hero')
+      expect(result.current.activeProfile).not.toBeNull()
+      expect(result.current.activeProfile.id).toBe('new-hero')
+    })
+
+    it('writes profile id to sessionStorage', async () => {
+      profilesUtil.__setProfiles([])
+
+      const { result } = renderHook(() => useProfile(), { wrapper })
+      await act(async () => {})
+
+      const newProfile = makeProfile({ id: 'session-hero' })
+      act(() => {
+        result.current.createAndActivate(newProfile)
+      })
+
+      expect(sessionMock.getItem(SESSION_KEY)).toBe('session-hero')
+    })
+
+    it('works alongside existing profiles', async () => {
+      const existing = makeProfile({ id: 'existing-1' })
+      profilesUtil.__setProfiles([existing])
+
+      const { result } = renderHook(() => useProfile(), { wrapper })
+      await act(async () => {})
+
+      expect(result.current.profiles).toHaveLength(1)
+
+      const newProfile = makeProfile({ id: 'new-1' })
+      act(() => {
+        result.current.createAndActivate(newProfile)
+      })
+
+      expect(result.current.profiles).toHaveLength(2)
+      expect(result.current.activeProfile.id).toBe('new-1')
+    })
+  })
+
   // ── updateProfile ─────────────────────────────────────────────────────
 
   describe('updateProfile', () => {

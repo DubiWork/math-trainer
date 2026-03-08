@@ -23,6 +23,7 @@ export default {
         'shake': 'shake 0.5s ease-in-out',
         'pulse-scale': 'pulse-scale 1s ease-in-out infinite',
         'sparkle': 'sparkle 1.5s ease-out forwards',
+        'dot-fill': 'dot-fill 0.25s ease-out forwards',
       },
       keyframes: {
         'pop-in': {
@@ -52,6 +53,11 @@ export default {
         'sparkle': {
           '0%': { transform: 'translateY(0) scale(0)', opacity: '1' },
           '100%': { transform: 'translateY(-100px) scale(1)', opacity: '0' },
+        },
+        'dot-fill': {
+          '0%': { transform: 'scale(0.8)' },
+          '50%': { transform: 'scale(1.15)' },
+          '100%': { transform: 'scale(1)' },
         },
       },
     },

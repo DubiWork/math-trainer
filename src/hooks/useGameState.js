@@ -4,9 +4,11 @@
  * Manages complete game state and logic for Math Trainer.
  * - Handles game flow (start, answer, feedback, next problem)
  * - Manages scoring and streak tracking
+ * - Composes useConfidence for adaptive confidence scoring
  * - Integrates with useGameProgress for Firestore persistence
  *
  * @param {Object} options - Hook options
+ * @param {number} options.currentLevel - Current difficulty level (default: 2)
  * @param {Function} options.updateProgress - Function from useGameProgress to persist data
  * @param {Object} options.initialProgress - Initial progress data from Firestore
  * @returns {Object} Game state and control functions
@@ -14,6 +16,8 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { generateProblem, validateAnswer } from '../utils/mathProblems'
+import { useConfidence } from './useConfidence'
+import { getLevelConfig } from '../config/levels'
 
 // Feedback display duration (ms)
 const FEEDBACK_DURATION_MS = 2000
@@ -41,11 +45,15 @@ const DEFAULT_GAME_STATE = {
  * Custom hook for managing game state
  *
  * @param {Object} options - Configuration options
+ * @param {number} options.currentLevel - Difficulty level (default: 2)
  * @param {Function} options.updateProgress - Callback to persist progress to Firestore
  * @param {Object} options.initialProgress - Initial progress from Firestore
  * @returns {Object} Game state and control functions
  */
-export function useGameState({ updateProgress, initialProgress } = {}) {
+export function useGameState({ currentLevel = 2, updateProgress, initialProgress } = {}) {
+  // Compose confidence engine (unconditional — rules of hooks)
+  const confidence = useConfidence()
+
   // Initialize state with initial progress if available
   const [gameState, setGameState] = useState(() => ({
     ...DEFAULT_GAME_STATE,
@@ -59,6 +67,8 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
   const feedbackTimeoutRef = useRef(null)
   // Track if component is mounted
   const isMountedRef = useRef(true)
+  // Track problem start time for response time calculation
+  const problemStartTimeRef = useRef(null)
 
   // Cleanup on unmount
   useEffect(() => {
@@ -89,7 +99,10 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
    * Generates first problem and sets isPlaying to true
    */
   const startGame = useCallback(() => {
-    const firstProblem = generateProblem()
+    const firstProblem = generateProblem(getLevelConfig(currentLevel))
+
+    confidence.reset()
+    problemStartTimeRef.current = Date.now()
 
     setGameState((prev) => ({
       ...prev,
@@ -101,7 +114,7 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
       score: 0, // Reset score for new session
       streak: 0, // Reset current streak on new game
     }))
-  }, [])
+  }, [currentLevel, confidence])
 
   /**
    * Generate and display next problem
@@ -110,7 +123,9 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
   const nextProblem = useCallback(() => {
     if (!isMountedRef.current) return
 
-    const newProblem = generateProblem()
+    const newProblem = generateProblem(getLevelConfig(currentLevel))
+
+    problemStartTimeRef.current = Date.now()
 
     setGameState((prev) => ({
       ...prev,
@@ -119,7 +134,7 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
       showFeedback: false,
       isCorrect: false,
     }))
-  }, [])
+  }, [currentLevel])
 
   /**
    * Process user's answer
@@ -129,14 +144,21 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
    */
   const handleAnswer = useCallback(
     (answer) => {
+      // Guard: read current snapshot to bail out early
+      // (avoids scheduling a no-op setState and side-effects)
+      const snap = gameState
+      if (!snap.isPlaying || !snap.currentProblem || snap.showFeedback) {
+        return
+      }
+
+      const isCorrect = validateAnswer(answer, snap.currentProblem.correctAnswer)
+
+      // Record answer in confidence engine (outside setState updater)
+      const responseTimeMs = Date.now() - problemStartTimeRef.current
+      confidence.recordAnswer(isCorrect, responseTimeMs)
+
       setGameState((prev) => {
-        if (!prev.isPlaying || !prev.currentProblem || prev.showFeedback) {
-          return prev
-        }
-
-        const isCorrect = validateAnswer(answer, prev.currentProblem.correctAnswer)
-
-        // Calculate new values
+        // Calculate new values (local streak for bestStreak tracking)
         const newScore = isCorrect ? prev.score + POINTS_PER_CORRECT : prev.score
         const newStreak = isCorrect ? prev.streak + 1 : 0
         const newBestStreak = Math.max(prev.bestStreak, newStreak)
@@ -181,7 +203,7 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
         }
       }, FEEDBACK_DURATION_MS)
     },
-    [updateProgress, nextProblem]
+    [gameState, updateProgress, nextProblem, confidence]
   )
 
   /**
@@ -194,6 +216,8 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
       clearTimeout(feedbackTimeoutRef.current)
     }
 
+    confidence.reset()
+
     setGameState((prev) => ({
       ...DEFAULT_GAME_STATE,
       // Preserve cumulative stats
@@ -202,7 +226,7 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
       totalProblems: prev.totalProblems,
       correctAnswers: prev.correctAnswers,
     }))
-  }, [])
+  }, [confidence])
 
   /**
    * Full reset - clears all stats (for "Start Over" functionality)
@@ -214,8 +238,10 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
       clearTimeout(feedbackTimeoutRef.current)
     }
 
+    confidence.reset()
+
     setGameState(DEFAULT_GAME_STATE)
-  }, [])
+  }, [confidence])
 
   /**
    * Calculate accuracy percentage
@@ -232,13 +258,22 @@ export function useGameState({ updateProgress, initialProgress } = {}) {
     currentProblem: gameState.currentProblem,
     userAnswer: gameState.userAnswer,
     score: gameState.score,
-    streak: gameState.streak,
+    streak: confidence.streak,           // from confidence (single source of truth)
     bestStreak: gameState.bestStreak,
     isPlaying: gameState.isPlaying,
     showFeedback: gameState.showFeedback,
     isCorrect: gameState.isCorrect,
     totalProblems: gameState.totalProblems,
     correctAnswers: gameState.correctAnswers,
+
+    // Confidence state
+    confidenceScore: confidence.score,
+    isStruggling: confidence.isStruggling,
+    isCritical: confidence.isCritical,
+    shouldLevelUp: confidence.shouldLevelUp,
+    lastDelta: confidence.lastDelta,
+    consecutiveWrong: confidence.consecutiveWrong,
+    acknowledgeLevelUp: confidence.acknowledgeLevelUp,
 
     // Actions
     handleAnswer,

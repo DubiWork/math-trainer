@@ -148,7 +148,7 @@ export function createProfile({ nickname, theme, pinHash, firebaseUid = null, cu
   }
 
   // Validate pinHash
-  if (typeof pinHash !== 'string' || pinHash.length !== 64) {
+  if (typeof pinHash !== 'string' || !/^[0-9a-f]{64}$/.test(pinHash)) {
     throw new Error('pinHash must be a 64-character hex string');
   }
 
@@ -237,7 +237,7 @@ export function deleteProfile(id) {
  *
  * @example
  * const hash = await hashPin('1234');
- * // 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3'
+ * // '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'
  */
 export async function hashPin(pin) {
   if (typeof pin !== 'string' || !/^\d{4}$/.test(pin)) {

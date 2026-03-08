@@ -1,29 +1,36 @@
 import { useState, useCallback } from 'react'
 import { useFirebase, useGameProgress } from './hooks'
-import { StartScreen, GameScreen, ResultScreen } from './components'
+import { StartScreen, GameScreen, ResultScreen, ProfileSwitcher } from './components'
+import { useProfile } from './context/useProfile'
 
 /**
  * App Component - Main application with screen navigation
  *
  * Navigation Flow:
- * StartScreen -> GameScreen -> ResultScreen
- *      ^            |              |
- *      +------------+--------------+
+ *
+ * [No activeProfile] -> ProfileSwitcher
+ *                        |
+ *                        v (correct PIN)
+ * [activeProfile set] -> StartScreen -> GameScreen -> ResultScreen
+ *                             ^            |              |
+ *                             +------------+--------------+
  *
  * Manages:
+ * - Profile-gated entry: shows ProfileSwitcher when no active profile
  * - Screen state ('start', 'game', 'result')
  * - Firebase authentication
- * - Game progress persistence
+ * - Game progress persistence (keyed to activeProfile.firebaseUid)
  * - Session statistics between screens
  */
 function App() {
+  const { activeProfile, isLoading: profileLoading, clearActiveProfile } = useProfile()
   const { user, loading: authLoading, error: authError } = useFirebase()
   const {
     progress,
     updateProgress,
     forceSave,
     loading: progressLoading,
-  } = useGameProgress(user?.uid)
+  } = useGameProgress(activeProfile?.firebaseUid ?? user?.uid)
 
   // Screen navigation state
   const [screen, setScreen] = useState('start')
@@ -32,7 +39,7 @@ function App() {
   const [sessionStats, setSessionStats] = useState(null)
 
   // Combine loading states
-  const loading = authLoading || progressLoading
+  const loading = profileLoading || authLoading || progressLoading
 
   // Handle game end - capture session stats and navigate to result screen
   const handleGameEnd = useCallback((stats) => {
@@ -77,6 +84,20 @@ function App() {
     setScreen('start')
   }, [forceSave])
 
+  // Handle switching profile (back to switcher)
+  const handleSwitchProfile = useCallback(() => {
+    forceSave()
+    clearActiveProfile()
+    setSessionStats(null)
+    setScreen('start')
+  }, [forceSave, clearActiveProfile])
+
+  // Handle "Add Hero" in switcher — placeholder until #20 implements create flow
+  const handleCreateProfile = useCallback(() => {
+    // Intentionally empty: wired by #20 (Create profile flow)
+    console.info('[App] Create profile flow not yet implemented (see #20)')
+  }, [])
+
   // Show loading state while authenticating or loading progress
   if (loading) {
     return (
@@ -86,10 +107,23 @@ function App() {
             Loading...
           </h1>
           <p className="text-xl text-white mt-4 font-game text-center">
-            {authLoading ? 'Connecting to Sonic Speed!' : 'Loading your progress...'}
+            {profileLoading
+              ? 'Loading heroes...'
+              : authLoading
+                ? 'Connecting to Sonic Speed!'
+                : 'Loading your progress...'}
           </p>
         </div>
       </div>
+    )
+  }
+
+  // ── No active profile → show ProfileSwitcher ──────────────────────────
+  if (!activeProfile) {
+    return (
+      <ProfileSwitcher
+        onCreateProfile={handleCreateProfile}
+      />
     )
   }
 
@@ -124,7 +158,12 @@ function App() {
   return (
     <>
       {screen === 'start' && (
-        <StartScreen onStart={handleStartGame} progress={progress} />
+        <StartScreen
+          onStart={handleStartGame}
+          progress={progress}
+          onSwitchProfile={handleSwitchProfile}
+          activeProfile={activeProfile}
+        />
       )}
 
       {screen === 'game' && (

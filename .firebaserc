@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "math-trainer-1a632"
+  },
+  "targets": {
+    "math-trainer-1a632": {
+      "hosting": {
+        "production": [
+          "math-trainer-1a632"
+        ],
+        "staging": [
+          "math-trainer-1a632-staging"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

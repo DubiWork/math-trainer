@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import { Problem, AnswerButtons, ScoreDisplay, Feedback } from './index'
+import { LearningAid } from './aids'
 import { useGameState } from '../hooks'
 
 /**
@@ -34,6 +35,7 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null }
     totalProblems,
     correctAnswers,
     accuracy,
+    isStruggling,
   } = useGameState({ updateProgress, initialProgress })
 
   // Start game automatically if not playing
@@ -102,6 +104,16 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null }
             operator={currentProblem.operator}
           />
         </div>
+
+        {/* Learning Aid - shown when child is struggling */}
+        <LearningAid
+          isStruggling={isStruggling}
+          currentLevel={2}
+          num1={currentProblem.num1}
+          num2={currentProblem.num2}
+          operator={currentProblem.operator}
+          problemKey={totalProblems}
+        />
 
         {/* Answer Buttons - 2x2 Grid */}
         <div className="w-full">

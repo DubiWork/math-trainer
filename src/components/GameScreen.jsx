@@ -107,12 +107,12 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null }
 
         {/* Learning Aid - shown when child is struggling */}
         <LearningAid
+          key={totalProblems}
           isStruggling={isStruggling}
           currentLevel={2}
           num1={currentProblem.num1}
           num2={currentProblem.num2}
           operator={currentProblem.operator}
-          problemKey={totalProblems}
         />
 
         {/* Answer Buttons - 2x2 Grid */}

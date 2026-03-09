@@ -66,7 +66,7 @@ export default {
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         'arc-draw': {
-          '0%': { strokeDashoffset: '100%' },
+          '0%': { strokeDashoffset: '60' },
           '100%': { strokeDashoffset: '0' },
         },
       },

@@ -13,7 +13,6 @@ const defaultProps = {
   num1: 3,
   num2: 2,
   operator: '+',
-  problemKey: 1,
 }
 
 function renderAid(overrides = {}) {
@@ -116,28 +115,29 @@ describe('LearningAid', () => {
       expect(screen.queryByTestId('learning-aid-container')).toBeNull()
     })
 
-    it('auto-resets dismissed state when problemKey changes', () => {
-      const { rerender } = render(<LearningAid {...defaultProps} problemKey={1} />)
+    it('auto-resets dismissed state when key changes (remount)', () => {
+      const { unmount } = render(<LearningAid {...defaultProps} key={1} />)
 
       // Dismiss the aid
       fireEvent.click(screen.getByTestId('dismiss-aid-button'))
       expect(screen.queryByTestId('learning-aid-container')).toBeNull()
 
-      // Change problemKey to simulate a new problem
-      rerender(<LearningAid {...defaultProps} problemKey={2} />)
+      // Unmount and remount with a new key to simulate a new problem
+      unmount()
+      render(<LearningAid {...defaultProps} key={2} />)
 
       // Aid should reappear
       expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
     })
 
-    it('stays dismissed if problemKey does not change', () => {
-      const { rerender } = render(<LearningAid {...defaultProps} problemKey={1} />)
+    it('stays dismissed within the same key (same mount)', () => {
+      const { rerender } = render(<LearningAid {...defaultProps} key={1} />)
 
       fireEvent.click(screen.getByTestId('dismiss-aid-button'))
       expect(screen.queryByTestId('learning-aid-container')).toBeNull()
 
-      // Rerender with same problemKey
-      rerender(<LearningAid {...defaultProps} problemKey={1} />)
+      // Rerender with same key — component stays mounted, dismissed persists
+      rerender(<LearningAid {...defaultProps} key={1} />)
       expect(screen.queryByTestId('learning-aid-container')).toBeNull()
     })
   })

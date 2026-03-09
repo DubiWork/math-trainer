@@ -12,18 +12,17 @@
  *
  * Dismiss behaviour:
  *   - "I got it!" button hides the aid for the current problem
- *   - Auto-resets when `problemKey` changes (new problem)
+ *   - Auto-resets when the parent supplies a new React `key` (new problem)
  *
  * @param {Object}         props
  * @param {boolean}        props.isStruggling  Whether the confidence engine signals struggle
  * @param {number}         props.currentLevel  Current difficulty level (1-13)
  * @param {number}         props.num1          Left operand
  * @param {number}         props.num2          Right operand
- * @param {string}         props.operator      '+', '-', '*', or '/'
- * @param {string|number}  props.problemKey    Unique key to detect new problem
+ * @param {'+' | '-' | '*' | '/'}  props.operator  Arithmetic operator
  */
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import PropTypes from 'prop-types'
 import DotCounter from './DotCounter'
 import NumberLine from './NumberLine'
@@ -50,13 +49,8 @@ function selectAid(level) {
   return null
 }
 
-function LearningAid({ isStruggling, currentLevel, num1, num2, operator, problemKey }) {
+function LearningAid({ isStruggling, currentLevel, num1, num2, operator }) {
   const [dismissed, setDismissed] = useState(false)
-
-  // Auto-reset dismissed state when the problem changes
-  useEffect(() => {
-    setDismissed(false)
-  }, [problemKey])
 
   // Nothing to show if not struggling or dismissed
   if (!isStruggling || dismissed) {
@@ -107,8 +101,7 @@ LearningAid.propTypes = {
   currentLevel: PropTypes.number.isRequired,
   num1: PropTypes.number.isRequired,
   num2: PropTypes.number.isRequired,
-  operator: PropTypes.string.isRequired,
-  problemKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  operator: PropTypes.oneOf(['+', '-', '*', '/']).isRequired,
 }
 
 export default LearningAid

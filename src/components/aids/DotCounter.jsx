@@ -6,7 +6,7 @@
  *
  * Addition (+):
  *   - `num1` dots in sonic.blue, a "+" label, then `num2` dots in sonic.gold
- *   - Staggered fill animation (each dot delayed by 50 ms)
+ *   - Staggered fill animation (each dot delayed by 60 ms)
  *
  * Subtraction (-):
  *   - `num1` total dots in sonic.blue
@@ -38,12 +38,12 @@ function Dot({ color, faded, index, testId }) {
     <span
       className={`
         inline-block rounded-full
-        w-6 h-6 md:w-8 md:h-8
+        w-6 h-6 md:w-7 md:h-7
         ${color}
         ${faded ? 'opacity-50' : ''}
         animate-aid-enter motion-reduce:animate-none
       `}
-      style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
+      style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'both' }}
       aria-hidden="true"
       data-testid={testId}
     />
@@ -62,7 +62,11 @@ Dot.propTypes = {
  */
 function DotGroup({ count, color, faded, startIndex, testIdPrefix }) {
   return (
-    <div className="flex flex-wrap gap-2" data-testid={`${testIdPrefix}-group`}>
+    <div
+      className="grid gap-2"
+      style={{ gridTemplateColumns: `repeat(${DOTS_PER_ROW}, auto)` }}
+      data-testid={`${testIdPrefix}-group`}
+    >
       {Array.from({ length: count }).map((_, i) => (
         <Dot
           key={i}
@@ -92,7 +96,7 @@ function DotCounter({ num1, num2, operator }) {
       <div
         className="flex flex-wrap items-center gap-3"
         role="img"
-        aria-label={`${num1} plus ${num2}`}
+        aria-label={`${num1} blue dots plus ${num2} gold dots`}
         data-testid="dot-counter"
       >
         {/* num1 group in sonic.blue */}
@@ -132,7 +136,7 @@ function DotCounter({ num1, num2, operator }) {
     <div
       className="flex flex-wrap items-center gap-3"
       role="img"
-      aria-label={`${num1} minus ${num2}`}
+      aria-label={`${num1} blue dots minus ${num2} faded dots`}
       data-testid="dot-counter"
     >
       {/* Solid dots (remaining after subtraction) */}

@@ -26,6 +26,7 @@ export default {
         'dot-fill': 'dot-fill 0.25s ease-out forwards',
         'aid-enter': 'aid-enter 350ms ease-out forwards',
         'arc-draw': 'arc-draw 600ms ease-in-out forwards',
+        'step-fade': 'step-fade 300ms ease-out forwards',
       },
       keyframes: {
         'pop-in': {
@@ -68,6 +69,10 @@ export default {
         'arc-draw': {
           '0%': { strokeDashoffset: '60' },
           '100%': { strokeDashoffset: '0' },
+        },
+        'step-fade': {
+          '0%': { opacity: '0', transform: 'translateX(-4px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
         },
       },
     },

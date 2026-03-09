@@ -39,19 +39,22 @@ describe('LearningAid', () => {
       expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
     })
 
-    it('renders nothing for levels 8+ even when struggling', () => {
-      renderAid({ isStruggling: true, currentLevel: 8 })
-      expect(screen.queryByTestId('learning-aid-container')).toBeNull()
+    it('renders StrategyHint for levels 8+ when struggling', () => {
+      renderAid({ isStruggling: true, currentLevel: 8, num1: 30, num2: 20, operator: '+' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
     })
 
-    it('renders nothing for level 9 when struggling', () => {
-      renderAid({ isStruggling: true, currentLevel: 9 })
-      expect(screen.queryByTestId('learning-aid-container')).toBeNull()
+    it('renders StrategyHint for level 9 when struggling', () => {
+      renderAid({ isStruggling: true, currentLevel: 9, num1: 15, num2: 7, operator: '-' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
     })
 
-    it('renders nothing for level 13 when struggling', () => {
-      renderAid({ isStruggling: true, currentLevel: 13 })
-      expect(screen.queryByTestId('learning-aid-container')).toBeNull()
+    it('renders StrategyHint for level 13 when struggling', () => {
+      renderAid({ isStruggling: true, currentLevel: 13, num1: 8, num2: 5, operator: '+' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
     })
   })
 
@@ -61,7 +64,7 @@ describe('LearningAid', () => {
     it('renders DotCounter for level 1', () => {
       renderAid({ currentLevel: 1, operator: '+' })
       expect(screen.getByTestId('dot-counter')).toBeTruthy()
-      expect(screen.queryByTestId('number-line')).toBeNull()
+      expect(screen.queryByTestId('strategy-hint')).toBeNull()
     })
 
     it('renders DotCounter for level 2', () => {
@@ -79,20 +82,50 @@ describe('LearningAid', () => {
       expect(screen.getByTestId('dot-counter')).toBeTruthy()
     })
 
-    it('renders NumberLine for level 5', () => {
-      renderAid({ currentLevel: 5, operator: '+' })
-      expect(screen.getByTestId('number-line')).toBeTruthy()
+    it('renders StrategyHint for level 5', () => {
+      renderAid({ currentLevel: 5, num1: 8, num2: 5, operator: '+' })
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
       expect(screen.queryByTestId('dot-counter')).toBeNull()
     })
 
-    it('renders NumberLine for level 6', () => {
-      renderAid({ currentLevel: 6, operator: '-', num1: 10, num2: 3 })
-      expect(screen.getByTestId('number-line')).toBeTruthy()
+    it('renders StrategyHint for level 6', () => {
+      renderAid({ currentLevel: 6, num1: 15, num2: 7, operator: '-' })
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
     })
 
-    it('renders NumberLine for level 7', () => {
-      renderAid({ currentLevel: 7, operator: '+' })
-      expect(screen.getByTestId('number-line')).toBeTruthy()
+    it('renders StrategyHint for level 7', () => {
+      renderAid({ currentLevel: 7, num1: 8, num2: 5, operator: '+' })
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+    })
+
+    // ── Boundary tests ────────────────────────────────────────────────
+
+    it('boundary: level 4 renders DotCounter, level 5 renders StrategyHint', () => {
+      // Level 4 -> DotCounter
+      renderAid({ currentLevel: 4, num1: 3, num2: 2, operator: '+' })
+      expect(screen.getByTestId('dot-counter')).toBeTruthy()
+      expect(screen.queryByTestId('strategy-hint')).toBeNull()
+      cleanup()
+
+      // Level 5 -> StrategyHint
+      renderAid({ currentLevel: 5, num1: 8, num2: 5, operator: '+' })
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+      expect(screen.queryByTestId('dot-counter')).toBeNull()
+    })
+
+    it('renders StrategyHint for level 8', () => {
+      renderAid({ currentLevel: 8, num1: 30, num2: 20, operator: '+' })
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+    })
+
+    it('renders StrategyHint for level 9', () => {
+      renderAid({ currentLevel: 9, num1: 15, num2: 7, operator: '-' })
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+    })
+
+    it('renders StrategyHint for level 13', () => {
+      renderAid({ currentLevel: 13, num1: 8, num2: 5, operator: '+' })
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
     })
   })
 
@@ -140,15 +173,65 @@ describe('LearningAid', () => {
       rerender(<LearningAid {...defaultProps} key={1} />)
       expect(screen.queryByTestId('learning-aid-container')).toBeNull()
     })
+
+    it('dismiss works with StrategyHint (level 5+)', () => {
+      renderAid({ currentLevel: 5, num1: 8, num2: 5, operator: '+' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+
+      fireEvent.click(screen.getByTestId('dismiss-aid-button'))
+
+      expect(screen.queryByTestId('learning-aid-container')).toBeNull()
+      expect(screen.queryByTestId('strategy-hint')).toBeNull()
+    })
+
+    it('auto-resets on new problem with StrategyHint (key change)', () => {
+      const { unmount } = render(
+        <LearningAid
+          isStruggling={true}
+          currentLevel={6}
+          num1={15}
+          num2={7}
+          operator="-"
+          key={1}
+        />,
+      )
+
+      // Dismiss
+      fireEvent.click(screen.getByTestId('dismiss-aid-button'))
+      expect(screen.queryByTestId('learning-aid-container')).toBeNull()
+
+      // Remount with new key (new problem)
+      unmount()
+      render(
+        <LearningAid
+          isStruggling={true}
+          currentLevel={6}
+          num1={13}
+          num2={5}
+          operator="-"
+          key={2}
+        />,
+      )
+
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+    })
   })
 
   // ── Container Styling ──────────────────────────────────────────────────
 
   describe('container styling', () => {
-    it('has max-h-[120px] class', () => {
-      renderAid()
+    it('has max-h-[120px] class for DotCounter', () => {
+      renderAid({ currentLevel: 2 })
       const container = screen.getByTestId('learning-aid-container')
       expect(container.className).toContain('max-h-[120px]')
+    })
+
+    it('has max-h-[160px] class for StrategyHint', () => {
+      renderAid({ currentLevel: 5, num1: 8, num2: 5, operator: '+' })
+      const container = screen.getByTestId('learning-aid-container')
+      expect(container.className).toContain('max-h-[160px]')
     })
 
     it('has overflow-hidden class', () => {
@@ -222,26 +305,75 @@ describe('LearningAid', () => {
       expect(counter.getAttribute('aria-label')).toBe('4 blue dots plus 3 gold dots')
     })
 
-    it('passes num1 and num2 to NumberLine', () => {
-      renderAid({ currentLevel: 5, num1: 8, num2: 5, operator: '+' })
-      const line = screen.getByTestId('number-line')
-      expect(line.getAttribute('aria-label')).toBe(
-        'Number line showing 8 plus 5, answer hidden',
-      )
-    })
-
     it('passes operator to DotCounter for subtraction', () => {
       renderAid({ currentLevel: 3, num1: 7, num2: 3, operator: '-' })
       const counter = screen.getByTestId('dot-counter')
       expect(counter.getAttribute('aria-label')).toBe('7 blue dots minus 3 faded dots')
     })
 
-    it('passes operator to NumberLine for subtraction', () => {
-      renderAid({ currentLevel: 6, num1: 15, num2: 4, operator: '-' })
-      const line = screen.getByTestId('number-line')
-      expect(line.getAttribute('aria-label')).toBe(
-        'Number line showing 15 minus 4, answer hidden',
-      )
+    it('passes num1, num2, and operator to StrategyHint', () => {
+      renderAid({ currentLevel: 5, num1: 8, num2: 5, operator: '+' })
+      const hint = screen.getByTestId('strategy-hint')
+      expect(hint.getAttribute('aria-label')).toBe('Strategy hint for 8 + 5')
+    })
+
+    it('passes subtraction props to StrategyHint', () => {
+      renderAid({ currentLevel: 6, num1: 15, num2: 7, operator: '-' })
+      const hint = screen.getByTestId('strategy-hint')
+      expect(hint.getAttribute('aria-label')).toBe('Strategy hint for 15 - 7')
+    })
+  })
+
+  // ── StrategyHint Integration ───────────────────────────────────────────
+
+  describe('StrategyHint integration', () => {
+    it('strategies render for level 5+ problems', () => {
+      renderAid({ currentLevel: 5, num1: 8, num2: 5, operator: '+' })
+      // StrategyHint should render with strategy content
+      const hint = screen.getByTestId('strategy-hint')
+      expect(hint).toBeTruthy()
+      // Should have strategy steps (an ordered list with items)
+      const ol = hint.querySelector('ol')
+      expect(ol).toBeTruthy()
+      const items = ol.querySelectorAll('li')
+      expect(items.length).toBeGreaterThan(0)
+    })
+
+    it('"Show me another way" works in orchestrated context', () => {
+      // 8+3 triggers bridging_add + count_on (2 strategies)
+      renderAid({ currentLevel: 7, num1: 8, num2: 3, operator: '+' })
+      const hint = screen.getByTestId('strategy-hint')
+      expect(hint).toBeTruthy()
+
+      const cycleButton = screen.getByRole('button', { name: /show me another way/i })
+      expect(cycleButton).toBeTruthy()
+
+      // Counter should show "Strategy 1 of N"
+      expect(screen.getByText(/Strategy 1 of/)).toBeTruthy()
+
+      // Click cycle button
+      fireEvent.click(cycleButton)
+
+      // Counter should update to "Strategy 2 of N"
+      expect(screen.getByText(/Strategy 2 of/)).toBeTruthy()
+    })
+
+    it('renders strategy name and steps for a level 8 addition problem', () => {
+      renderAid({ currentLevel: 8, num1: 30, num2: 20, operator: '+' })
+      const hint = screen.getByTestId('strategy-hint')
+      expect(hint).toBeTruthy()
+      // Should have at least one strategy name and steps
+      const ol = hint.querySelector('ol')
+      expect(ol).toBeTruthy()
+    })
+
+    it('renders strategy content for a level 9 subtraction problem', () => {
+      renderAid({ currentLevel: 9, num1: 45, num2: 8, operator: '-' })
+      const hint = screen.getByTestId('strategy-hint')
+      expect(hint).toBeTruthy()
+      const ol = hint.querySelector('ol')
+      expect(ol).toBeTruthy()
+      expect(ol.querySelectorAll('li').length).toBeGreaterThan(0)
     })
   })
 })

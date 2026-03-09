@@ -7,8 +7,7 @@
  *
  * Level routing:
  *   - Levels 1-4  -> DotCounter (coloured dot groups)
- *   - Levels 5-7  -> NumberLine (SVG number line with jump arcs)
- *   - Levels 8+   -> Nothing (future Tier 2+ aids)
+ *   - Levels 5+   -> StrategyHint (text-based mental math strategies)
  *
  * Dismiss behaviour:
  *   - "I got it!" button hides the aid for the current problem
@@ -25,13 +24,10 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
 import DotCounter from './DotCounter'
-import NumberLine from './NumberLine'
+import StrategyHint from './StrategyHint'
 
 /** Maximum level that shows the DotCounter aid */
 const DOT_COUNTER_MAX_LEVEL = 4
-
-/** Maximum level that shows the NumberLine aid */
-const NUMBER_LINE_MAX_LEVEL = 7
 
 /**
  * Select the aid component for a given level.
@@ -43,8 +39,8 @@ function selectAid(level) {
   if (level >= 1 && level <= DOT_COUNTER_MAX_LEVEL) {
     return DotCounter
   }
-  if (level >= DOT_COUNTER_MAX_LEVEL + 1 && level <= NUMBER_LINE_MAX_LEVEL) {
-    return NumberLine
+  if (level >= DOT_COUNTER_MAX_LEVEL + 1) {
+    return StrategyHint
   }
   return null
 }
@@ -64,13 +60,15 @@ function LearningAid({ isStruggling, currentLevel, num1, num2, operator }) {
     return null
   }
 
+  const maxHeight = AidComponent === StrategyHint ? 'max-h-[160px]' : 'max-h-[120px]'
+
   return (
     <div
-      className="
-        max-h-[120px] overflow-hidden
+      className={`
+        ${maxHeight} overflow-hidden
         bg-black/20 backdrop-blur-sm rounded-2xl p-3
         animate-aid-enter motion-reduce:animate-none
-      "
+      `}
       data-testid="learning-aid-container"
     >
       <AidComponent num1={num1} num2={num2} operator={operator} />

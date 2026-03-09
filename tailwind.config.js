@@ -24,6 +24,8 @@ export default {
         'pulse-scale': 'pulse-scale 1s ease-in-out infinite',
         'sparkle': 'sparkle 1.5s ease-out forwards',
         'dot-fill': 'dot-fill 0.25s ease-out forwards',
+        'aid-enter': 'aid-enter 350ms ease-out forwards',
+        'arc-draw': 'arc-draw 600ms ease-in-out forwards',
       },
       keyframes: {
         'pop-in': {
@@ -58,6 +60,14 @@ export default {
           '0%': { transform: 'scale(0.8)' },
           '50%': { transform: 'scale(1.15)' },
           '100%': { transform: 'scale(1)' },
+        },
+        'aid-enter': {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'arc-draw': {
+          '0%': { strokeDashoffset: '100%' },
+          '100%': { strokeDashoffset: '0' },
         },
       },
     },

@@ -43,8 +43,8 @@ vi.mock('./components', () => ({
       createElement('button', { 'data-testid': 'start-game', onClick: onStart }, 'Start'),
       createElement('button', { 'data-testid': 'switch-profile', onClick: onSwitchProfile }, 'Switch'),
     ),
-  GameScreen: ({ onGameEnd }) =>
-    createElement('div', { 'data-testid': 'game-screen' },
+  GameScreen: ({ onGameEnd, currentLevel }) =>
+    createElement('div', { 'data-testid': 'game-screen', 'data-current-level': currentLevel },
       createElement('button', {
         'data-testid': 'end-game',
         onClick: () => onGameEnd({ score: 10, streak: 3, totalProblems: 5, correctAnswers: 4 }),
@@ -354,6 +354,70 @@ describe('App', () => {
       render(<App />)
 
       expect(screen.getByText('Play Anyway!')).toBeTruthy()
+    })
+  })
+
+  // ── currentLevel prop threading ───────────────────────────────────────
+
+  describe('currentLevel prop threading', () => {
+    it('passes activeProfile.currentLevel to GameScreen', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 5,
+      }
+      render(<App />)
+
+      // Navigate to game screen
+      fireEvent.click(screen.getByTestId('start-game'))
+
+      const gameScreen = screen.getByTestId('game-screen')
+      expect(gameScreen.getAttribute('data-current-level')).toBe('5')
+    })
+
+    it('defaults currentLevel to 1 when activeProfile has no currentLevel', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+      }
+      render(<App />)
+
+      fireEvent.click(screen.getByTestId('start-game'))
+
+      const gameScreen = screen.getByTestId('game-screen')
+      expect(gameScreen.getAttribute('data-current-level')).toBe('1')
+    })
+
+    it('passes currentLevel 1 when activeProfile.currentLevel is explicitly 1', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 1,
+      }
+      render(<App />)
+
+      fireEvent.click(screen.getByTestId('start-game'))
+
+      const gameScreen = screen.getByTestId('game-screen')
+      expect(gameScreen.getAttribute('data-current-level')).toBe('1')
+    })
+
+    it('passes high currentLevel (13) through to GameScreen', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 13,
+      }
+      render(<App />)
+
+      fireEvent.click(screen.getByTestId('start-game'))
+
+      const gameScreen = screen.getByTestId('game-screen')
+      expect(gameScreen.getAttribute('data-current-level')).toBe('13')
     })
   })
 })

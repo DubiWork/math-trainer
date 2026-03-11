@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
+import { useProfile } from '../context/useProfile'
 import LevelMap from './LevelMap'
 
 /**
@@ -23,14 +25,64 @@ import LevelMap from './LevelMap'
  * @param {number} [currentLevel=1] - The player's current level (1-13)
  */
 function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
+  const { i18n } = useTranslation()
+  const { activeProfile, updateProfile } = useProfile()
+
   // Check if user has previous progress to display
   const hasPreviousProgress = progress && (progress.score > 0 || progress.streak > 0)
+
+  const currentLang = activeProfile?.language || i18n.language || 'he'
+
+  const handleLanguageToggle = (lang) => {
+    if (lang === currentLang) return
+    if (activeProfile) {
+      updateProfile(activeProfile.id, { language: lang })
+    }
+    i18n.changeLanguage(lang)
+    document.documentElement.lang = lang
+    document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr'
+  }
 
   return (
     <div
       className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900
                  flex flex-col items-center justify-center p-6 relative overflow-hidden"
     >
+      {/* Language Toggle — compact pill for parent use */}
+      <div
+        className="absolute top-4 end-4 z-20 flex rounded-full overflow-hidden
+                   border border-white/30 text-sm font-game"
+        role="radiogroup"
+        aria-label="Language selection"
+        data-testid="language-toggle"
+      >
+        <button
+          role="radio"
+          aria-checked={currentLang === 'he'}
+          aria-label="Hebrew"
+          onClick={() => handleLanguageToggle('he')}
+          className={`px-3 py-1.5 transition-colors duration-200 ${
+            currentLang === 'he'
+              ? 'bg-sonic-blue text-white'
+              : 'bg-white/10 text-white/60 hover:bg-white/20'
+          }`}
+        >
+          HE
+        </button>
+        <button
+          role="radio"
+          aria-checked={currentLang === 'en'}
+          aria-label="English"
+          onClick={() => handleLanguageToggle('en')}
+          className={`px-3 py-1.5 transition-colors duration-200 ${
+            currentLang === 'en'
+              ? 'bg-sonic-blue text-white'
+              : 'bg-white/10 text-white/60 hover:bg-white/20'
+          }`}
+        >
+          EN
+        </button>
+      </div>
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         {/* Floating stars */}

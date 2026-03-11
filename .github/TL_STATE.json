@@ -3,8 +3,8 @@
   "repo": "math-trainer",
   "projectNumber": 6,
   "projectId": "PVT_kwHOA54Ghc4BQtkw",
-  "currentPhase": "epic-complete",
-  "currentStep": "3.9",
+  "currentPhase": "baking",
+  "currentStep": "3.5.2",
   "currentIssue": 28,
   "currentSubIssue": null,
   "currentPR": null,
@@ -24,7 +24,7 @@
   "activeParentIssue": {
     "number": 28,
     "title": "Phase 7 — Level Progression UI",
-    "currentStep": "3.9"
+    "currentStep": "3.5.2"
   },
   "epics": [
     {"phase": 1, "epicNumber": 11, "title": "Phase 1 — Level Config + Problem Generator", "priority": "P0", "subIssues": [12, 13], "status": "complete"},
@@ -32,8 +32,8 @@
     {"phase": 3, "epicNumber": 17, "title": "Phase 3 — Multi-Profile System", "priority": "P0", "subIssues": [18, 19, 20], "issue19SubIssues": [53, 54, 55], "status": "complete"},
     {"phase": 4, "epicNumber": 21, "title": "Phase 4 — i18n Hebrew + English", "priority": "P1", "subIssues": [87, 88, 89, 90, 91, 92], "legacySubIssues": [22]},
     {"phase": 5, "epicNumber": 23, "title": "Phase 5 — Superhero Theme System", "priority": "P1", "subIssues": [24]},
-    {"phase": 6, "epicNumber": 25, "title": "Phase 6 — Learning Aids", "priority": "P0", "subIssues": [26, 27], "status": "complete"},
-    {"phase": 7, "epicNumber": 28, "title": "Phase 7 — Level Progression UI", "priority": "P0", "subIssues": [77, 78, 79, 80, 81], "legacySubIssues": [29, 30], "status": "epic-complete"},
+    {"phase": 6, "epicNumber": 25, "title": "Phase 6 — Learning Aids", "priority": "P0", "subIssues": [26, 27], "status": "promoted"},
+    {"phase": 7, "epicNumber": 28, "title": "Phase 7 — Level Progression UI", "priority": "P0", "subIssues": [77, 78, 79, 80, 81], "legacySubIssues": [29, 30], "status": "baking"},
     {"phase": 8, "epicNumber": 31, "title": "Phase 8 — Leaderboard", "priority": "P1", "subIssues": [32]},
     {"phase": 9, "epicNumber": 33, "title": "Phase 9 — Progress Visualization", "priority": "P1", "subIssues": [34]},
     {"phase": 10, "epicNumber": 35, "title": "Phase 10 — AI Teaching Videos", "priority": "P2", "subIssues": [36]},
@@ -91,7 +91,7 @@
     {"epicNumber": 11, "title": "Phase 1 — Level Config + Problem Generator", "completedAt": "2026-03-08"},
     {"epicNumber": 14, "title": "Phase 2 — Confidence Engine", "completedAt": "2026-03-08"},
     {"epicNumber": 17, "title": "Phase 3 — Multi-Profile System", "completedAt": "2026-03-09", "version": "v1.2.0", "promotionPR": 62},
-    {"epicNumber": 25, "title": "Phase 6 — Learning Aids", "completedAt": "2026-03-09", "prs": [67, 68, 69, 70, 71, 75]}
+    {"epicNumber": 25, "title": "Phase 6 — Learning Aids", "completedAt": "2026-03-12", "version": "v1.3.0", "promotionPR": 76, "mergeCommit": "c90d211"}
   ],
   "parallelWorkstreams": {
     "aiVideoContent": {
@@ -106,14 +106,14 @@
   "blockedIssues": [],
   "bakingEpics": [
     {
-      "epicNumber": 25,
-      "title": "Phase 6 — Learning Aids",
-      "promotionPR": 76,
-      "bakeStartDate": "2026-03-09",
-      "consecutiveGreenDays": 3,
-      "status": "ready-for-promotion",
-      "subIssues": [26, 27],
-      "allSubIssuesClosed": true
+      "epicNumber": 28,
+      "title": "Phase 7 — Level Progression UI",
+      "bakeStartDate": "2026-03-12",
+      "consecutiveGreenDays": 0,
+      "status": "baking",
+      "subIssues": [77, 78, 79, 80, 81],
+      "allSubIssuesClosed": true,
+      "mergeCommit": "eaa35e9"
     }
   ],
   "closedLegacyIssues": [3, 4, 6, 7],
@@ -123,16 +123,19 @@
     "dailyResults": [
       {"date": "2026-03-10", "result": "pass"},
       {"date": "2026-03-11", "result": "pass"},
-      {"date": "2026-03-11-manual", "result": "pass", "runId": 22973622119}
+      {"date": "2026-03-11-manual", "result": "pass", "runId": 22973622119},
+      {"date": "2026-03-12-pre-promote", "result": "pass", "runId": 22976954653}
     ],
-    "consecutiveGreenDays": 3,
-    "status": "ready-for-promotion",
-    "promotionPR": 76
+    "consecutiveGreenDays": 4,
+    "status": "promoted",
+    "promotionPR": 76,
+    "mergeCommit": "c90d211",
+    "promotedAt": "2026-03-12"
   },
   "stagingQueue": {
-    "current": 25,
-    "queue": [28],
-    "history": [17]
+    "current": 28,
+    "queue": [],
+    "history": [17, 25]
   },
-  "nextAction": "Epic #28 merged to develop for staging. Epic #25 promotion — PR #76 ready, 3 green days, awaiting user merge approval. After #25 promotes, #28 bake period begins. Issue #21 (i18n) groomed and ready for planning."
+  "nextAction": "Epic #28 STAGED on develop and baking (day 0/3). First regression run needed. Epic #25 promoted to production. Issue #21 (i18n) groomed with 6 sub-issues (#87-#92) ready for planning when prioritized."
 }

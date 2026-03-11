@@ -4,16 +4,20 @@ on:
   schedule:
     - cron: '0 8 * * *'
   workflow_dispatch:
+  push:
+    branches: [main]
 
 permissions:
-  contents: read
+  contents: write
   issues: write
+  pull-requests: write
 
 jobs:
   # ─────────────────────────────────────────────────────
   # Job 1: Read test plan and detect available test suites
   # ─────────────────────────────────────────────────────
   read-test-plan:
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     outputs:
       has-regression: ${{ steps.detect.outputs.has-regression }}
@@ -323,3 +327,71 @@ jobs:
               ].join('\n'),
               labels: ['bug', 'prod-regression', 'P0-critical']
             });
+
+  # ─────────────────────────────────────────────────────
+  # Job 4: Graduate feature tests to regression on promotion
+  # ─────────────────────────────────────────────────────
+  # When code is pushed to main (promotion merge), any test files
+  # in tests/e2e/features/ are moved to tests/e2e/regression/
+  # and committed back to both main and develop.
+  graduate-tests:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for feature tests to graduate
+        id: check
+        run: |
+          if find tests/e2e/features/ -name '*.spec.*' -o -name '*.test.*' 2>/dev/null | grep -q .; then
+            echo "has-features=true" >> "$GITHUB_OUTPUT"
+            echo "Feature tests found — will graduate to regression suite"
+            find tests/e2e/features/ -name '*.spec.*' -o -name '*.test.*' | sort
+          else
+            echo "has-features=false" >> "$GITHUB_OUTPUT"
+            echo "No feature tests to graduate"
+          fi
+
+      - name: Graduate feature tests to regression
+        if: steps.check.outputs.has-features == 'true'
+        run: |
+          # Move all spec/test files from features/ to regression/
+          for f in $(find tests/e2e/features/ -name '*.spec.*' -o -name '*.test.*'); do
+            filename=$(basename "$f")
+            echo "Graduating: $f -> tests/e2e/regression/$filename"
+            mv "$f" "tests/e2e/regression/$filename"
+          done
+
+          # Clean up empty features/ dir (keep .gitkeep)
+          find tests/e2e/features/ -type f ! -name '.gitkeep' -delete 2>/dev/null || true
+
+      - name: Commit graduation to main
+        if: steps.check.outputs.has-features == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tests/e2e/regression/ tests/e2e/features/
+          git commit -m "chore: graduate feature tests to regression suite [automated]" || echo "Nothing to commit"
+          git push origin main
+
+      - name: Sync graduation to develop
+        if: steps.check.outputs.has-features == 'true'
+        run: |
+          git fetch origin develop
+          git checkout develop
+          # Cherry-pick the graduation commit to develop
+          git cherry-pick HEAD~1 --strategy-option theirs || {
+            echo "Cherry-pick conflict — applying manually"
+            for f in $(find tests/e2e/features/ -name '*.spec.*' -o -name '*.test.*' 2>/dev/null); do
+              filename=$(basename "$f")
+              mv "$f" "tests/e2e/regression/$filename"
+            done
+            find tests/e2e/features/ -type f ! -name '.gitkeep' -delete 2>/dev/null || true
+            git add tests/e2e/regression/ tests/e2e/features/
+            git commit -m "chore: graduate feature tests to regression suite [automated]"
+          }
+          git push origin develop

@@ -13,6 +13,7 @@ const mockProfileContext = {
   isLoading: false,
   clearActiveProfile: vi.fn(),
   createAndActivate: vi.fn(),
+  updateProfile: vi.fn(),
 }
 
 vi.mock('./context/useProfile', () => ({
@@ -43,7 +44,7 @@ vi.mock('./components', () => ({
       createElement('button', { 'data-testid': 'start-game', onClick: onStart }, 'Start'),
       createElement('button', { 'data-testid': 'switch-profile', onClick: onSwitchProfile }, 'Switch'),
     ),
-  GameScreen: ({ onGameEnd, currentLevel }) =>
+  GameScreen: ({ onGameEnd, currentLevel, onLevelUp }) =>
     createElement('div', { 'data-testid': 'game-screen', 'data-current-level': currentLevel },
       createElement('button', {
         'data-testid': 'end-game',
@@ -53,11 +54,19 @@ vi.mock('./components', () => ({
         'data-testid': 'exit-game',
         onClick: () => onGameEnd(null),
       }, 'Exit'),
+      createElement('button', {
+        'data-testid': 'trigger-level-up',
+        onClick: () => onLevelUp(currentLevel),
+      }, 'Level Up'),
     ),
   ResultScreen: ({ onPlayAgain, onExit }) =>
     createElement('div', { 'data-testid': 'result-screen' },
       createElement('button', { 'data-testid': 'play-again', onClick: onPlayAgain }, 'Play Again'),
       createElement('button', { 'data-testid': 'exit-result', onClick: onExit }, 'Exit'),
+    ),
+  LevelUpScreen: ({ completedLevel, onContinue }) =>
+    createElement('div', { 'data-testid': 'levelup-screen', 'data-completed-level': completedLevel },
+      createElement('button', { 'data-testid': 'continue-level-up', onClick: onContinue }, 'Continue'),
     ),
   ProfileSwitcher: ({ onCreateProfile }) =>
     createElement('div', { 'data-testid': 'profile-switcher' },
@@ -93,6 +102,7 @@ describe('App', () => {
     mockProfileContext.isLoading = false
     mockProfileContext.clearActiveProfile = vi.fn()
     mockProfileContext.createAndActivate = vi.fn()
+    mockProfileContext.updateProfile = vi.fn()
     mockFirebase.user = { uid: 'test-uid' }
     mockFirebase.loading = false
     mockFirebase.error = null
@@ -418,6 +428,113 @@ describe('App', () => {
 
       const gameScreen = screen.getByTestId('game-screen')
       expect(gameScreen.getAttribute('data-current-level')).toBe('13')
+    })
+  })
+
+  // ── Level-up flow ──────────────────────────────────────────────────
+
+  describe('level-up flow', () => {
+    it('transitions from game to levelup screen when onLevelUp is called', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 3,
+      }
+      render(<App />)
+
+      // Navigate to game
+      fireEvent.click(screen.getByTestId('start-game'))
+      expect(screen.getByTestId('game-screen')).toBeTruthy()
+
+      // Trigger level up
+      fireEvent.click(screen.getByTestId('trigger-level-up'))
+
+      // Should show level-up screen
+      expect(screen.getByTestId('levelup-screen')).toBeTruthy()
+      expect(screen.queryByTestId('game-screen')).toBeNull()
+    })
+
+    it('passes completedLevel to LevelUpScreen', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 5,
+      }
+      render(<App />)
+
+      fireEvent.click(screen.getByTestId('start-game'))
+      fireEvent.click(screen.getByTestId('trigger-level-up'))
+
+      const levelUpScreen = screen.getByTestId('levelup-screen')
+      expect(levelUpScreen.getAttribute('data-completed-level')).toBe('5')
+    })
+
+    it('transitions back to game screen when continue is clicked', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 3,
+      }
+      render(<App />)
+
+      // Navigate: start -> game -> levelup
+      fireEvent.click(screen.getByTestId('start-game'))
+      fireEvent.click(screen.getByTestId('trigger-level-up'))
+      expect(screen.getByTestId('levelup-screen')).toBeTruthy()
+
+      // Continue -> back to game
+      fireEvent.click(screen.getByTestId('continue-level-up'))
+      expect(screen.getByTestId('game-screen')).toBeTruthy()
+      expect(screen.queryByTestId('levelup-screen')).toBeNull()
+    })
+
+    it('calls updateProfile with currentLevel+1 when continue is clicked', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 3,
+      }
+      render(<App />)
+
+      fireEvent.click(screen.getByTestId('start-game'))
+      fireEvent.click(screen.getByTestId('trigger-level-up'))
+      fireEvent.click(screen.getByTestId('continue-level-up'))
+
+      expect(mockProfileContext.updateProfile).toHaveBeenCalledTimes(1)
+      expect(mockProfileContext.updateProfile).toHaveBeenCalledWith('1', { currentLevel: 4 })
+    })
+
+    it('does NOT call updateProfile with currentLevel 14 when at max level (13)', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 13,
+      }
+      render(<App />)
+
+      fireEvent.click(screen.getByTestId('start-game'))
+      fireEvent.click(screen.getByTestId('trigger-level-up'))
+      fireEvent.click(screen.getByTestId('continue-level-up'))
+
+      // Should NOT update profile to level 14
+      expect(mockProfileContext.updateProfile).not.toHaveBeenCalledWith('1', { currentLevel: 14 })
+    })
+
+    it('does not show levelup screen on initial render', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 1,
+      }
+      render(<App />)
+
+      expect(screen.queryByTestId('levelup-screen')).toBeNull()
     })
   })
 })

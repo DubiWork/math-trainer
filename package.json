@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:regression": "playwright test tests/e2e/regression/",
+    "test:e2e:features": "playwright test tests/e2e/features/"
   },
   "dependencies": {
     "firebase": "^12.10.0",

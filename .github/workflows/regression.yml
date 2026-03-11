@@ -10,8 +10,60 @@ permissions:
   issues: write
 
 jobs:
-  staging-regression:
+  # ─────────────────────────────────────────────────────
+  # Job 1: Read test plan and detect available test suites
+  # ─────────────────────────────────────────────────────
+  read-test-plan:
     runs-on: ubuntu-latest
+    outputs:
+      has-regression: ${{ steps.detect.outputs.has-regression }}
+      has-feature: ${{ steps.detect.outputs.has-feature }}
+      plan-sha: ${{ steps.plan.outputs.plan-sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read regression test plan
+        id: plan
+        run: |
+          if [ -f .github/REGRESSION_TEST_PLAN.md ]; then
+            echo "--- REGRESSION_TEST_PLAN.md ---"
+            cat .github/REGRESSION_TEST_PLAN.md
+            echo "---"
+            SHA=$(sha256sum .github/REGRESSION_TEST_PLAN.md | cut -d' ' -f1)
+            echo "plan-sha=$SHA" >> "$GITHUB_OUTPUT"
+            echo "Plan SHA: $SHA"
+          else
+            echo "::warning::No REGRESSION_TEST_PLAN.md found"
+            echo "plan-sha=none" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Detect available test suites
+        id: detect
+        run: |
+          if find tests/e2e/regression/ -name '*.spec.*' -o -name '*.test.*' 2>/dev/null | grep -q .; then
+            echo "has-regression=true" >> "$GITHUB_OUTPUT"
+            echo "Regression tests found in tests/e2e/regression/"
+          else
+            echo "has-regression=false" >> "$GITHUB_OUTPUT"
+            echo "No regression tests found in tests/e2e/regression/"
+          fi
+
+          if find tests/e2e/features/ -name '*.spec.*' -o -name '*.test.*' 2>/dev/null | grep -q .; then
+            echo "has-feature=true" >> "$GITHUB_OUTPUT"
+            echo "Feature tests found in tests/e2e/features/"
+          else
+            echo "has-feature=false" >> "$GITHUB_OUTPUT"
+            echo "No feature tests found in tests/e2e/features/"
+          fi
+
+  # ─────────────────────────────────────────────────────
+  # Job 2: Staging regression (develop branch)
+  # ─────────────────────────────────────────────────────
+  staging:
+    needs: read-test-plan
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: https://math-trainer-1a632-staging.web.app
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,7 +76,7 @@ jobs:
 
       - run: npm ci
 
-      # ── Unit + Integration tests (co-located in src/) ──
+      # ── Unit & integration tests ──
       - name: Unit & integration tests
         id: unit
         run: npm test
@@ -34,12 +86,22 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
 
-      # ── E2E smoke tests against live staging ──
-      - name: E2E tests (staging)
-        id: e2e
-        run: npm run test:e2e
+      # ── Regression e2e tests ──
+      - name: Regression e2e tests (staging)
+        id: regression-e2e
+        if: needs.read-test-plan.outputs.has-regression == 'true'
+        run: npx playwright test tests/e2e/regression/
         env:
-          E2E_BASE_URL: https://math-trainer-1a632-staging.web.app
+          BASE_URL: https://math-trainer-1a632-staging.web.app
+        continue-on-error: true
+
+      # ── Feature / progression e2e tests ──
+      - name: Feature e2e tests (staging)
+        id: feature-e2e
+        if: needs.read-test-plan.outputs.has-feature == 'true'
+        run: npx playwright test tests/e2e/features/
+        env:
+          BASE_URL: https://math-trainer-1a632-staging.web.app
         continue-on-error: true
 
       # ── Live site health check ──
@@ -62,16 +124,25 @@ jobs:
         with:
           script: |
             const unitResult = '${{ steps.unit.outcome }}';
-            const e2eResult = '${{ steps.e2e.outcome }}';
+            const regressionE2eResult = '${{ steps.regression-e2e.outcome }}';
+            const featureE2eResult = '${{ steps.feature-e2e.outcome }}';
             const healthResult = '${{ steps.health.outcome }}';
+            const planSha = '${{ needs.read-test-plan.outputs.plan-sha }}';
+            const hasRegression = '${{ needs.read-test-plan.outputs.has-regression }}' === 'true';
+            const hasFeature = '${{ needs.read-test-plan.outputs.has-feature }}' === 'true';
 
-            const allPassed = unitResult === 'success'
-              && e2eResult === 'success'
-              && healthResult === 'success';
-
-            const icon = (r) => r === 'success' ? ':white_check_mark:' : ':x:';
+            const icon = (r) => r === 'success' ? ':white_check_mark:' : r === 'skipped' ? ':fast_forward:' : ':x:';
             const date = new Date().toISOString().split('T')[0];
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            // Determine effective results (skipped steps show as 'success' by default in outcome)
+            const effectiveRegression = hasRegression ? regressionE2eResult : 'skipped';
+            const effectiveFeature = hasFeature ? featureE2eResult : 'skipped';
+
+            const checksToEvaluate = [unitResult, healthResult];
+            if (hasRegression) checksToEvaluate.push(regressionE2eResult);
+            if (hasFeature) checksToEvaluate.push(featureE2eResult);
+            const allPassed = checksToEvaluate.every(r => r === 'success');
 
             const body = [
               `### Daily Staging Regression - ${date}`,
@@ -83,10 +154,12 @@ jobs:
               `| Check | Result |`,
               `|-------|--------|`,
               `| Unit & integration tests | ${icon(unitResult)} ${unitResult} |`,
-              `| E2E smoke tests | ${icon(e2eResult)} ${e2eResult} |`,
+              `| Regression e2e tests | ${icon(effectiveRegression)} ${effectiveRegression} |`,
+              `| Feature e2e tests | ${icon(effectiveFeature)} ${effectiveFeature} |`,
               `| Health check (HTTP 200) | ${icon(healthResult)} ${healthResult} |`,
               '',
               `**Staging URL:** https://math-trainer-1a632-staging.web.app`,
+              `**Test plan SHA:** \`${planSha}\``,
               `**Workflow run:** ${runUrl}`,
             ].join('\n');
 
@@ -113,12 +186,16 @@ jobs:
         with:
           script: |
             const unitResult = '${{ steps.unit.outcome }}';
-            const e2eResult = '${{ steps.e2e.outcome }}';
+            const regressionE2eResult = '${{ steps.regression-e2e.outcome }}';
+            const featureE2eResult = '${{ steps.feature-e2e.outcome }}';
             const healthResult = '${{ steps.health.outcome }}';
+            const hasRegression = '${{ needs.read-test-plan.outputs.has-regression }}' === 'true';
+            const hasFeature = '${{ needs.read-test-plan.outputs.has-feature }}' === 'true';
 
-            const allPassed = unitResult === 'success'
-              && e2eResult === 'success'
-              && healthResult === 'success';
+            const checksToEvaluate = [unitResult, healthResult];
+            if (hasRegression) checksToEvaluate.push(regressionE2eResult);
+            if (hasFeature) checksToEvaluate.push(featureE2eResult);
+            const allPassed = checksToEvaluate.every(r => r === 'success');
 
             const date = new Date().toISOString().split('T')[0];
 
@@ -150,8 +227,14 @@ jobs:
               });
             }
 
-  prod-regression:
+  # ─────────────────────────────────────────────────────
+  # Job 3: Production regression (main branch)
+  # ─────────────────────────────────────────────────────
+  production:
+    needs: read-test-plan
     runs-on: ubuntu-latest
+    env:
+      BASE_URL: https://math-trainer-1a632.web.app
     steps:
       - uses: actions/checkout@v4
         with:
@@ -170,6 +253,19 @@ jobs:
         run: npm test
         continue-on-error: true
 
+      # ── Install Playwright browser ──
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      # ── Regression e2e tests ──
+      - name: Regression e2e tests (production)
+        id: prod-regression-e2e
+        if: needs.read-test-plan.outputs.has-regression == 'true'
+        run: npx playwright test tests/e2e/regression/
+        env:
+          BASE_URL: https://math-trainer-1a632.web.app
+        continue-on-error: true
+
       # ── Live site health check ──
       - name: Health check (production)
         id: prod-health
@@ -185,18 +281,26 @@ jobs:
 
       # ── Create issue on failure ──
       - name: Create issue on failure
-        if: always() && (steps.prod-unit.outcome == 'failure' || steps.prod-health.outcome == 'failure')
+        if: always() && (steps.prod-unit.outcome == 'failure' || steps.prod-health.outcome == 'failure' || steps.prod-regression-e2e.outcome == 'failure')
         uses: actions/github-script@v7
         with:
           script: |
             const unitResult = '${{ steps.prod-unit.outcome }}';
+            const regressionE2eResult = '${{ steps.prod-regression-e2e.outcome }}';
             const healthResult = '${{ steps.prod-health.outcome }}';
+            const planSha = '${{ needs.read-test-plan.outputs.plan-sha }}';
+            const hasRegression = '${{ needs.read-test-plan.outputs.has-regression }}' === 'true';
             const date = new Date().toISOString().split('T')[0];
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
+            const effectiveRegression = hasRegression ? regressionE2eResult : 'skipped';
+
             const failures = [];
             if (unitResult === 'failure') failures.push('Unit tests');
+            if (hasRegression && regressionE2eResult === 'failure') failures.push('Regression e2e tests');
             if (healthResult === 'failure') failures.push('Health check');
+
+            const icon = (r) => r === 'success' ? ':white_check_mark:' : r === 'skipped' ? ':fast_forward:' : ':x:';
 
             await github.rest.issues.create({
               owner: context.repo.owner,
@@ -209,10 +313,12 @@ jobs:
                 '',
                 `| Check | Result |`,
                 `|-------|--------|`,
-                `| Unit tests | ${unitResult} |`,
-                `| Health check (HTTP 200) | ${healthResult} |`,
+                `| Unit tests | ${icon(unitResult)} ${unitResult} |`,
+                `| Regression e2e tests | ${icon(effectiveRegression)} ${effectiveRegression} |`,
+                `| Health check (HTTP 200) | ${icon(healthResult)} ${healthResult} |`,
                 '',
                 `**URL:** https://math-trainer-1a632.web.app`,
+                `**Test plan SHA:** \`${planSha}\``,
                 `**Workflow run:** ${runUrl}`,
               ].join('\n'),
               labels: ['bug', 'prod-regression', 'P0-critical']

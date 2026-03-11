@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 const STAGING_URL = 'https://math-trainer-1a632-staging.web.app';
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: './tests/e2e',
   timeout: 30000,
   expect: {
     timeout: 10000,

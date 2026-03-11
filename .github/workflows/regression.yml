@@ -5,6 +5,10 @@ on:
     - cron: '0 8 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   staging-regression:
     runs-on: ubuntu-latest
@@ -12,33 +16,137 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: develop
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+
       - run: npm ci
-      - name: Unit tests on staging code
+
+      # ── Unit + Integration tests (co-located in src/) ──
+      - name: Unit & integration tests
+        id: unit
         run: npm test
+        continue-on-error: true
+
+      # ── Install Playwright browser ──
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      # ── E2E smoke tests against live staging ──
+      - name: E2E tests (staging)
+        id: e2e
+        run: npm run test:e2e
+        env:
+          E2E_BASE_URL: https://math-trainer-1a632-staging.web.app
+        continue-on-error: true
+
+      # ── Live site health check ──
+      - name: Health check (staging)
+        id: health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' https://math-trainer-1a632-staging.web.app)
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "::error::Staging health check failed with HTTP $STATUS"
+            exit 1
+          fi
+          echo "Staging returned HTTP $STATUS"
+        continue-on-error: true
+
+      # ── Report results to staging-bake issues ──
       - name: Report on baking epic
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
+            const unitResult = '${{ steps.unit.outcome }}';
+            const e2eResult = '${{ steps.e2e.outcome }}';
+            const healthResult = '${{ steps.health.outcome }}';
+
+            const allPassed = unitResult === 'success'
+              && e2eResult === 'success'
+              && healthResult === 'success';
+
+            const icon = (r) => r === 'success' ? ':white_check_mark:' : ':x:';
+            const date = new Date().toISOString().split('T')[0];
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const body = [
+              `### Daily Staging Regression - ${date}`,
+              '',
+              allPassed
+                ? '**ALL CHECKS PASSED**'
+                : '**SOME CHECKS FAILED** — see details below',
+              '',
+              `| Check | Result |`,
+              `|-------|--------|`,
+              `| Unit & integration tests | ${icon(unitResult)} ${unitResult} |`,
+              `| E2E smoke tests | ${icon(e2eResult)} ${e2eResult} |`,
+              `| Health check (HTTP 200) | ${icon(healthResult)} ${healthResult} |`,
+              '',
+              `**Staging URL:** https://math-trainer-1a632-staging.web.app`,
+              `**Workflow run:** ${runUrl}`,
+            ].join('\n');
+
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               labels: 'staging-bake',
               state: 'open'
             });
-            const passed = '${{ steps.staging.outcome }}' !== 'failure';
-            const emoji = passed ? 'PASSED' : 'FAILED';
-            const date = new Date().toISOString().split('T')[0];
+
             for (const issue of issues.data) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                body: `### Daily Staging Regression - ${date}\n\n**Result:** ${emoji}\n**URL:** https://math-trainer-1a632-staging.web.app`
+                body
+              });
+            }
+
+      # ── Update bake status: green day if all passed ──
+      - name: Update bake status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const unitResult = '${{ steps.unit.outcome }}';
+            const e2eResult = '${{ steps.e2e.outcome }}';
+            const healthResult = '${{ steps.health.outcome }}';
+
+            const allPassed = unitResult === 'success'
+              && e2eResult === 'success'
+              && healthResult === 'success';
+
+            const date = new Date().toISOString().split('T')[0];
+
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'staging-bake',
+              state: 'open'
+            });
+
+            for (const issue of issues.data) {
+              // Read existing body to find/update bake counter
+              const currentBody = issue.body || '';
+              const greenMatch = currentBody.match(/Green days:\s*(\d+)/);
+              const totalMatch = currentBody.match(/Total days:\s*(\d+)/);
+              const greenDays = (greenMatch ? parseInt(greenMatch[1]) : 0) + (allPassed ? 1 : 0);
+              const totalDays = (totalMatch ? parseInt(totalMatch[1]) : 0) + 1;
+
+              const statusLine = `\n\n---\n**Bake status (auto-updated ${date}):** Green days: ${greenDays} / Total days: ${totalDays}`;
+
+              // Strip previous bake status line if present, then append new one
+              const cleanBody = currentBody.replace(/\n\n---\n\*\*Bake status \(auto-updated.*$/, '');
+
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: cleanBody + statusLine
               });
             }
 
@@ -48,25 +156,64 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+
       - run: npm ci
+
+      # ── Unit tests on production code ──
       - name: Unit tests on production code
-        id: prod
+        id: prod-unit
         run: npm test
         continue-on-error: true
+
+      # ── Live site health check ──
+      - name: Health check (production)
+        id: prod-health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' https://math-trainer-1a632.web.app)
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "::error::Production health check failed with HTTP $STATUS"
+            exit 1
+          fi
+          echo "Production returned HTTP $STATUS"
+        continue-on-error: true
+
+      # ── Create issue on failure ──
       - name: Create issue on failure
-        if: steps.prod.outcome == 'failure'
+        if: always() && (steps.prod-unit.outcome == 'failure' || steps.prod-health.outcome == 'failure')
         uses: actions/github-script@v7
         with:
           script: |
+            const unitResult = '${{ steps.prod-unit.outcome }}';
+            const healthResult = '${{ steps.prod-health.outcome }}';
             const date = new Date().toISOString().split('T')[0];
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const failures = [];
+            if (unitResult === 'failure') failures.push('Unit tests');
+            if (healthResult === 'failure') failures.push('Health check');
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `Production regression failed - ${date}`,
-              body: `Daily production regression tests failed.\n\n**URL:** https://math-trainer-1a632.web.app\n**Workflow run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              body: [
+                `Daily production regression detected failures.`,
+                '',
+                `**Failed checks:** ${failures.join(', ')}`,
+                '',
+                `| Check | Result |`,
+                `|-------|--------|`,
+                `| Unit tests | ${unitResult} |`,
+                `| Health check (HTTP 200) | ${healthResult} |`,
+                '',
+                `**URL:** https://math-trainer-1a632.web.app`,
+                `**Workflow run:** ${runUrl}`,
+              ].join('\n'),
               labels: ['bug', 'prod-regression', 'P0-critical']
             });

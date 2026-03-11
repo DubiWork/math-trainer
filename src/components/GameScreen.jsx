@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import { Problem, AnswerButtons, ScoreDisplay, Feedback } from './index'
+import { LearningAid } from './aids'
 import { useGameState } from '../hooks'
 
 /**
@@ -19,8 +20,9 @@ import { useGameState } from '../hooks'
  * @param {function} onGameEnd - Callback when user exits the game
  * @param {function} updateProgress - Optional callback for Firestore persistence
  * @param {object} initialProgress - Optional initial progress from Firestore
+ * @param {number} currentLevel - Current difficulty level (1-13, default 1)
  */
-function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null }) {
+function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, currentLevel = 1 }) {
   const {
     currentProblem,
     score,
@@ -34,7 +36,8 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null }
     totalProblems,
     correctAnswers,
     accuracy,
-  } = useGameState({ updateProgress, initialProgress })
+    isStruggling,
+  } = useGameState({ currentLevel, updateProgress, initialProgress })
 
   // Start game automatically if not playing
   // This handles the initial mount
@@ -103,6 +106,16 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null }
           />
         </div>
 
+        {/* Learning Aid - shown when child is struggling */}
+        <LearningAid
+          key={totalProblems}
+          isStruggling={isStruggling}
+          currentLevel={currentLevel}
+          num1={currentProblem.num1}
+          num2={currentProblem.num2}
+          operator={currentProblem.operator}
+        />
+
         {/* Answer Buttons - 2x2 Grid */}
         <div className="w-full">
           <AnswerButtons
@@ -133,6 +146,7 @@ GameScreen.propTypes = {
     totalProblems: PropTypes.number,
     correctAnswers: PropTypes.number,
   }),
+  currentLevel: PropTypes.number,
 }
 
 export default GameScreen

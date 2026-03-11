@@ -8,7 +8,7 @@
  * - Integrates with useGameProgress for Firestore persistence
  *
  * @param {Object} options - Hook options
- * @param {number} options.currentLevel - Current difficulty level (default: 2)
+ * @param {number} options.currentLevel - Current difficulty level (default: 1, clamped 1-13)
  * @param {Function} options.updateProgress - Function from useGameProgress to persist data
  * @param {Object} options.initialProgress - Initial progress data from Firestore
  * @returns {Object} Game state and control functions
@@ -17,13 +17,26 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { generateProblem, validateAnswer } from '../utils/mathProblems'
 import { useConfidence } from './useConfidence'
-import { getLevelConfig } from '../config/levels'
+import { getLevelConfig, LEVELS } from '../config/levels'
 
 // Feedback display duration (ms)
 const FEEDBACK_DURATION_MS = 2000
 
 // Points awarded for correct answer
 const POINTS_PER_CORRECT = 10
+
+// Valid level range boundaries
+const MIN_LEVEL = 1
+const MAX_LEVEL = LEVELS.length
+
+/**
+ * Clamp a level value to the valid range [1, LEVELS.length].
+ * @param {number} level
+ * @returns {number}
+ */
+function clampLevel(level) {
+  return Math.max(MIN_LEVEL, Math.min(MAX_LEVEL, Math.floor(level)))
+}
 
 /**
  * Default game state
@@ -45,12 +58,15 @@ const DEFAULT_GAME_STATE = {
  * Custom hook for managing game state
  *
  * @param {Object} options - Configuration options
- * @param {number} options.currentLevel - Difficulty level (default: 2)
+ * @param {number} options.currentLevel - Difficulty level (default: 1). Clamped to 1-13.
  * @param {Function} options.updateProgress - Callback to persist progress to Firestore
  * @param {Object} options.initialProgress - Initial progress from Firestore
  * @returns {Object} Game state and control functions
  */
-export function useGameState({ currentLevel = 2, updateProgress, initialProgress } = {}) {
+export function useGameState({ currentLevel = 1, updateProgress, initialProgress } = {}) {
+  // Clamp to valid range so getLevelConfig never throws
+  const safeLevel = clampLevel(currentLevel)
+
   // Compose confidence engine (unconditional — rules of hooks)
   const confidence = useConfidence()
 
@@ -99,7 +115,7 @@ export function useGameState({ currentLevel = 2, updateProgress, initialProgress
    * Generates first problem and sets isPlaying to true
    */
   const startGame = useCallback(() => {
-    const firstProblem = generateProblem(getLevelConfig(currentLevel))
+    const firstProblem = generateProblem(getLevelConfig(safeLevel))
 
     confidence.reset()
     problemStartTimeRef.current = Date.now()
@@ -114,7 +130,7 @@ export function useGameState({ currentLevel = 2, updateProgress, initialProgress
       score: 0, // Reset score for new session
       streak: 0, // Reset current streak on new game
     }))
-  }, [currentLevel, confidence])
+  }, [safeLevel, confidence])
 
   /**
    * Generate and display next problem
@@ -123,7 +139,7 @@ export function useGameState({ currentLevel = 2, updateProgress, initialProgress
   const nextProblem = useCallback(() => {
     if (!isMountedRef.current) return
 
-    const newProblem = generateProblem(getLevelConfig(currentLevel))
+    const newProblem = generateProblem(getLevelConfig(safeLevel))
 
     problemStartTimeRef.current = Date.now()
 
@@ -134,7 +150,7 @@ export function useGameState({ currentLevel = 2, updateProgress, initialProgress
       showFeedback: false,
       isCorrect: false,
     }))
-  }, [currentLevel])
+  }, [safeLevel])
 
   /**
    * Process user's answer

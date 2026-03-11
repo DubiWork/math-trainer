@@ -4,6 +4,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  test: {
+    exclude: ['e2e/**', 'node_modules/**'],
+  },
   plugins: [
     react(),
     VitePWA({

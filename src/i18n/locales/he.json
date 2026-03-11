@@ -1,0 +1,182 @@
+{
+  "app": {
+    "loading": "טוען...",
+    "loadingHeroes": "טוען גיבורים...",
+    "loadingConnection": "מתחבר לסוניק!",
+    "loadingProgress": "טוען את ההתקדמות שלך...",
+    "errorTitle": "אופס!",
+    "errorConnection": "לא הצלחנו לשמור את ההתקדמות שלך",
+    "playAnyway": "בוא נשחק!"
+  },
+  "start": {
+    "title": "סוניק מתמטיקה!",
+    "subtitle": "בוא נתרגל חשבון!",
+    "yourBest": "השיא שלך:",
+    "points": "נקודות",
+    "streak": "רצף",
+    "accuracy": "דיוק: {{percent}}%",
+    "startButton": "התחל משחק!",
+    "tip": "לחץ על התשובה הנכונה!",
+    "footer": "חשבון זה כיף!"
+  },
+  "game": {
+    "exit": "יציאה",
+    "loading": "טוען..."
+  },
+  "result": {
+    "title": "כל הכבוד!",
+    "points": "נקודות",
+    "bestStreak": "רצף הכי טוב",
+    "accuracy": "דיוק",
+    "problems": "תרגילים",
+    "playAgain": "שחק שוב!",
+    "backToStart": "חזרה להתחלה",
+    "footer": "תמשיך לתרגל ותהיה אלוף חשבון!",
+    "performance": {
+      "high": "מהירות סוניק! מדהים!",
+      "medium": "יופי! תמשיך לתרגל!",
+      "low": "אתה לומד! נסה שוב!"
+    }
+  },
+  "score": {
+    "score": "ניקוד",
+    "streak": "רצף",
+    "streakLabels": {
+      "fire": "בוער!",
+      "lightning": "ברק!",
+      "speedy": "מהיר!",
+      "keepGoing": "המשך!"
+    }
+  },
+  "feedback": {
+    "correct": [
+      "מהירות סוניק!",
+      "מדהים!",
+      "מושלם!",
+      "כל הכבוד!",
+      "אתה בוער!",
+      "כוכב על!",
+      "מעולה!",
+      "אדיר!"
+    ],
+    "wrong": [
+      "נסה שוב!",
+      "כמעט!",
+      "המשך!",
+      "אתה יכול!",
+      "קרוב מאוד!",
+      "עוד ניסיון!"
+    ]
+  },
+  "problem": {
+    "ariaLabel": "תרגיל חשבון",
+    "answerOptions": "אפשרויות תשובה",
+    "answer": "תשובה: {{answer}}"
+  },
+  "profile": {
+    "title": "מי משחק?",
+    "welcomeTitle": "ברוכים הבאים!",
+    "welcomeSubtitle": "צור את הגיבור הראשון שלך!",
+    "createHero": "+ צור גיבור",
+    "addHero": "הוסף גיבור",
+    "level": "שלב {{level}}",
+    "selectProfile": "בחר {{name}}, שלב {{level}}",
+    "createFirstHero": "צור את הגיבור הראשון שלך",
+    "createNewHero": "צור גיבור חדש",
+    "pinError": "אופס! קוד שגוי. נסה שוב.",
+    "genericError": "משהו השתבש. נסה שוב."
+  },
+  "pin": {
+    "enterPin": "הכנס קוד",
+    "enterPinFor": "הכנס קוד עבור {{name}}",
+    "digitsEntered": "{{count}} מתוך {{total}} ספרות",
+    "tooManyTries": "יותר מדי ניסיונות! חכה {{seconds}} שניות",
+    "checking": "בודק...",
+    "back": "חזרה",
+    "deleteDigit": "מחק ספרה",
+    "cancelPin": "בטל הזנת קוד",
+    "digit": "ספרה {{key}}"
+  },
+  "create": {
+    "dialogLabel": "יצירת גיבור חדש",
+    "progress": "התקדמות יצירת גיבור",
+    "stepOf": "שלב {{step}} מתוך {{total}}",
+    "stepCurrent": "שלב {{step}} מתוך {{total}}, נוכחי",
+    "stepCompleted": "שלב {{step}} מתוך {{total}}, הושלם",
+    "whatIsYourName": "מה השם שלך?",
+    "typeName": "כתוב את השם שלך...",
+    "enterNickname": "הכנס את הכינוי שלך",
+    "charsLeft": "{{count}} תווים נותרו",
+    "next": "הבא",
+    "cancel": "ביטול",
+    "continueToTheme": "המשך לבחירת גיבור",
+    "chooseHero": "בחר את הגיבור שלך!",
+    "selectTheme": "בחר נושא",
+    "themeLabel": "נושא {{name}}",
+    "continueToPin": "המשך להזנת קוד",
+    "choosePinTitle": "בחר קוד סודי",
+    "confirmPinTitle": "אשר את הקוד",
+    "pinMismatch": "הקודים לא תואמים. נסה שוב!",
+    "pinError": "לא הצלחנו לעבד את הקוד. נסה שוב.",
+    "creatingHero": "יוצר את הגיבור שלך...",
+    "createError": "לא הצלחנו ליצור גיבור. נסה שוב!",
+    "tryAgain": "נסה שוב",
+    "tryAgainLabel": "נסה ליצור את הגיבור שוב",
+    "back": "חזרה",
+    "backLabel": "חזור לשלב הקודם",
+    "cancelLabel": "בטל יצירת גיבור"
+  },
+  "levelup": {
+    "levelComplete": "השלב הושלם!",
+    "mathChampion": "אלוף חשבון!",
+    "masteredAll": "סיימת את כל {{count}} השלבים!",
+    "srComplete": "השלב הושלם! סיימת את {{completed}}. הבא: {{next}}.",
+    "srChampion": "מזל טוב! סיימת את כל {{count}} השלבים!",
+    "next": "הבא: {{name}}",
+    "continueToLevel": "המשך לשלב {{level}}",
+    "playAgainAtLevel": "שחק שוב בשלב {{level}}",
+    "continueButton": "המשך לשלב {{level}}!",
+    "playAgainButton": "שחק שוב בשלב {{level}}!"
+  },
+  "levelmap": {
+    "ariaLabel": "מפת התקדמות שלבים",
+    "levelStatus": "שלב {{id}}: {{name}} - {{status}}",
+    "completed": "הושלם",
+    "current": "נוכחי",
+    "locked": "נעול"
+  },
+  "champion": {
+    "title": "אלוף חשבון!",
+    "message": "סיימת את כל {{count}} השלבים!"
+  },
+  "strategy": {
+    "names": {
+      "bridging_add": "גשר ל-10",
+      "bridging_sub": "גשר ל-10",
+      "doubles": "כפולות",
+      "near_doubles": "כמעט כפול",
+      "count_on": "ספור קדימה",
+      "count_back": "ספור אחורה"
+    },
+    "hintFor": "רמז לתרגיל {{num1}} {{operator}} {{num2}}",
+    "counter": "דרך {{current}} מתוך {{total}}",
+    "showAnother": "הראה דרך אחרת",
+    "showAnotherLabel": "הראה דרך אחרת לפתור את התרגיל"
+  },
+  "learningAid": {
+    "dismiss": "הבנתי!",
+    "dismissLabel": "סגור עזרה"
+  },
+  "dotCounter": {
+    "addLabel": "{{num1}} נקודות כחולות ועוד {{num2}} נקודות זהב",
+    "subLabel": "{{num1}} נקודות כחולות פחות {{num2}} נקודות דהויות"
+  },
+  "common": {
+    "loading": "טוען...",
+    "error": "שגיאה",
+    "back": "חזרה",
+    "next": "הבא",
+    "confirm": "אישור",
+    "cancel": "ביטול"
+  }
+}

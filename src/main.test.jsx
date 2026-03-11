@@ -28,6 +28,19 @@ vi.mock('./context/ProfileContext.jsx', () => ({
   default: function MockProfileProvider({ children }) { return children },
 }))
 
+vi.mock('./i18n/index.js', () => ({
+  default: { language: 'he' },
+}))
+
+vi.mock('react-i18next', () => ({
+  I18nextProvider: function MockI18nextProvider({ children }) { return children },
+  useTranslation: () => ({
+    t: (key) => key,
+    i18n: { changeLanguage: vi.fn(), language: 'he' },
+  }),
+  initReactI18next: { type: '3rdParty', init: vi.fn() },
+}))
+
 vi.mock('./styles/index.css', () => ({}))
 
 describe('main.jsx', () => {
@@ -52,13 +65,15 @@ describe('main.jsx', () => {
     expect(capturedElement).not.toBeNull()
   })
 
-  it('wraps App inside ProfileProvider inside StrictMode', () => {
-    // The rendered element is: <StrictMode><ProfileProvider><App /></ProfileProvider></StrictMode>
+  it('wraps App inside I18nextProvider inside ProfileProvider inside StrictMode', () => {
+    // The rendered element is: <StrictMode><I18nextProvider><ProfileProvider><App /></ProfileProvider></I18nextProvider></StrictMode>
     expect(capturedElement.type).toBe(React.StrictMode.type ?? React.StrictMode)
 
-    const providerElement = capturedElement.props.children
-    expect(providerElement).toBeTruthy()
-    // ProfileProvider wraps App
-    expect(providerElement.props.children).toBeTruthy()
+    const i18nProviderElement = capturedElement.props.children
+    expect(i18nProviderElement).toBeTruthy()
+    // I18nextProvider wraps ProfileProvider which wraps App
+    const profileProviderElement = i18nProviderElement.props.children
+    expect(profileProviderElement).toBeTruthy()
+    expect(profileProviderElement.props.children).toBeTruthy()
   })
 })

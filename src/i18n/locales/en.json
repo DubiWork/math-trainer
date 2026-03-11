@@ -1,0 +1,182 @@
+{
+  "app": {
+    "loading": "Loading...",
+    "loadingHeroes": "Loading heroes...",
+    "loadingConnection": "Connecting to Sonic Speed!",
+    "loadingProgress": "Loading your progress...",
+    "errorTitle": "Oops!",
+    "errorConnection": "Could not connect to save your progress",
+    "playAnyway": "Play Anyway!"
+  },
+  "start": {
+    "title": "Sonic Math Trainer!",
+    "subtitle": "Time to boost your math power!",
+    "yourBest": "Your Best:",
+    "points": "points",
+    "streak": "streak",
+    "accuracy": "Accuracy: {{percent}}%",
+    "startButton": "Start Game!",
+    "tip": "Tap the correct answer to score points!",
+    "footer": "Math is fun!"
+  },
+  "game": {
+    "exit": "Exit",
+    "loading": "Loading..."
+  },
+  "result": {
+    "title": "Great Job!",
+    "points": "Points",
+    "bestStreak": "Best Streak",
+    "accuracy": "Accuracy",
+    "problems": "Problems",
+    "playAgain": "Play Again!",
+    "backToStart": "Back to Start",
+    "footer": "Keep practicing to become a Math Master!",
+    "performance": {
+      "high": "Sonic Speed! Amazing!",
+      "medium": "Great effort! Keep practicing!",
+      "low": "You're learning! Try again!"
+    }
+  },
+  "score": {
+    "score": "Score",
+    "streak": "Streak",
+    "streakLabels": {
+      "fire": "On Fire!",
+      "lightning": "Lightning!",
+      "speedy": "Speedy!",
+      "keepGoing": "Keep going!"
+    }
+  },
+  "feedback": {
+    "correct": [
+      "Sonic Speed!",
+      "Amazing!",
+      "Perfect!",
+      "Great Job!",
+      "You're on Fire!",
+      "Super Star!",
+      "Awesome!",
+      "Incredible!"
+    ],
+    "wrong": [
+      "Try Again!",
+      "Almost There!",
+      "Keep Going!",
+      "You've Got This!",
+      "So Close!",
+      "One More Try!"
+    ]
+  },
+  "problem": {
+    "ariaLabel": "Math Problem",
+    "answerOptions": "Answer Options",
+    "answer": "Answer: {{answer}}"
+  },
+  "profile": {
+    "title": "Who's playing?",
+    "welcomeTitle": "Welcome to Math Trainer!",
+    "welcomeSubtitle": "Create your first hero to start playing!",
+    "createHero": "+ Create Hero",
+    "addHero": "Add Hero",
+    "level": "Level {{level}}",
+    "selectProfile": "Select {{name}}, Level {{level}}",
+    "createFirstHero": "Create your first hero profile",
+    "createNewHero": "Create a new hero profile",
+    "pinError": "Oops! Wrong PIN. Try again.",
+    "genericError": "Something went wrong. Try again."
+  },
+  "pin": {
+    "enterPin": "Enter PIN",
+    "enterPinFor": "Enter PIN for {{name}}",
+    "digitsEntered": "{{count}} of {{total}} digits entered",
+    "tooManyTries": "Too many tries! Wait {{seconds}}s",
+    "checking": "Checking...",
+    "back": "Back",
+    "deleteDigit": "Delete last digit",
+    "cancelPin": "Cancel PIN entry",
+    "digit": "Digit {{key}}"
+  },
+  "create": {
+    "dialogLabel": "Create a new hero profile",
+    "progress": "Profile creation progress",
+    "stepOf": "Step {{step}} of {{total}}",
+    "stepCurrent": "Step {{step}} of {{total}}, current",
+    "stepCompleted": "Step {{step}} of {{total}}, completed",
+    "whatIsYourName": "What is your name?",
+    "typeName": "Type your name...",
+    "enterNickname": "Enter your nickname",
+    "charsLeft": "{{count}} characters left",
+    "next": "Next",
+    "cancel": "Cancel",
+    "continueToTheme": "Continue to theme selection",
+    "chooseHero": "Choose your hero!",
+    "selectTheme": "Select a theme",
+    "themeLabel": "{{name}} theme",
+    "continueToPin": "Continue to PIN entry",
+    "choosePinTitle": "Choose a secret PIN",
+    "confirmPinTitle": "Confirm your PIN",
+    "pinMismatch": "PINs do not match. Try again!",
+    "pinError": "Could not process PIN. Try again.",
+    "creatingHero": "Creating your hero...",
+    "createError": "Could not create hero. Try again!",
+    "tryAgain": "Try Again",
+    "tryAgainLabel": "Try creating your hero again",
+    "back": "Back",
+    "backLabel": "Go back to previous step",
+    "cancelLabel": "Cancel profile creation"
+  },
+  "levelup": {
+    "levelComplete": "Level Complete!",
+    "mathChampion": "Math Champion!",
+    "masteredAll": "You mastered all {{count}} levels!",
+    "srComplete": "Level complete! You finished {{completed}}. Next up: {{next}}.",
+    "srChampion": "Congratulations! You mastered all {{count}} levels!",
+    "next": "Next: {{name}}",
+    "continueToLevel": "Continue to Level {{level}}",
+    "playAgainAtLevel": "Play Again at Level {{level}}",
+    "continueButton": "Continue to Level {{level}}!",
+    "playAgainButton": "Play Again at Level {{level}}!"
+  },
+  "levelmap": {
+    "ariaLabel": "Level progress map",
+    "levelStatus": "Level {{id}}: {{name}} - {{status}}",
+    "completed": "completed",
+    "current": "current",
+    "locked": "locked"
+  },
+  "champion": {
+    "title": "Math Champion!",
+    "message": "You mastered all {{count}} levels!"
+  },
+  "strategy": {
+    "names": {
+      "bridging_add": "Bridge to 10",
+      "bridging_sub": "Bridge to 10",
+      "doubles": "Use Doubles",
+      "near_doubles": "Near Doubles",
+      "count_on": "Count On",
+      "count_back": "Count Back"
+    },
+    "hintFor": "Strategy hint for {{num1}} {{operator}} {{num2}}",
+    "counter": "Strategy {{current}} of {{total}}",
+    "showAnother": "Show me another way",
+    "showAnotherLabel": "Show me another way to solve this problem"
+  },
+  "learningAid": {
+    "dismiss": "I got it!",
+    "dismissLabel": "Dismiss learning aid"
+  },
+  "dotCounter": {
+    "addLabel": "{{num1}} blue dots plus {{num2}} gold dots",
+    "subLabel": "{{num1}} blue dots minus {{num2}} faded dots"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  }
+}

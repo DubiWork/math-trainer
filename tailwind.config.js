@@ -28,6 +28,8 @@ export default {
         'arc-draw': 'arc-draw 600ms ease-in-out forwards',
         'step-fade': 'step-fade 300ms ease-out forwards',
         'pulse-gold': 'pulse-gold 1.5s ease-in-out infinite',
+        'bounce-hero': 'bounce-hero 1s ease-in-out infinite',
+        'confetti-fall': 'confetti-fall 2s ease-out forwards',
       },
       keyframes: {
         'pop-in': {
@@ -78,6 +80,15 @@ export default {
         'pulse-gold': {
           '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(255, 215, 0, 0.4)' },
           '50%': { transform: 'scale(1.1)', boxShadow: '0 0 12px 4px rgba(255, 215, 0, 0.3)' },
+        },
+        'bounce-hero': {
+          '0%, 100%': { transform: 'translateY(0) scale(1)' },
+          '50%': { transform: 'translateY(-20px) scale(1.1)' },
+        },
+        'confetti-fall': {
+          '0%': { transform: 'translateY(-100vh) rotate(0deg)', opacity: '1' },
+          '80%': { opacity: '1' },
+          '100%': { transform: 'translateY(100vh) rotate(720deg)', opacity: '0' },
         },
       },
     },

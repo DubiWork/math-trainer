@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { Problem, AnswerButtons, ScoreDisplay, Feedback } from './index'
 import { LearningAid } from './aids'
 import { useGameState } from '../hooks'
@@ -25,6 +26,7 @@ import { useGameState } from '../hooks'
  * @param {function} onLevelUp - Optional callback when confidence engine signals level-up
  */
 function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, currentLevel = 1, onLevelUp }) {
+  const { t } = useTranslation()
   const {
     currentProblem,
     score,
@@ -62,7 +64,7 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
   if (!currentProblem) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900 flex items-center justify-center">
-        <p className="text-white font-game text-2xl">Loading...</p>
+        <p className="text-white font-game text-2xl">{t('game.loading')}</p>
       </div>
     )
   }
@@ -101,9 +103,9 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
             hover:scale-105 active:scale-95
             focus:outline-none focus:ring-2 focus:ring-red-300
           "
-          aria-label="Exit game and return to start screen"
+          aria-label={t('game.exit')}
         >
-          Exit
+          {t('game.exit')}
         </button>
       </header>
 

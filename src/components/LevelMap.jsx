@@ -16,6 +16,7 @@
 
 import { useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import LEVELS from '../config/levels'
 
 /**
@@ -34,14 +35,21 @@ function getLevelStatus(levelId, currentLevel) {
  * Single level node with icon, circle, and label.
  */
 function LevelNode({ level, status, nodeRef }) {
+  const { t } = useTranslation()
   const isCompleted = status === 'completed'
   const isCurrent = status === 'current'
   const isLocked = status === 'locked'
 
+  const statusText = isCompleted
+    ? t('levelmap.completed')
+    : isCurrent
+      ? t('levelmap.current')
+      : t('levelmap.locked')
+
   return (
     <div
       role="listitem"
-      aria-label={`Level ${level.id}: ${level.name} - ${status}`}
+      aria-label={t('levelmap.levelStatus', { id: level.id, name: level.name, status: statusText })}
       data-testid={`level-node-${level.id}`}
       ref={nodeRef}
       className="flex flex-col items-center snap-center shrink-0 w-16 md:w-20"
@@ -136,9 +144,10 @@ Connector.propTypes = {
   rightStatus: PropTypes.string.isRequired,
 }
 
-// ── Main Component ──────────────────────────────────────────────────────────
+// -- Main Component --
 
 function LevelMap({ currentLevel = 1 }) {
+  const { t } = useTranslation()
   const currentNodeRef = useRef(null)
 
   // Auto-scroll to the current level on mount
@@ -156,7 +165,7 @@ function LevelMap({ currentLevel = 1 }) {
     <div data-testid="level-map" className="w-full px-2">
       <div
         role="list"
-        aria-label="Level progress map"
+        aria-label={t('levelmap.ariaLabel')}
         className="flex items-start overflow-x-auto snap-x snap-mandatory
                    gap-1 pb-2 scrollbar-hide"
       >

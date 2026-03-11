@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 
 /**
  * ResultScreen Component - End-of-game summary screen
@@ -22,6 +23,8 @@ import PropTypes from 'prop-types'
  * @param {function} onExit - Callback when user wants to go back to start
  */
 function ResultScreen({ sessionStats, onPlayAgain, onExit }) {
+  const { t } = useTranslation()
+
   // Destructure stats with defaults
   const {
     score = 0,
@@ -35,20 +38,20 @@ function ResultScreen({ sessionStats, onPlayAgain, onExit }) {
   const getPerformanceMessage = () => {
     if (accuracy >= 80) {
       return {
-        text: 'Sonic Speed! Amazing!',
+        text: t('result.performance.high'),
         emoji: '\u{1F994}\u{1F4A8}', // hedgehog + dash
         color: 'text-green-400',
       }
     }
     if (accuracy >= 50) {
       return {
-        text: 'Great effort! Keep practicing!',
+        text: t('result.performance.medium'),
         emoji: '\u{2B50}', // star
         color: 'text-sonic-gold',
       }
     }
     return {
-      text: "You're learning! Try again!",
+      text: t('result.performance.low'),
       emoji: '\u{1F4AA}', // muscle
       color: 'text-orange-400',
     }
@@ -79,7 +82,7 @@ function ResultScreen({ sessionStats, onPlayAgain, onExit }) {
           className="text-4xl md:text-5xl lg:text-6xl font-game text-white
                      drop-shadow-lg mb-2 animate-pulse-scale"
         >
-          Great Job!
+          {t('result.title')}
         </h1>
 
         {/* Celebration Emoji */}
@@ -104,7 +107,7 @@ function ResultScreen({ sessionStats, onPlayAgain, onExit }) {
             {/* Score */}
             <div className="bg-white/10 rounded-xl p-4">
               <p className="text-sm md:text-base text-white/70 font-game uppercase mb-1">
-                Points
+                {t('result.points')}
               </p>
               <p className="text-3xl md:text-4xl font-game text-sonic-gold drop-shadow-md">
                 {score}
@@ -114,7 +117,7 @@ function ResultScreen({ sessionStats, onPlayAgain, onExit }) {
             {/* Streak */}
             <div className="bg-white/10 rounded-xl p-4">
               <p className="text-sm md:text-base text-white/70 font-game uppercase mb-1">
-                Best Streak
+                {t('result.bestStreak')}
               </p>
               <div className="flex items-center justify-center gap-2">
                 <p className="text-3xl md:text-4xl font-game text-sonic-gold drop-shadow-md">
@@ -129,7 +132,7 @@ function ResultScreen({ sessionStats, onPlayAgain, onExit }) {
             {/* Accuracy */}
             <div className="bg-white/10 rounded-xl p-4">
               <p className="text-sm md:text-base text-white/70 font-game uppercase mb-1">
-                Accuracy
+                {t('result.accuracy')}
               </p>
               <p className="text-3xl md:text-4xl font-game text-white drop-shadow-md">
                 {Math.round(accuracy)}%
@@ -139,7 +142,7 @@ function ResultScreen({ sessionStats, onPlayAgain, onExit }) {
             {/* Problems Completed */}
             <div className="bg-white/10 rounded-xl p-4">
               <p className="text-sm md:text-base text-white/70 font-game uppercase mb-1">
-                Problems
+                {t('result.problems')}
               </p>
               <p className="text-3xl md:text-4xl font-game text-white drop-shadow-md">
                 {correctAnswers}/{totalProblems}
@@ -164,9 +167,9 @@ function ResultScreen({ sessionStats, onPlayAgain, onExit }) {
               focus:outline-none focus:ring-4 focus:ring-yellow-300
               animate-pulse-scale
             "
-            aria-label="Play the game again"
+            aria-label={t('result.playAgain')}
           >
-            Play Again!
+            {t('result.playAgain')}
           </button>
 
           {/* Back to Start - Secondary Button */}
@@ -182,15 +185,15 @@ function ResultScreen({ sessionStats, onPlayAgain, onExit }) {
               active:scale-95
               focus:outline-none focus:ring-2 focus:ring-white/50
             "
-            aria-label="Go back to start screen"
+            aria-label={t('result.backToStart')}
           >
-            Back to Start
+            {t('result.backToStart')}
           </button>
         </div>
 
         {/* Encouraging Footer */}
         <p className="text-lg font-game text-white/60 mt-8">
-          Keep practicing to become a Math Master!{' '}
+          {t('result.footer')}{' '}
           <span role="img" aria-label="trophy">&#x1F3C6;</span>
         </p>
       </div>

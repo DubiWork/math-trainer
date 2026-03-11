@@ -29,6 +29,12 @@ export const PIN_LENGTH = 4;
 /** @type {string[]} Valid theme identifiers */
 export const VALID_THEMES = ['sonic', 'spiderman'];
 
+/** @type {string[]} Valid language identifiers */
+export const VALID_LANGUAGES = ['he', 'en'];
+
+/** @type {string} Default language for new profiles */
+export const DEFAULT_LANGUAGE = 'he';
+
 // ─── Internal Helpers ───────────────────────────────────────────────────────
 
 /**
@@ -116,6 +122,7 @@ export function getProfileById(id) {
  * @param {string} data.pinHash - SHA-256 hex digest of the PIN (64 chars)
  * @param {string|null} [data.firebaseUid=null] - Firebase anonymous auth UID
  * @param {number} [data.currentLevel=1] - Starting level
+ * @param {string} [data.language='he'] - Language preference ('he' or 'en')
  * @returns {Object} The newly created profile object
  * @throws {Error} If MAX_PROFILES reached, or if nickname/theme/pinHash are invalid
  *
@@ -126,7 +133,7 @@ export function getProfileById(id) {
  *   pinHash: 'a1b2c3...64chars'
  * });
  */
-export function createProfile({ nickname, theme, pinHash, firebaseUid = null, currentLevel = 1 }) {
+export function createProfile({ nickname, theme, pinHash, firebaseUid = null, currentLevel = 1, language = DEFAULT_LANGUAGE }) {
   const profiles = readStorage();
 
   if (profiles.length >= MAX_PROFILES) {
@@ -160,6 +167,7 @@ export function createProfile({ nickname, theme, pinHash, firebaseUid = null, cu
     pinHash,
     firebaseUid,
     currentLevel,
+    language: VALID_LANGUAGES.includes(language) ? language : DEFAULT_LANGUAGE,
     createdAt: now,
     lastActiveAt: now
   };
@@ -274,5 +282,7 @@ export default {
   updateProfile,
   deleteProfile,
   hashPin,
-  verifyPin
+  verifyPin,
+  VALID_LANGUAGES,
+  DEFAULT_LANGUAGE
 };

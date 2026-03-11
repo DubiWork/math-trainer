@@ -27,6 +27,8 @@ const {
   MAX_NICKNAME_LENGTH,
   PIN_LENGTH,
   VALID_THEMES,
+  VALID_LANGUAGES,
+  DEFAULT_LANGUAGE,
   getProfiles,
   getProfileById,
   createProfile,
@@ -68,6 +70,14 @@ describe('profiles', () => {
 
     it('VALID_THEMES contains sonic and spiderman', () => {
       expect(VALID_THEMES).toEqual(['sonic', 'spiderman']);
+    });
+
+    it('VALID_LANGUAGES contains he and en', () => {
+      expect(VALID_LANGUAGES).toEqual(['he', 'en']);
+    });
+
+    it('DEFAULT_LANGUAGE is he', () => {
+      expect(DEFAULT_LANGUAGE).toBe('he');
     });
   });
 
@@ -269,6 +279,49 @@ describe('profiles', () => {
         createProfile({ nickname: `P${i}`, theme: 'sonic', pinHash: VALID_PIN_HASH });
       }
       expect(getProfiles()).toHaveLength(MAX_PROFILES);
+    });
+  });
+
+  // ─── Language Field ──────────────────────────────────────────────────
+
+  describe('language field', () => {
+    it('defaults to Hebrew when language is not specified', () => {
+      const profile = createProfile({ nickname: 'NoLang', theme: 'sonic', pinHash: VALID_PIN_HASH });
+      expect(profile.language).toBe('he');
+    });
+
+    it('accepts Hebrew as explicit language', () => {
+      const profile = createProfile({ nickname: 'Hebrew', theme: 'sonic', pinHash: VALID_PIN_HASH, language: 'he' });
+      expect(profile.language).toBe('he');
+    });
+
+    it('accepts English as explicit language', () => {
+      const profile = createProfile({ nickname: 'English', theme: 'sonic', pinHash: VALID_PIN_HASH, language: 'en' });
+      expect(profile.language).toBe('en');
+    });
+
+    it('falls back to Hebrew for invalid language', () => {
+      const profile = createProfile({ nickname: 'Invalid', theme: 'sonic', pinHash: VALID_PIN_HASH, language: 'fr' });
+      expect(profile.language).toBe('he');
+    });
+
+    it('persists language to localStorage', () => {
+      createProfile({ nickname: 'Persist', theme: 'sonic', pinHash: VALID_PIN_HASH, language: 'en' });
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      expect(stored[0].language).toBe('en');
+    });
+
+    it('can update language via updateProfile', () => {
+      const profile = createProfile({ nickname: 'Switch', theme: 'sonic', pinHash: VALID_PIN_HASH });
+      expect(profile.language).toBe('he');
+      const updated = updateProfile(profile.id, { language: 'en' });
+      expect(updated.language).toBe('en');
+    });
+
+    it('language is preserved after updating other fields', () => {
+      const profile = createProfile({ nickname: 'Keep', theme: 'sonic', pinHash: VALID_PIN_HASH, language: 'en' });
+      const updated = updateProfile(profile.id, { currentLevel: 5 });
+      expect(updated.language).toBe('en');
     });
   });
 

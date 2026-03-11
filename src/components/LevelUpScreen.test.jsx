@@ -21,6 +21,7 @@ vi.mock('../config/levels', () => ({
     { id: 12, name: 'Division Quest' },
     { id: 13, name: 'Math Champion' },
   ],
+  MAX_LEVEL: 13,
 }))
 
 // Import after mocks
@@ -101,12 +102,7 @@ describe('LevelUpScreen', () => {
       expect(screen.queryByText(/Next:/)).toBeNull()
     })
 
-    it('shows completed level 13 name (Math Champion)', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
-      expect(screen.getAllByText(/Math Champion/).length).toBeGreaterThanOrEqual(1)
-    })
-
-    it('shows a different CTA for max level (no level number)', () => {
+    it('shows a different CTA for max level (no level number 14)', () => {
       render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
       const button = screen.getByRole('button')
       expect(button.textContent).not.toContain('Level 14')
@@ -116,6 +112,92 @@ describe('LevelUpScreen', () => {
       render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
       fireEvent.click(screen.getByRole('button'))
       expect(mockOnContinue).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  // ── Champion variant (level 13 completion) ───────────────────────
+
+  describe('champion variant', () => {
+    it('shows "Math Champion!" heading instead of "Level Complete!"', () => {
+      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Math Champion!')
+      expect(screen.queryByText('Level Complete!')).toBeNull()
+    })
+
+    it('shows trophy emoji instead of rocket', () => {
+      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      const hero = screen.getByTestId('hero-emoji')
+      expect(hero.textContent).toBe('\uD83C\uDFC6')
+      expect(hero.textContent).not.toBe('\uD83D\uDE80')
+    })
+
+    it('shows "You mastered all 13 levels!" message', () => {
+      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      expect(screen.getByText('You mastered all 13 levels!')).toBeTruthy()
+    })
+
+    it('shows "Play Again at Level 13!" button', () => {
+      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      const button = screen.getByRole('button')
+      expect(button.textContent).toBe('Play Again at Level 13!')
+    })
+
+    it('button has correct aria-label for champion', () => {
+      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      const button = screen.getByRole('button')
+      expect(button.getAttribute('aria-label')).toBe('Play Again at Level 13')
+    })
+
+    it('screen-reader announcement mentions mastering all levels', () => {
+      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      const status = screen.getByRole('status')
+      expect(status.textContent).toContain('mastered all 13 levels')
+    })
+
+    it('confetti still renders in champion mode', () => {
+      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      const particles = screen.getAllByTestId('confetti-particle')
+      expect(particles.length).toBeGreaterThanOrEqual(8)
+    })
+
+    it('hero emoji still has bounce animation in champion mode', () => {
+      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      const hero = screen.getByTestId('hero-emoji')
+      expect(hero.className).toContain('animate-bounce-hero')
+    })
+
+    it('does not show the completed level config name as sub-message', () => {
+      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      // The sub-message should be "You mastered all 13 levels!" not the level name
+      // The level name "Math Champion" could appear in heading — but NOT as level config display
+      const paragraphs = screen.getAllByText(/mastered all 13/)
+      expect(paragraphs.length).toBeGreaterThanOrEqual(1)
+    })
+  })
+
+  // ── Boundary: level 12 to 13 (normal level-up) ───────────────────
+
+  describe('boundary: level 12 (normal level-up to 13)', () => {
+    it('shows "Level Complete!" heading for level 12', () => {
+      render(<LevelUpScreen completedLevel={12} onContinue={mockOnContinue} />)
+      expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Level Complete!')
+    })
+
+    it('shows rocket emoji for level 12', () => {
+      render(<LevelUpScreen completedLevel={12} onContinue={mockOnContinue} />)
+      const hero = screen.getByTestId('hero-emoji')
+      expect(hero.textContent).toBe('\uD83D\uDE80')
+    })
+
+    it('shows "Continue to Level 13!" button for level 12', () => {
+      render(<LevelUpScreen completedLevel={12} onContinue={mockOnContinue} />)
+      const button = screen.getByRole('button', { name: /Continue to Level 13/i })
+      expect(button.textContent).toBe('Continue to Level 13!')
+    })
+
+    it('shows Next: Math Champion for level 12', () => {
+      render(<LevelUpScreen completedLevel={12} onContinue={mockOnContinue} />)
+      expect(screen.getByText(/Next: Math Champion/)).toBeTruthy()
     })
   })
 

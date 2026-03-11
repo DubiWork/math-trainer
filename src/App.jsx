@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { useFirebase, useGameProgress } from './hooks'
 import { StartScreen, GameScreen, ResultScreen, LevelUpScreen, ProfileSwitcher, CreateProfile } from './components'
 import { useProfile } from './context/useProfile'
+import { MAX_LEVEL } from './config/levels'
 
 /**
  * App Component - Main application with screen navigation
@@ -136,8 +137,8 @@ function App() {
   const handleContinueAfterLevelUp = useCallback(() => {
     if (completedLevel !== null && activeProfile) {
       const nextLevel = completedLevel + 1
-      // Max level guard: do not update profile beyond LEVELS.length (13)
-      if (nextLevel <= 13) {
+      // Max level guard: do not update profile beyond MAX_LEVEL
+      if (nextLevel <= MAX_LEVEL) {
         updateProfile(activeProfile.id, { currentLevel: nextLevel })
       }
     }

@@ -25,7 +25,7 @@ import LevelMap from './LevelMap'
  * @param {number} [currentLevel=1] - The player's current level (1-13)
  */
 function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { activeProfile, updateProfile } = useProfile()
 
   // Check if user has previous progress to display
@@ -99,7 +99,7 @@ function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
           className="text-4xl md:text-5xl lg:text-6xl font-game text-white
                      drop-shadow-lg mb-4 animate-pulse-scale"
         >
-          Sonic Math Trainer!
+          {t('start.title')}
         </h1>
 
         {/* Sonic Emoji Row */}
@@ -110,7 +110,7 @@ function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
 
         {/* Subtitle */}
         <p className="text-xl md:text-2xl font-game text-white/90 mb-8 drop-shadow-md">
-          Time to boost your math power!
+          {t('start.subtitle')}
         </p>
 
         {/* Previous Progress Display */}
@@ -119,10 +119,10 @@ function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
             className="bg-black/30 rounded-2xl p-6 mb-8 backdrop-blur-sm
                        transform transition-all duration-300 hover:scale-105"
             role="status"
-            aria-label={`Your best: ${progress.score} points, ${progress.streak} streak`}
+            aria-label={`${t('start.yourBest')} ${progress.score} ${t('start.points')}, ${progress.streak} ${t('start.streak')}`}
           >
             <p className="text-lg md:text-xl font-game text-sonic-gold mb-2">
-              Your Best:
+              {t('start.yourBest')}
             </p>
             <div className="flex justify-center items-center gap-6 flex-wrap">
               {/* Best Score */}
@@ -131,7 +131,7 @@ function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
                   {progress.score}
                 </p>
                 <p className="text-sm md:text-base text-white/70 font-game">
-                  points
+                  {t('start.points')}
                 </p>
               </div>
 
@@ -147,7 +147,7 @@ function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
                   <span className="text-2xl" role="img" aria-label="fire">&#x1F525;</span>
                 </div>
                 <p className="text-sm md:text-base text-white/70 font-game">
-                  streak
+                  {t('start.streak')}
                 </p>
               </div>
             </div>
@@ -155,7 +155,7 @@ function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
             {/* Accuracy if available */}
             {progress.totalProblems > 0 && (
               <p className="text-base text-white/80 font-game mt-4">
-                Accuracy: {Math.round((progress.correctAnswers / progress.totalProblems) * 100)}%
+                {t('start.accuracy', { percent: Math.round((progress.correctAnswers / progress.totalProblems) * 100) })}
               </p>
             )}
           </div>
@@ -180,21 +180,21 @@ function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
             focus:outline-none focus:ring-4 focus:ring-yellow-300
             animate-pulse-scale
           "
-          aria-label="Start the math game"
+          aria-label={t('start.startButton')}
         >
-          Start Game!
+          {t('start.startButton')}
         </button>
 
         {/* Encouraging Tip */}
         <p className="text-lg md:text-xl font-game text-white/70 mt-8">
-          <span role="img" aria-label="star">&#x2B50;</span> Tap the correct answer to score points!{' '}
+          <span role="img" aria-label="star">&#x2B50;</span> {t('start.tip')}{' '}
           <span role="img" aria-label="star">&#x2B50;</span>
         </p>
       </div>
 
       {/* Bottom Decoration */}
       <div className="absolute bottom-4 text-center text-white/40 font-game text-sm">
-        Math is fun!
+        {t('start.footer')}
       </div>
     </div>
   )

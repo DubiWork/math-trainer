@@ -96,7 +96,7 @@ describe('GameScreen', () => {
 
     it('renders exit button', () => {
       render(<GameScreen {...defaultProps} />)
-      expect(screen.getByLabelText('Exit game and return to start screen')).toBeTruthy()
+      expect(screen.getByLabelText('Exit')).toBeTruthy()
     })
 
     it('calls startGame when not playing', () => {
@@ -157,7 +157,7 @@ describe('GameScreen', () => {
       mockGameState.accuracy = 70
 
       render(<GameScreen {...defaultProps} />)
-      fireEvent.click(screen.getByLabelText('Exit game and return to start screen'))
+      fireEvent.click(screen.getByLabelText('Exit'))
 
       expect(defaultProps.onGameEnd).toHaveBeenCalledWith({
         score: 50,

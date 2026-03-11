@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Problem Component - Displays a math problem in Sonic theme
@@ -11,12 +12,14 @@ import PropTypes from 'prop-types'
  * @param {string} operator - Math operator (+, -, x, etc.)
  */
 function Problem({ num1, num2, operator }) {
+  const { t } = useTranslation()
+
   return (
     <section
       className="bg-sonic-blue rounded-2xl shadow-lg p-6 md:p-8 w-full max-w-md mx-auto"
-      aria-label="Math Problem"
+      aria-label={t('problem.ariaLabel')}
     >
-      <div className="text-center">
+      <div className="text-center" dir="ltr">
         <p
           className="text-4xl md:text-6xl font-game text-white tracking-wide
                      drop-shadow-md select-none"

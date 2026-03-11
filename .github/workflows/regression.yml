@@ -4,69 +4,394 @@ on:
   schedule:
     - cron: '0 8 * * *'
   workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
-  staging-regression:
+  # ─────────────────────────────────────────────────────
+  # Job 1: Read test plan and detect available test suites
+  # ─────────────────────────────────────────────────────
+  read-test-plan:
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
+    outputs:
+      has-regression: ${{ steps.detect.outputs.has-regression }}
+      has-feature: ${{ steps.detect.outputs.has-feature }}
+      plan-sha: ${{ steps.plan.outputs.plan-sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read regression test plan
+        id: plan
+        run: |
+          if [ -f .github/REGRESSION_TEST_PLAN.md ]; then
+            echo "--- REGRESSION_TEST_PLAN.md ---"
+            cat .github/REGRESSION_TEST_PLAN.md
+            echo "---"
+            SHA=$(sha256sum .github/REGRESSION_TEST_PLAN.md | cut -d' ' -f1)
+            echo "plan-sha=$SHA" >> "$GITHUB_OUTPUT"
+            echo "Plan SHA: $SHA"
+          else
+            echo "::warning::No REGRESSION_TEST_PLAN.md found"
+            echo "plan-sha=none" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Detect available test suites
+        id: detect
+        run: |
+          if find tests/e2e/regression/ -name '*.spec.*' -o -name '*.test.*' 2>/dev/null | grep -q .; then
+            echo "has-regression=true" >> "$GITHUB_OUTPUT"
+            echo "Regression tests found in tests/e2e/regression/"
+          else
+            echo "has-regression=false" >> "$GITHUB_OUTPUT"
+            echo "No regression tests found in tests/e2e/regression/"
+          fi
+
+          if find tests/e2e/features/ -name '*.spec.*' -o -name '*.test.*' 2>/dev/null | grep -q .; then
+            echo "has-feature=true" >> "$GITHUB_OUTPUT"
+            echo "Feature tests found in tests/e2e/features/"
+          else
+            echo "has-feature=false" >> "$GITHUB_OUTPUT"
+            echo "No feature tests found in tests/e2e/features/"
+          fi
+
+  # ─────────────────────────────────────────────────────
+  # Job 2: Staging regression (develop branch)
+  # ─────────────────────────────────────────────────────
+  staging:
+    needs: read-test-plan
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: https://math-trainer-1a632-staging.web.app
     steps:
       - uses: actions/checkout@v4
         with:
           ref: develop
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+
       - run: npm ci
-      - name: Unit tests on staging code
+
+      # ── Unit & integration tests ──
+      - name: Unit & integration tests
+        id: unit
         run: npm test
+        continue-on-error: true
+
+      # ── Install Playwright browser ──
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      # ── Regression e2e tests ──
+      - name: Regression e2e tests (staging)
+        id: regression-e2e
+        if: needs.read-test-plan.outputs.has-regression == 'true'
+        run: npx playwright test tests/e2e/regression/
+        env:
+          BASE_URL: https://math-trainer-1a632-staging.web.app
+        continue-on-error: true
+
+      # ── Feature / progression e2e tests ──
+      - name: Feature e2e tests (staging)
+        id: feature-e2e
+        if: needs.read-test-plan.outputs.has-feature == 'true'
+        run: npx playwright test tests/e2e/features/
+        env:
+          BASE_URL: https://math-trainer-1a632-staging.web.app
+        continue-on-error: true
+
+      # ── Live site health check ──
+      - name: Health check (staging)
+        id: health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' https://math-trainer-1a632-staging.web.app)
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "::error::Staging health check failed with HTTP $STATUS"
+            exit 1
+          fi
+          echo "Staging returned HTTP $STATUS"
+        continue-on-error: true
+
+      # ── Report results to staging-bake issues ──
       - name: Report on baking epic
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
+            const unitResult = '${{ steps.unit.outcome }}';
+            const regressionE2eResult = '${{ steps.regression-e2e.outcome }}';
+            const featureE2eResult = '${{ steps.feature-e2e.outcome }}';
+            const healthResult = '${{ steps.health.outcome }}';
+            const planSha = '${{ needs.read-test-plan.outputs.plan-sha }}';
+            const hasRegression = '${{ needs.read-test-plan.outputs.has-regression }}' === 'true';
+            const hasFeature = '${{ needs.read-test-plan.outputs.has-feature }}' === 'true';
+
+            const icon = (r) => r === 'success' ? ':white_check_mark:' : r === 'skipped' ? ':fast_forward:' : ':x:';
+            const date = new Date().toISOString().split('T')[0];
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            // Determine effective results (skipped steps show as 'success' by default in outcome)
+            const effectiveRegression = hasRegression ? regressionE2eResult : 'skipped';
+            const effectiveFeature = hasFeature ? featureE2eResult : 'skipped';
+
+            const checksToEvaluate = [unitResult, healthResult];
+            if (hasRegression) checksToEvaluate.push(regressionE2eResult);
+            if (hasFeature) checksToEvaluate.push(featureE2eResult);
+            const allPassed = checksToEvaluate.every(r => r === 'success');
+
+            const body = [
+              `### Daily Staging Regression - ${date}`,
+              '',
+              allPassed
+                ? '**ALL CHECKS PASSED**'
+                : '**SOME CHECKS FAILED** — see details below',
+              '',
+              `| Check | Result |`,
+              `|-------|--------|`,
+              `| Unit & integration tests | ${icon(unitResult)} ${unitResult} |`,
+              `| Regression e2e tests | ${icon(effectiveRegression)} ${effectiveRegression} |`,
+              `| Feature e2e tests | ${icon(effectiveFeature)} ${effectiveFeature} |`,
+              `| Health check (HTTP 200) | ${icon(healthResult)} ${healthResult} |`,
+              '',
+              `**Staging URL:** https://math-trainer-1a632-staging.web.app`,
+              `**Test plan SHA:** \`${planSha}\``,
+              `**Workflow run:** ${runUrl}`,
+            ].join('\n');
+
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               labels: 'staging-bake',
               state: 'open'
             });
-            const passed = '${{ steps.staging.outcome }}' !== 'failure';
-            const emoji = passed ? 'PASSED' : 'FAILED';
-            const date = new Date().toISOString().split('T')[0];
+
             for (const issue of issues.data) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                body: `### Daily Staging Regression - ${date}\n\n**Result:** ${emoji}\n**URL:** https://math-trainer-1a632-staging.web.app`
+                body
               });
             }
 
-  prod-regression:
+      # ── Update bake status: green day if all passed ──
+      - name: Update bake status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const unitResult = '${{ steps.unit.outcome }}';
+            const regressionE2eResult = '${{ steps.regression-e2e.outcome }}';
+            const featureE2eResult = '${{ steps.feature-e2e.outcome }}';
+            const healthResult = '${{ steps.health.outcome }}';
+            const hasRegression = '${{ needs.read-test-plan.outputs.has-regression }}' === 'true';
+            const hasFeature = '${{ needs.read-test-plan.outputs.has-feature }}' === 'true';
+
+            const checksToEvaluate = [unitResult, healthResult];
+            if (hasRegression) checksToEvaluate.push(regressionE2eResult);
+            if (hasFeature) checksToEvaluate.push(featureE2eResult);
+            const allPassed = checksToEvaluate.every(r => r === 'success');
+
+            const date = new Date().toISOString().split('T')[0];
+
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'staging-bake',
+              state: 'open'
+            });
+
+            for (const issue of issues.data) {
+              // Read existing body to find/update bake counter
+              const currentBody = issue.body || '';
+              const greenMatch = currentBody.match(/Green days:\s*(\d+)/);
+              const totalMatch = currentBody.match(/Total days:\s*(\d+)/);
+              const greenDays = (greenMatch ? parseInt(greenMatch[1]) : 0) + (allPassed ? 1 : 0);
+              const totalDays = (totalMatch ? parseInt(totalMatch[1]) : 0) + 1;
+
+              const statusLine = `\n\n---\n**Bake status (auto-updated ${date}):** Green days: ${greenDays} / Total days: ${totalDays}`;
+
+              // Strip previous bake status line if present, then append new one
+              const cleanBody = currentBody.replace(/\n\n---\n\*\*Bake status \(auto-updated.*$/, '');
+
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: cleanBody + statusLine
+              });
+            }
+
+  # ─────────────────────────────────────────────────────
+  # Job 3: Production regression (main branch)
+  # ─────────────────────────────────────────────────────
+  production:
+    needs: read-test-plan
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: https://math-trainer-1a632.web.app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm ci
+
+      # ── Unit tests on production code ──
+      - name: Unit tests on production code
+        id: prod-unit
+        run: npm test
+        continue-on-error: true
+
+      # ── Install Playwright browser ──
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      # ── Regression e2e tests ──
+      - name: Regression e2e tests (production)
+        id: prod-regression-e2e
+        if: needs.read-test-plan.outputs.has-regression == 'true'
+        run: npx playwright test tests/e2e/regression/
+        env:
+          BASE_URL: https://math-trainer-1a632.web.app
+        continue-on-error: true
+
+      # ── Live site health check ──
+      - name: Health check (production)
+        id: prod-health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' https://math-trainer-1a632.web.app)
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "::error::Production health check failed with HTTP $STATUS"
+            exit 1
+          fi
+          echo "Production returned HTTP $STATUS"
+        continue-on-error: true
+
+      # ── Create issue on failure ──
+      - name: Create issue on failure
+        if: always() && (steps.prod-unit.outcome == 'failure' || steps.prod-health.outcome == 'failure' || steps.prod-regression-e2e.outcome == 'failure')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const unitResult = '${{ steps.prod-unit.outcome }}';
+            const regressionE2eResult = '${{ steps.prod-regression-e2e.outcome }}';
+            const healthResult = '${{ steps.prod-health.outcome }}';
+            const planSha = '${{ needs.read-test-plan.outputs.plan-sha }}';
+            const hasRegression = '${{ needs.read-test-plan.outputs.has-regression }}' === 'true';
+            const date = new Date().toISOString().split('T')[0];
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const effectiveRegression = hasRegression ? regressionE2eResult : 'skipped';
+
+            const failures = [];
+            if (unitResult === 'failure') failures.push('Unit tests');
+            if (hasRegression && regressionE2eResult === 'failure') failures.push('Regression e2e tests');
+            if (healthResult === 'failure') failures.push('Health check');
+
+            const icon = (r) => r === 'success' ? ':white_check_mark:' : r === 'skipped' ? ':fast_forward:' : ':x:';
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Production regression failed - ${date}`,
+              body: [
+                `Daily production regression detected failures.`,
+                '',
+                `**Failed checks:** ${failures.join(', ')}`,
+                '',
+                `| Check | Result |`,
+                `|-------|--------|`,
+                `| Unit tests | ${icon(unitResult)} ${unitResult} |`,
+                `| Regression e2e tests | ${icon(effectiveRegression)} ${effectiveRegression} |`,
+                `| Health check (HTTP 200) | ${icon(healthResult)} ${healthResult} |`,
+                '',
+                `**URL:** https://math-trainer-1a632.web.app`,
+                `**Test plan SHA:** \`${planSha}\``,
+                `**Workflow run:** ${runUrl}`,
+              ].join('\n'),
+              labels: ['bug', 'prod-regression', 'P0-critical']
+            });
+
+  # ─────────────────────────────────────────────────────
+  # Job 4: Graduate feature tests to regression on promotion
+  # ─────────────────────────────────────────────────────
+  # When code is pushed to main (promotion merge), any test files
+  # in tests/e2e/features/ are moved to tests/e2e/regression/
+  # and committed back to both main and develop.
+  graduate-tests:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-      - run: npm ci
-      - name: Unit tests on production code
-        id: prod
-        run: npm test
-        continue-on-error: true
-      - name: Create issue on failure
-        if: steps.prod.outcome == 'failure'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const date = new Date().toISOString().split('T')[0];
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `Production regression failed - ${date}`,
-              body: `Daily production regression tests failed.\n\n**URL:** https://math-trainer-1a632.web.app\n**Workflow run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-              labels: ['bug', 'prod-regression', 'P0-critical']
-            });
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for feature tests to graduate
+        id: check
+        run: |
+          if find tests/e2e/features/ -name '*.spec.*' -o -name '*.test.*' 2>/dev/null | grep -q .; then
+            echo "has-features=true" >> "$GITHUB_OUTPUT"
+            echo "Feature tests found — will graduate to regression suite"
+            find tests/e2e/features/ -name '*.spec.*' -o -name '*.test.*' | sort
+          else
+            echo "has-features=false" >> "$GITHUB_OUTPUT"
+            echo "No feature tests to graduate"
+          fi
+
+      - name: Graduate feature tests to regression
+        if: steps.check.outputs.has-features == 'true'
+        run: |
+          # Move all spec/test files from features/ to regression/
+          for f in $(find tests/e2e/features/ -name '*.spec.*' -o -name '*.test.*'); do
+            filename=$(basename "$f")
+            echo "Graduating: $f -> tests/e2e/regression/$filename"
+            mv "$f" "tests/e2e/regression/$filename"
+          done
+
+          # Clean up empty features/ dir (keep .gitkeep)
+          find tests/e2e/features/ -type f ! -name '.gitkeep' -delete 2>/dev/null || true
+
+      - name: Commit graduation to main
+        if: steps.check.outputs.has-features == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tests/e2e/regression/ tests/e2e/features/
+          git commit -m "chore: graduate feature tests to regression suite [automated]" || echo "Nothing to commit"
+          git push origin main
+
+      - name: Sync graduation to develop
+        if: steps.check.outputs.has-features == 'true'
+        run: |
+          git fetch origin develop
+          git checkout develop
+          # Cherry-pick the graduation commit to develop
+          git cherry-pick HEAD~1 --strategy-option theirs || {
+            echo "Cherry-pick conflict — applying manually"
+            for f in $(find tests/e2e/features/ -name '*.spec.*' -o -name '*.test.*' 2>/dev/null); do
+              filename=$(basename "$f")
+              mv "$f" "tests/e2e/regression/$filename"
+            done
+            find tests/e2e/features/ -type f ! -name '.gitkeep' -delete 2>/dev/null || true
+            git add tests/e2e/regression/ tests/e2e/features/
+            git commit -m "chore: graduate feature tests to regression suite [automated]"
+          }
+          git push origin develop

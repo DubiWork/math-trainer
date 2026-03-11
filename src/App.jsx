@@ -191,6 +191,7 @@ function App() {
           progress={progress}
           onSwitchProfile={handleSwitchProfile}
           activeProfile={activeProfile}
+          currentLevel={currentLevel}
         />
       )}
 

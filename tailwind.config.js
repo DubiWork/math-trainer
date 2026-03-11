@@ -27,6 +27,7 @@ export default {
         'aid-enter': 'aid-enter 350ms ease-out forwards',
         'arc-draw': 'arc-draw 600ms ease-in-out forwards',
         'step-fade': 'step-fade 300ms ease-out forwards',
+        'pulse-gold': 'pulse-gold 1.5s ease-in-out infinite',
       },
       keyframes: {
         'pop-in': {
@@ -73,6 +74,10 @@ export default {
         'step-fade': {
           '0%': { opacity: '0', transform: 'translateX(-4px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        'pulse-gold': {
+          '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(255, 215, 0, 0.4)' },
+          '50%': { transform: 'scale(1.1)', boxShadow: '0 0 12px 4px rgba(255, 215, 0, 0.3)' },
         },
       },
     },

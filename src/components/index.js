@@ -12,6 +12,7 @@
  * - ProfileSwitcher: Avatar card grid for selecting profiles
  * - PinEntry: 4-dot numpad PIN overlay (presentational)
  * - CreateProfile: 4-step wizard for creating new profiles
+ * - LevelUpScreen: Celebration screen when player levels up
  */
 
 export { default as Problem } from './Problem'
@@ -24,3 +25,4 @@ export { default as ResultScreen } from './ResultScreen'
 export { default as ProfileSwitcher } from './ProfileSwitcher'
 export { default as PinEntry } from './PinEntry'
 export { default as CreateProfile } from './CreateProfile'
+export { default as LevelUpScreen } from './LevelUpScreen'

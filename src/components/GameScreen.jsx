@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Problem, AnswerButtons, ScoreDisplay, Feedback } from './index'
 import { LearningAid } from './aids'
@@ -21,8 +22,9 @@ import { useGameState } from '../hooks'
  * @param {function} updateProgress - Optional callback for Firestore persistence
  * @param {object} initialProgress - Optional initial progress from Firestore
  * @param {number} currentLevel - Current difficulty level (1-13, default 1)
+ * @param {function} onLevelUp - Optional callback when confidence engine signals level-up
  */
-function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, currentLevel = 1 }) {
+function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, currentLevel = 1, onLevelUp }) {
   const {
     currentProblem,
     score,
@@ -37,7 +39,17 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
     correctAnswers,
     accuracy,
     isStruggling,
+    shouldLevelUp,
   } = useGameState({ currentLevel, updateProgress, initialProgress })
+
+  // Detect level-up: when confidence engine signals shouldLevelUp AND feedback
+  // animation has cleared, notify the parent (App) to transition to LevelUpScreen.
+  // The parent unmounts GameScreen, so no race condition with auto-advance.
+  useEffect(() => {
+    if (shouldLevelUp && !showFeedback && onLevelUp) {
+      onLevelUp(currentLevel)
+    }
+  }, [shouldLevelUp, showFeedback, onLevelUp, currentLevel])
 
   // Start game automatically if not playing
   // This handles the initial mount
@@ -147,6 +159,7 @@ GameScreen.propTypes = {
     correctAnswers: PropTypes.number,
   }),
   currentLevel: PropTypes.number,
+  onLevelUp: PropTypes.func,
 }
 
 export default GameScreen

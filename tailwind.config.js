@@ -74,7 +74,7 @@ export default {
           '100%': { strokeDashoffset: '0' },
         },
         'step-fade': {
-          '0%': { opacity: '0', transform: 'translateX(-4px)' },
+          '0%': { opacity: '0', transform: 'translateX(calc(var(--step-dir) * 4px))' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
         'pulse-gold': {

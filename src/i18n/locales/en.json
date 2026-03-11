@@ -178,5 +178,10 @@
     "next": "Next",
     "confirm": "Confirm",
     "cancel": "Cancel"
+  },
+  "languageToggle": {
+    "label": "Language selection",
+    "he": "Hebrew",
+    "en": "English"
   }
 }

@@ -35,6 +35,9 @@ function App() {
     loading: progressLoading,
   } = useGameProgress(activeProfile?.firebaseUid ?? user?.uid)
 
+  // Extract currentLevel from active profile (default to 1 when no profile)
+  const currentLevel = activeProfile?.currentLevel ?? 1
+
   // Screen navigation state
   const [screen, setScreen] = useState('start')
 
@@ -196,6 +199,7 @@ function App() {
           onGameEnd={handleGameEnd}
           updateProgress={updateProgress}
           initialProgress={progress}
+          currentLevel={currentLevel}
         />
       )}
 

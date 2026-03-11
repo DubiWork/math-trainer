@@ -134,5 +134,5 @@
     "queue": [28],
     "history": [17]
   },
-  "nextAction": "Grooming #21 COMPLETE — 6 sub-issues (#87-#92) created and quick-groomed. TWO PENDING ACTIONS: (1) Epic #25 promotion — PR #76 ready, 3 green days, awaiting user merge approval. (2) Epic #28 staging — queued behind #25 in stagingQueue. After #25 promotes, #28 can stage. Issue #21 (i18n) is groomed and ready for planning (Phase 2) when prioritized."
+  "nextAction": "Epic #28 merged to develop for staging. Epic #25 promotion — PR #76 ready, 3 green days, awaiting user merge approval. After #25 promotes, #28 bake period begins. Issue #21 (i18n) groomed and ready for planning."
 }

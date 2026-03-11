@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import LevelMap from './LevelMap'
 
 /**
  * StartScreen Component - Welcome screen before game starts
@@ -9,6 +10,7 @@ import PropTypes from 'prop-types'
  * Features:
  * - Welcome message with Sonic theme
  * - Subtitle explaining game purpose
+ * - Level progress map showing all 13 levels
  * - Large, prominent "Start Game" button
  * - Previous best score/streak display (if available)
  *
@@ -18,8 +20,9 @@ import PropTypes from 'prop-types'
  * @param {number} progress.streak - Best streak achieved
  * @param {number} progress.totalProblems - Total problems attempted
  * @param {number} progress.correctAnswers - Total correct answers
+ * @param {number} [currentLevel=1] - The player's current level (1-13)
  */
-function StartScreen({ onStart, progress = null }) {
+function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
   // Check if user has previous progress to display
   const hasPreviousProgress = progress && (progress.score > 0 || progress.streak > 0)
 
@@ -106,6 +109,11 @@ function StartScreen({ onStart, progress = null }) {
           </div>
         )}
 
+        {/* Level Progress Map */}
+        <div className="mb-8">
+          <LevelMap currentLevel={currentLevel} />
+        </div>
+
         {/* Start Game Button - Large and Prominent */}
         <button
           onClick={onStart}
@@ -148,6 +156,7 @@ StartScreen.propTypes = {
     totalProblems: PropTypes.number,
     correctAnswers: PropTypes.number,
   }),
+  currentLevel: PropTypes.number,
 }
 
 export default StartScreen

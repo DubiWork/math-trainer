@@ -1,3 +1,6 @@
+/** Total number of levels — use this instead of magic number 13 */
+export const MAX_LEVEL = 13
+
 export const LEVELS = [
   { id: 1,  name: 'First Steps',     operators: ['+'],           minNumber: 1, maxNumber: 5,   ageTarget: '5-6'  },
   { id: 2,  name: 'Addition Hero',   operators: ['+'],           minNumber: 1, maxNumber: 10,  ageTarget: '6'    },

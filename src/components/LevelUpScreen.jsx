@@ -5,6 +5,10 @@
  * 'start', 'game', 'result'). Displays celebration animation,
  * completed level info, and a CTA to continue to the next level.
  *
+ * When the player completes the final level (MAX_LEVEL), a special
+ * "Champion" variant is shown with a trophy emoji, a distinct title,
+ * and a "Play Again at Level 13!" button that does NOT increment.
+ *
  * Visual MVP: emoji hero + CSS confetti particles, no audio.
  *
  * @param {Object}   props
@@ -13,7 +17,7 @@
  */
 
 import PropTypes from 'prop-types'
-import { LEVELS } from '../config/levels'
+import { LEVELS, MAX_LEVEL } from '../config/levels'
 
 /** Number of confetti particles to render */
 const CONFETTI_COUNT = 12
@@ -30,8 +34,8 @@ const CONFETTI_COLORS = [
 
 function LevelUpScreen({ completedLevel, onContinue }) {
   const completedLevelConfig = LEVELS[completedLevel - 1]
-  const isMaxLevel = completedLevel >= LEVELS.length
-  const nextLevelConfig = isMaxLevel ? null : LEVELS[completedLevel]
+  const isChampion = completedLevel >= MAX_LEVEL
+  const nextLevelConfig = isChampion ? null : LEVELS[completedLevel]
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900 flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -55,32 +59,35 @@ function LevelUpScreen({ completedLevel, onContinue }) {
         />
       ))}
 
-      {/* Hero emoji with bounce animation */}
+      {/* Hero emoji with bounce animation — trophy for champion, rocket otherwise */}
       <div
         data-testid="hero-emoji"
         className="text-7xl md:text-8xl mb-4 animate-bounce-hero motion-reduce:animate-none"
         aria-hidden="true"
       >
-        🚀
+        {isChampion ? '\uD83C\uDFC6' : '\uD83D\uDE80'}
       </div>
 
       {/* Screen-reader announcement */}
       <div role="status" aria-live="polite" className="sr-only">
-        Level complete! You finished {completedLevelConfig?.name}.
-        {nextLevelConfig ? ` Next up: ${nextLevelConfig.name}.` : ' You have completed all levels!'}
+        {isChampion
+          ? `Congratulations! You mastered all ${MAX_LEVEL} levels!`
+          : `Level complete! You finished ${completedLevelConfig?.name}. Next up: ${nextLevelConfig?.name}.`}
       </div>
 
       {/* Main heading */}
       <h1 className="text-4xl md:text-6xl font-game text-sonic-gold drop-shadow-lg text-center mb-2">
-        Level Complete!
+        {isChampion ? 'Math Champion!' : 'Level Complete!'}
       </h1>
 
-      {/* Completed level name */}
+      {/* Sub-message */}
       <p className="text-xl md:text-2xl font-game text-white text-center mb-1">
-        {completedLevelConfig?.name}
+        {isChampion
+          ? `You mastered all ${MAX_LEVEL} levels!`
+          : completedLevelConfig?.name}
       </p>
 
-      {/* Next level subheading */}
+      {/* Next level subheading (normal flow only) */}
       {nextLevelConfig && (
         <p className="text-lg md:text-xl font-game text-yellow-200 text-center mb-8">
           Next: {nextLevelConfig.name}
@@ -102,13 +109,13 @@ function LevelUpScreen({ completedLevel, onContinue }) {
           focus:outline-none focus:ring-2 focus:ring-yellow-300
         "
         aria-label={
-          isMaxLevel
-            ? 'Continue playing'
+          isChampion
+            ? `Play Again at Level ${MAX_LEVEL}`
             : `Continue to Level ${completedLevel + 1}`
         }
       >
-        {isMaxLevel
-          ? 'Keep Playing!'
+        {isChampion
+          ? `Play Again at Level ${MAX_LEVEL}!`
           : `Continue to Level ${completedLevel + 1}!`}
       </button>
 

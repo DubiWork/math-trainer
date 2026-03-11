@@ -7,6 +7,11 @@ import { createElement } from 'react'
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
+// Mock levels config (App imports MAX_LEVEL)
+vi.mock('./config/levels', () => ({
+  MAX_LEVEL: 13,
+}))
+
 // Mock useProfile hook
 const mockProfileContext = {
   activeProfile: null,

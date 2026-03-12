@@ -1,0 +1,19 @@
+{
+  "progress": {
+    "title": "My Progress",
+    "accuracyFraction": "{{correct}} out of {{total}} correct!",
+    "accuracyPercentage": "{{percent}}% accuracy",
+    "totalProblems": "Problems Solved",
+    "bestStreak": "Best Streak",
+    "currentLevel": "Current Level",
+    "emptyState": "Start playing to track your progress!",
+    "emptyStateSubtitle": "Your stats will appear here after your first game.",
+    "performanceGreat": "Amazing! You're on track!",
+    "performancePractice": "Great effort! Keep practicing!",
+    "performanceEncouragement": "You're learning! Every try makes you stronger!",
+    "close": "Close",
+    "accuracy": "Accuracy",
+    "streakFire": "{{streak}} in a row!",
+    "levelName": "Level {{level}}: {{name}}"
+  }
+}

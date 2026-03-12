@@ -22,8 +22,13 @@ test.describe('Smoke tests — live site', () => {
     });
 
     await page.goto('/');
-    // Wait for the app to settle
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+
+    // Wait for the app to render interactive content (button in ProfileSwitcher or StartScreen)
+    await page.locator('button').first().waitFor({ state: 'visible', timeout: 15000 });
+
+    // Give the app a moment to settle so late console errors are captured
+    await page.waitForTimeout(2000);
 
     // Filter out known benign errors (e.g., third-party analytics, favicon 404)
     const criticalErrors = errors.filter(
@@ -47,19 +52,17 @@ test.describe('Smoke tests — live site', () => {
 
   test('game screen loads', async ({ page }) => {
     await page.goto('/');
-    // Wait for the app to fully render
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // The app should show interactive content — look for a button or game element
     // The main app renders into #root, so there should be meaningful DOM content
     const root = page.locator('#root');
-    const childCount = await root.evaluate((el) => el.children.length);
-    expect(childCount).toBeGreaterThan(0);
+    await expect(root).not.toBeEmpty();
 
     // The page should contain at least one interactive element (button, input, etc.)
     const interactiveElements = page.locator(
       'button, input, [role="button"], a[href]'
     );
-    await expect(interactiveElements.first()).toBeVisible({ timeout: 10000 });
+    await expect(interactiveElements.first()).toBeVisible({ timeout: 15000 });
   });
 });

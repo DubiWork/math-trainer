@@ -1,4 +1,7 @@
 {
+  "startScreen": {
+    "myProgress": "My Progress"
+  },
   "progress": {
     "title": "My Progress",
     "accuracyFraction": "{{correct}} out of {{total}} correct!",

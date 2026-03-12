@@ -44,10 +44,13 @@ vi.mock('./hooks', () => ({
 
 // Mock child components to isolate App logic
 vi.mock('./components', () => ({
-  StartScreen: ({ onStart, onSwitchProfile }) =>
+  StartScreen: ({ onStart, onSwitchProfile, onViewProgress }) =>
     createElement('div', { 'data-testid': 'start-screen' },
       createElement('button', { 'data-testid': 'start-game', onClick: onStart }, 'Start'),
       createElement('button', { 'data-testid': 'switch-profile', onClick: onSwitchProfile }, 'Switch'),
+      onViewProgress
+        ? createElement('button', { 'data-testid': 'view-progress', onClick: onViewProgress }, 'My Progress')
+        : null,
     ),
   GameScreen: ({ onGameEnd, currentLevel, onLevelUp }) =>
     createElement('div', { 'data-testid': 'game-screen', 'data-current-level': currentLevel },
@@ -91,6 +94,14 @@ vi.mock('./components', () => ({
         }),
       }, 'Complete'),
       createElement('button', { 'data-testid': 'cancel-wizard', onClick: onCancel }, 'Cancel'),
+    ),
+  ProgressView: ({ currentLevel, onClose, activeProfile }) =>
+    createElement('div', {
+      'data-testid': 'progress-view',
+      'data-current-level': currentLevel,
+      'data-profile-id': activeProfile?.id || '',
+    },
+      createElement('button', { 'data-testid': 'close-progress', onClick: onClose }, 'Close'),
     ),
 }))
 
@@ -540,6 +551,105 @@ describe('App', () => {
       render(<App />)
 
       expect(screen.queryByTestId('levelup-screen')).toBeNull()
+    })
+  })
+
+  // ── Progress view flow ──────────────────────────────────────────────
+
+  describe('progress view flow', () => {
+    it('navigates from start to progress view when My Progress is clicked', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 3,
+      }
+      render(<App />)
+
+      fireEvent.click(screen.getByTestId('view-progress'))
+      expect(screen.getByTestId('progress-view')).toBeTruthy()
+      expect(screen.queryByTestId('start-screen')).toBeNull()
+    })
+
+    it('navigates from progress view back to start when Close is clicked', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 3,
+      }
+      render(<App />)
+
+      // Navigate to progress
+      fireEvent.click(screen.getByTestId('view-progress'))
+      expect(screen.getByTestId('progress-view')).toBeTruthy()
+
+      // Close progress
+      fireEvent.click(screen.getByTestId('close-progress'))
+      expect(screen.getByTestId('start-screen')).toBeTruthy()
+      expect(screen.queryByTestId('progress-view')).toBeNull()
+    })
+
+    it('passes currentLevel to ProgressView', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 7,
+      }
+      render(<App />)
+
+      fireEvent.click(screen.getByTestId('view-progress'))
+      const progressView = screen.getByTestId('progress-view')
+      expect(progressView.getAttribute('data-current-level')).toBe('7')
+    })
+
+    it('passes activeProfile to ProgressView', () => {
+      mockProfileContext.activeProfile = {
+        id: 'profile-42',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 1,
+      }
+      render(<App />)
+
+      fireEvent.click(screen.getByTestId('view-progress'))
+      const progressView = screen.getByTestId('progress-view')
+      expect(progressView.getAttribute('data-profile-id')).toBe('profile-42')
+    })
+
+    it('does not show progress view on initial render', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 1,
+      }
+      render(<App />)
+
+      expect(screen.queryByTestId('progress-view')).toBeNull()
+    })
+
+    it('can navigate start -> progress -> start -> game (full round trip)', () => {
+      mockProfileContext.activeProfile = {
+        id: '1',
+        nickname: 'Dubi',
+        firebaseUid: 'uid-1',
+        currentLevel: 1,
+      }
+      render(<App />)
+
+      // Start -> Progress
+      fireEvent.click(screen.getByTestId('view-progress'))
+      expect(screen.getByTestId('progress-view')).toBeTruthy()
+
+      // Progress -> Start
+      fireEvent.click(screen.getByTestId('close-progress'))
+      expect(screen.getByTestId('start-screen')).toBeTruthy()
+
+      // Start -> Game
+      fireEvent.click(screen.getByTestId('start-game'))
+      expect(screen.getByTestId('game-screen')).toBeTruthy()
     })
   })
 })

@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math Trainer — Strategic Plan</title>
+<style>
+:root { --bg: #fff; --fg: #1a1a1a; --muted: #666; --border: #ddd; --accent: #0066cc; --code-bg: #f5f5f5; --table-stripe: #f9f9f9; --blockquote-bg: #f0f4f8; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #1a1a2e; --fg: #e0e0e0; --muted: #999; --border: #333; --accent: #6db3f2; --code-bg: #16213e; --table-stripe: #16213e; --blockquote-bg: #16213e; }
+}
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 16px; background: var(--bg); color: var(--fg); line-height: 1.6; font-size: 16px; }
+h1 { font-size: 1.8em; border-bottom: 2px solid var(--accent); padding-bottom: 8px; }
+h2 { font-size: 1.4em; margin-top: 2em; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+h3 { font-size: 1.15em; margin-top: 1.5em; }
+h4 { font-size: 1em; margin-top: 1.2em; }
+a { color: var(--accent); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+code { background: var(--code-bg); padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+pre { background: var(--code-bg); padding: 12px; border-radius: 6px; overflow-x: auto; }
+pre code { padding: 0; background: none; }
+blockquote { border-left: 3px solid var(--accent); background: var(--blockquote-bg); margin: 1em 0; padding: 8px 16px; border-radius: 0 6px 6px 0; }
+.table-wrap { overflow-x: auto; margin: 1em 0; }
+table { border-collapse: collapse; width: 100%; min-width: 400px; font-size: 0.9em; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(even) { background: var(--table-stripe); }
+ul, ol { padding-left: 1.5em; }
+li { margin: 4px 0; }
+.cb { font-size: 1.1em; }
+.cb.done { opacity: 0.7; }
+.toc { background: var(--code-bg); padding: 16px 24px; border-radius: 8px; margin-bottom: 2em; }
+.toc h2 { margin-top: 0; font-size: 1.1em; }
+.toc ul { padding-left: 1.2em; }
+.toc li { margin: 6px 0; }
+strong { color: var(--fg); }
+section { scroll-margin-top: 20px; }
+</style>
+</head>
+<body>
+<h1>Math Trainer — Strategic Plan</h1>
+<nav class="toc"><h2>Contents</h2><ul><li><a href="#strategic-audit-math-trainer-sonic-edition">Strategic Audit: Math Trainer (Sonic Edition)</a></li><li><a href="#math-trainer-execution-plan-from-40-2-100-to-working-mvp">Math Trainer Execution Plan: From 40.2/100 to Working MVP</a></li></ul></nav>
+<section id="strategic-audit-math-trainer-sonic-edition">
+<h1 id="strategic-audit-math-trainer-sonic-edition">Strategic Audit: Math Trainer (Sonic Edition)</h1>
+<p><strong>Auditor:</strong> CEO Advisor Agent (cs-ceo-advisor)</p>
+<p><strong>Date:</strong> 2026-03-12</p>
+<p><strong>Mode:</strong> Strategic Audit (10-Domain Assessment)</p>
+<p><strong>Subject:</strong> Math Trainer -- Adaptive math training game for kids ages 5-13</p>
+<hr>
+<h2 id="executive-summary">Executive Summary</h2>
+<p>Math Trainer is a passion project with genuine product vision, strong design documentation, and a real market gap (Hebrew-language math apps for children). However, the strategic health score of <strong>40.2/100</strong> reflects the fundamental reality: this is a pre-revenue prototype with 0% of the redesigned product implemented, operated by a solo developer with a full-time job elsewhere.</p>
+<p>The audit identifies <strong>3 critical findings, 4 high-severity findings, and 7 medium-severity findings</strong> across 10 strategic domains. The central strategic question is not "is this a good product idea" (it is), but rather "what is the right ambition level for a solo-developer passion project, and how should execution be structured to match that ambition."</p>
+<p>The single most important recommendation: <strong>Pick one of two paths and commit.</strong> Either (A) build it as a polished personal tool for your son and his friends (3-4 phases max), or (B) treat it as a real startup with a monetization plan, user acquisition strategy, and timeline to first paying users. The current plan tries to do both and risks delivering neither.</p>
+<hr>
+<h2 id="domain-1-vision-strategic-clarity">Domain 1: Vision & Strategic Clarity</h2>
+<p><strong>Score: 62/100 | Severity: MEDIUM</strong></p>
+<h3 id="findings">Findings</h3>
+<p><strong>[VIS-01] MEDIUM -- Vision ambiguity between personal project and public product.</strong></p>
+<p>The product oscillates between "I built this for my son" and "ambitions to become a public product." These are fundamentally different strategic postures. A personal project optimizes for delight of one child. A public product optimizes for retention across thousands of children with different needs. Decisions like curriculum alignment, monetization, content investment, and polish level all depend on which path is chosen.</p>
+<p><strong>[VIS-02] LOW -- Vision statement is implicit, not explicit.</strong></p>
+<p>There is no one-sentence articulation of what Math Trainer will become. Something like: "The first Hebrew-native adaptive math game that makes kids beg to practice math, not screen time." A clear vision statement forces prioritization.</p>
+<h3 id="recommendations">Recommendations</h3>
+<ol>
+<li>Write a one-paragraph vision statement and post it in the repo README.</li>
+<li>Make an explicit decision: personal tool vs. public product. Document it. Every strategic choice downstream depends on this.</li>
+<li>If public product: define the "minimum lovable product" (MLP) -- the smallest version that a stranger's child would use more than once.</li>
+</ol>
+<hr>
+<h2 id="domain-2-market-position-competitive-strategy">Domain 2: Market Position & Competitive Strategy</h2>
+<p><strong>Score: 36/100 | Severity: HIGH</strong></p>
+<h3 id="findings">Findings</h3>
+<p><strong>[MKT-01] HIGH -- No competitive moat against well-funded incumbents.</strong></p>
+<p>Khan Academy Kids is free and has hundreds of engineers. Prodigy Math has 50M+ users. IXL has institutional sales. Math Trainer has zero users, zero brand, and zero distribution. Competing head-to-head on "math practice for kids" is not viable. The only viable strategy is niche dominance.</p>
+<p><strong>[MKT-02] HIGH -- The Hebrew niche is real but unvalidated.</strong></p>
+<p>The assertion that "Hebrew math apps: almost none" is plausible but not verified. Has anyone searched the Israeli App Store? Talked to Israeli parents? Checked what schools recommend? The niche could be (a) genuinely empty, (b) empty because demand is low, or (c) served by products you haven't found yet.</p>
+<p><strong>[MKT-03] MEDIUM -- Superhero theme creates IP risk if the product goes public.</strong></p>
+<p>Using Sonic and Spiderman imagery, names, and voice lines in a commercial product would trigger immediate cease-and-desist from Sega and Marvel/Disney. This is fine for a personal project but is a hard blocker for any public/monetized version. Original characters or properly licensed themes would be needed.</p>
+<p><strong>[MKT-04] LOW -- Porter's Five Forces shows an unattractive macro-environment.</strong></p>
+<p>The strategy analyzer returned: competitive rivalry 80, buyer power 70, substitutes 75, new entrants 60. Overall industry attractiveness is low. This reinforces that niche focus (Hebrew + specific pedagogy) is the only viable positioning.</p>
+<h3 id="recommendations">Recommendations</h3>
+<ol>
+<li><strong>Validate the Hebrew niche before building.</strong> Spend 2 hours searching Israeli app stores, Facebook parenting groups, and school recommendation lists. Talk to 5 Israeli parents. This is higher-ROI than any coding work right now.</li>
+<li><strong>If going public, plan for original characters from day one.</strong> Design a "Math Heroes" universe with original characters that can be themed (speed hero = Sonic archetype, web hero = Spiderman archetype) without IP infringement.</li>
+<li><strong>Position as "the Hebrew Khan Academy for math"</strong> -- this is a positioning statement competitors cannot easily replicate due to language, RTL interface requirements, and Israeli curriculum alignment.</li>
+</ol>
+<hr>
+<h2 id="domain-3-product-strategy-roadmap">Domain 3: Product Strategy & Roadmap</h2>
+<p><strong>Score: 55/100 | Severity: HIGH</strong></p>
+<h3 id="findings">Findings</h3>
+<p><strong>[PRD-01] CRITICAL -- 17 tasks across 11 phases is a 12-18 month plan for a full-time developer. For a part-time solo developer, this is 3+ years.</strong></p>
+<p>The implementation plan is beautifully designed but strategically dangerous. At a realistic pace of 1-2 issues per month (nights and weekends), the full plan would take until 2029. By then the market will have changed, the son will be older, and motivation will have eroded. The plan needs ruthless scoping.</p>
+<p><strong>[PRD-02] HIGH -- Content dependencies are the real bottleneck, not code.</strong></p>
+<p>The roadmap treats content (audio files, voice lines, AI teaching videos, curriculum-aligned level configurations) as tasks alongside code features. But content is fundamentally different -- it requires creation, review, iteration, and often external tools or talent. Phase 10 (AI teaching videos) alone could consume months.</p>
+<p><strong>[PRD-03] MEDIUM -- Level map is provisional but is the foundation of everything.</strong></p>
+<p>The 13-level curriculum map drives the problem generator (Phase 1), confidence engine (Phase 2), learning aids (Phase 6), and level-up flow (Phase 7). If the level map changes after son's school workbooks are checked, cascading rework is likely. This validation should happen before any code.</p>
+<p><strong>[PRD-04] MEDIUM -- Phases are sequentially dependent, creating a long critical path.</strong></p>
+<p>The roadmap is strictly sequential (Phase 1 before 2 before 3...). Some phases could be parallelized. For example, i18n (Phase 4) could be built into the component structure from Phase 1, and theming (Phase 5) is independent of the confidence engine (Phase 2).</p>
+<h3 id="recommendations">Recommendations</h3>
+<ol>
+<li><strong>Define a 3-phase MVP that ships in 8 weeks.</strong> Suggested scope:</li>
+<ul>
+<li>Phase A: Level config + problem generator + basic confidence score (Issues #12, #13, #15)</li>
+<li>Phase B: Hebrew/English toggle + Sonic theme polish (Issues #22, #24)</li>
+<li>Phase C: Level-up screen + progress view (Issues #29, #34)</li>
+<li>Everything else goes into "V2 -- if V1 gets traction"</li>
+<li><strong>Validate the level map NOW.</strong> Compare against son's actual textbooks this week. Mark levels as "verified" or "provisional."</li>
+<li><strong>Defer AI teaching videos (Phase 10) indefinitely.</strong> This is the highest-effort, lowest-impact feature for a math game. A simple "show me how" hint system (Phase 6 Tier 1+2) covers 90% of the need.</li>
+<li><strong>Build i18n into the architecture from day one.</strong> Do not bolt it on in Phase 4. Use react-intl or i18next from the first component.</li>
+</ul>
+</ol>
+<hr>
+<h2 id="domain-4-financial-strategy-unit-economics">Domain 4: Financial Strategy & Unit Economics</h2>
+<p><strong>Score: 10/100 | Severity: CRITICAL</strong></p>
+<h3 id="findings">Findings</h3>
+<p><strong>[FIN-01] CRITICAL -- No monetization model defined.</strong></p>
+<p>There is no pricing page, no freemium gate, no subscription plan, no in-app purchase design. The product is designed as if it will be free forever, but the "ambitions to go public" imply revenue is expected. These two things are in direct conflict. Even if the product remains free, understanding the cost structure matters.</p>
+<p><strong>[FIN-02] CRITICAL -- No cost projection for the full product.</strong></p>
+<p>Firebase free tier covers small usage, but the full product (multi-profile with Firestore, AI video storage in Firebase Storage, leaderboard with real-time listeners, PWA with Workbox caching of audio/video assets) will exceed free tier limits at scale. Firebase Storage alone could cost $50-100/month at 1000+ users with video content. Has this been modeled?</p>
+<p><strong>[FIN-03] MEDIUM -- Opportunity cost is the real investment and it is invisible.</strong></p>
+<p>A senior developer's time is worth $100-200/hour. The 17-task plan represents roughly 500-800 hours of development. That is $50K-$160K in opportunity cost. This is not a "free" project -- it is a significant personal investment. Framing it this way helps make rational decisions about scope.</p>
+<h3 id="financial-scenario-summary">Financial Scenario Summary</h3>
+<p>The financial scenario analyzer was run with three scenarios:</p>
+<div class="table-wrap"><table><thead>
+<tr><th>Scenario</th><th>Probability</th><th>Description</th></tr>
+</thead><tbody>
+<tr><td><strong>Niche Success</strong></td><td>40%</td><td>500-1000 paying Hebrew families, freemium model, ~$12K ARR Year 1</td></tr>
+<tr><td><strong>Passion Project</strong></td><td>45%</td><td>Stays free, maintained as hobby, $600/yr hosting costs</td></tr>
+<tr><td><strong>Breakout</strong></td><td>15%</td><td>Viral in parenting community, multi-language, subscription at $4.99/mo</td></tr>
+</tbody></table></div>
+<p>The most likely outcome (45%) is that this remains a passion project. The second most likely (40%) is modest niche success in the Hebrew market. The breakout scenario (15%) requires conditions (virality, time investment, co-founder) that are unlikely given current constraints.</p>
+<h3 id="recommendations">Recommendations</h3>
+<ol>
+<li><strong>Design the monetization model before building premium features.</strong> Even a simple framework: "Free = 3 levels. Premium = all 13 levels + themes + progress tracking. $2.99/month or $19.99/year."</li>
+<li><strong>Calculate your Firebase cost ceiling.</strong> Model costs at 100, 1000, and 10000 users. Set a personal budget limit. Design the architecture to stay within it.</li>
+<li><strong>Track your time investment.</strong> Even informally. "I spent 40 hours this month on Math Trainer" helps you make honest decisions about continuation vs. pivot.</li>
+</ol>
+<hr>
+<h2 id="domain-5-organizational-capacity-execution-risk">Domain 5: Organizational Capacity & Execution Risk</h2>
+<p><strong>Score: 58/100 | Severity: HIGH</strong></p>
+<h3 id="findings">Findings</h3>
+<p><strong>[ORG-01] HIGH -- Solo developer with full-time job is the binding constraint.</strong></p>
+<p>Every strategic recommendation, every feature priority, every timeline estimate must be filtered through one question: "Can one person, working nights and weekends, actually build this?" The answer for the full 11-phase plan is no. The answer for a focused 3-phase MVP is yes.</p>
+<p><strong>[ORG-02] MEDIUM -- No bus factor mitigation.</strong></p>
+<p>If the developer loses motivation, gets busy at work, or moves on, the project dies. There is no documentation aimed at onboarding a contributor, no architecture decision records, and no contributor guide. For a personal project this is acceptable. For a "going public" ambition, it is a risk.</p>
+<p><strong>[ORG-03] MEDIUM -- Skills gap in content creation.</strong></p>
+<p>The developer is a software engineer. The product requires: curriculum design (pedagogy expertise), audio production (voice lines), video production (AI teaching videos), graphic design (character animations, level maps), and copywriting (Hebrew educational content). These are not coding tasks.</p>
+<h3 id="recommendations">Recommendations</h3>
+<ol>
+<li><strong>Accept the solo constraint and design around it.</strong> This means: smaller scope, simpler features, leverage existing assets (free sound effects, open-source illustrations), and ruthless prioritization.</li>
+<li><strong>If going public, consider a co-founder or contributor.</strong> Specifically: someone with education/pedagogy background who can own curriculum and content while you own code.</li>
+<li><strong>Write a minimal CONTRIBUTING.md.</strong> Even for yourself in 6 months. Document: how to run locally, how the architecture works, where the design doc lives.</li>
+</ol>
+<hr>
+<h2 id="domain-6-technology-architecture">Domain 6: Technology & Architecture</h2>
+<p><strong>Score: 68/100 | Severity: LOW</strong></p>
+<h3 id="findings">Findings</h3>
+<p><strong>[TECH-01] LOW -- Stack is well-chosen for the problem.</strong></p>
+<p>React 18 + Vite + Tailwind + Firebase + PWA is a solid, modern, low-maintenance stack. Firebase handles auth, database, storage, and hosting in one platform. PWA means no app store submission hassle. Good decisions.</p>
+<p><strong>[TECH-02] MEDIUM -- Anonymous auth "designed for clean swap later" is a risk.</strong></p>
+<p>Anonymous auth means: no password recovery, no cross-device sync, no account linking. If a user clears their browser data, their child's progress is gone. This is acceptable for a family project but would generate support tickets for a public product. The "clean swap later" should be planned now, even if implemented later.</p>
+<p><strong>[TECH-03] LOW -- localStorage for profile list + PIN hashes is pragmatic but fragile.</strong></p>
+<p>localStorage is wiped on browser data clear, incognito mode, and some iOS Safari behaviors. For a PWA targeting parents' phones, this is a non-trivial risk. Consider fallback to Firestore for profile metadata (not PII -- just profile names and hashed PINs).</p>
+<p><strong>[TECH-04] LOW -- Test coverage is promising (25 tests) but thin for the planned scope.</strong></p>
+<p>25 tests cover the current basic prototype. The confidence engine, multi-profile system, and leaderboard will need significantly more test coverage. The Playwright e2e setup is good -- invest in it early.</p>
+<h3 id="recommendations">Recommendations</h3>
+<ol>
+<li><strong>Keep the stack as-is.</strong> No changes needed. Resist the urge to add complexity.</li>
+<li><strong>Design the auth upgrade path now.</strong> Write a 1-page ADR (Architecture Decision Record): "When we add real auth, here is how anonymous accounts will be linked."</li>
+<li><strong>Add Firestore backup for profile data.</strong> Even storing { profileId, displayName, pinHash } in Firestore (keyed to anonymous UID) protects against localStorage loss.</li>
+</ol>
+<hr>
+<h2 id="domain-7-user-experience-product-market-fit">Domain 7: User Experience & Product-Market Fit</h2>
+<p><strong>Score: 50/100 | Severity: MEDIUM</strong></p>
+<h3 id="findings">Findings</h3>
+<p><strong>[UX-01] MEDIUM -- The product has never been tested with a child other than the developer's son.</strong></p>
+<p>Product-market fit requires testing with the market, not just the founder's family. Children are brutally honest users -- they will close the app in 3 seconds if it is not fun. The confidence engine scoring weights (correct: +8, wrong: -12) could feel punishing to a struggling child. These parameters need testing.</p>
+<p><strong>[UX-02] MEDIUM -- No retention mechanism in the current design.</strong></p>
+<p>The design includes progress visualization and leaderboard, but these are Phases 8-9. The MVP has no reason for a child to come back tomorrow. Consider: daily challenges, streaks, or a simple "collect stars" mechanic that works from day one.</p>
+<p><strong>[UX-03] LOW -- Accessibility for children with learning differences is not addressed.</strong></p>
+<p>Dyscalculia, ADHD, and motor difficulties are common in the target age range. The design does not mention accessibility considerations. This is not critical for a personal project but matters for a public product claiming to be "adaptive."</p>
+<h3 id="recommendations">Recommendations</h3>
+<ol>
+<li><strong>Test with 3-5 children who are not your son.</strong> Friends' kids, neighbors, relatives. Watch them use it silently. Note where they get confused, bored, or frustrated. This is the highest-ROI activity after validating the Hebrew niche.</li>
+<li><strong>Add a minimal retention hook to the MVP.</strong> A daily streak counter is trivial to implement and dramatically increases return visits.</li>
+<li><strong>Test the confidence engine scoring with real children before finalizing weights.</strong> The -12 penalty for wrong answers may feel discouraging to younger or less confident kids.</li>
+</ol>
+<hr>
+<h2 id="domain-8-go-to-market-distribution">Domain 8: Go-to-Market & Distribution</h2>
+<p><strong>Score: 20/100 | Severity: HIGH</strong></p>
+<h3 id="findings">Findings</h3>
+<p><strong>[GTM-01] HIGH -- No distribution strategy.</strong></p>
+<p>The product is live at a Firebase URL. There is no plan for how anyone will find it. SEO + llms.txt is Phase 11 (last). For a kids' product, distribution happens through: parent communities, school recommendations, App Store/Play Store presence, social media (TikTok/Instagram parenting content), and word of mouth. None of these are planned.</p>
+<p><strong>[GTM-02] HIGH -- PWA-only means no App Store presence.</strong></p>
+<p>Parents looking for "math game for kids" search the App Store, not Google. A PWA cannot be listed in the App Store or Play Store search results. This eliminates the single largest discovery channel for kids' apps. A PWA wrapper (Capacitor, TWA) should be considered for distribution even if the core stays web-based.</p>
+<p><strong>[GTM-03] MEDIUM -- No landing page or marketing site.</strong></p>
+<p>The Firebase URL goes directly to the app. There is no landing page explaining what it is, who it is for, or why a parent should try it. Even for a free product, a landing page dramatically improves conversion from "heard about it" to "tried it."</p>
+<h3 id="recommendations">Recommendations</h3>
+<ol>
+<li><strong>Build a simple landing page before anything else.</strong> One page: hero image of a kid using the app, 3 bullet points, a "Try Free" button. This is the prerequisite for any distribution.</li>
+<li><strong>Plan a Capacitor or TWA wrapper early.</strong> This lets you submit to app stores with minimal additional code. It does not need to be Phase 1, but it should be Phase 2 or 3.</li>
+<li><strong>Identify 3-5 Hebrew parenting Facebook groups or forums.</strong> These are the initial distribution channel. A genuine post from a father who built a math game for his son is compelling content.</li>
+<li><strong>Move SEO/llms.txt from Phase 11 to Phase 3.</strong> Basic SEO (title tags, meta descriptions, structured data) should be part of any public launch.</li>
+</ol>
+<hr>
+<h2 id="domain-9-risk-management">Domain 9: Risk Management</h2>
+<p><strong>Score: 45/100 | Severity: MEDIUM</strong></p>
+<h3 id="findings">Findings</h3>
+<p><strong>[RISK-01] HIGH -- IP risk from Sonic/Spiderman is unaddressed.</strong></p>
+<p>Repeated for emphasis because this is a legal risk, not just a branding one. Using trademarked characters (Sonic, Spiderman) in any product that generates revenue or has public distribution could result in legal action. This risk must be explicitly accepted (personal project only) or mitigated (original characters).</p>
+<p><strong>[RISK-02] MEDIUM -- COPPA/GDPR-K compliance is not considered.</strong></p>
+<p>Products targeting children under 13 are subject to strict privacy regulations. COPPA (US), GDPR Article 8 (EU), and Israel's Privacy Protection Law all impose requirements on data collection from children. Firebase Analytics, anonymous auth tracking, and leaderboard data all have compliance implications.</p>
+<p><strong>[RISK-03] MEDIUM -- No data backup or disaster recovery plan.</strong></p>
+<p>Firestore data, Firebase Storage content, and the codebase (presumably in GitHub) are the critical assets. Is there a backup strategy? What happens if the Firebase project is accidentally deleted?</p>
+<p><strong>[RISK-04] LOW -- Technology risk is low but vendor lock-in to Firebase is real.</strong></p>
+<p>Firebase is convenient but proprietary. If Google changes pricing (as they have before), migration would be significant. For a personal project this is acceptable. For a business, having an exit plan matters.</p>
+<h3 id="recommendations">Recommendations</h3>
+<ol>
+<li><strong>Make an explicit decision about IP.</strong> Either: (a) "This is personal, I accept the IP risk for family use," or (b) "Going public, I will create original characters before any distribution."</li>
+<li><strong>Read COPPA requirements for 30 minutes.</strong> Understand what you can and cannot collect from children. The anonymous auth + localStorage design is actually good for compliance, but leaderboard (names visible to others) and any analytics need review.</li>
+<li><strong>Enable Firebase daily backups.</strong> This is a one-click setting. Do it today.</li>
+<li><strong>Keep the GitHub repo as the source of truth.</strong> Ensure all configuration, security rules, and infrastructure are in code (IaC).</li>
+</ol>
+<hr>
+<h2 id="domain-10-stakeholder-management-personal-sustainability">Domain 10: Stakeholder Management & Personal Sustainability</h2>
+<p><strong>Score: 65/100 | Severity: MEDIUM</strong></p>
+<h3 id="findings">Findings</h3>
+<p><strong>[STK-01] MEDIUM -- The primary stakeholder (your son) may outgrow the product before it ships.</strong></p>
+<p>If your son is currently in the target age range and the full plan takes 3+ years, he may be beyond the product's target audience by completion. This creates a motivation risk: the personal "why" erodes over time.</p>
+<p><strong>[STK-02] MEDIUM -- Solo passion projects have a high abandonment rate.</strong></p>
+<p>Industry data suggests >80% of side projects are abandoned within 6 months. The 11-phase plan increases this risk because progress feels slow relative to the vision. Quick wins and visible progress are essential for sustained motivation.</p>
+<p><strong>[STK-03] LOW -- Family time trade-off is unacknowledged.</strong></p>
+<p>Nights and weekends spent coding are nights and weekends not spent with the family the product is meant to serve. This is a real trade-off that should be consciously managed.</p>
+<h3 id="recommendations">Recommendations</h3>
+<ol>
+<li><strong>Ship something your son can use within 4 weeks.</strong> Not the full vision -- just enough that he is playing it regularly. His excitement is your fuel.</li>
+<li><strong>Set a weekly time budget.</strong> "I work on Math Trainer 6 hours per week, max." This prevents burnout and family friction.</li>
+<li><strong>Celebrate milestones visibly.</strong> Let your son see each new feature. His reaction is your product-market fit signal.</li>
+<li><strong>Build in public.</strong> Share progress on social media or a dev blog. External accountability and community feedback sustain motivation far better than solo discipline.</li>
+</ol>
+<hr>
+<h2 id="strategic-health-dashboard">Strategic Health Dashboard</h2>
+<div class="table-wrap"><table><thead>
+<tr><th>Domain</th><th>Score</th><th>Severity</th><th>Key Issue</th></tr>
+</thead><tbody>
+<tr><td>1. Vision & Strategic Clarity</td><td>62</td><td>MEDIUM</td><td>Ambiguity between personal project and startup</td></tr>
+<tr><td>2. Market Position</td><td>36</td><td>HIGH</td><td>No moat, unvalidated niche, IP risk</td></tr>
+<tr><td>3. Product Strategy</td><td>55</td><td>HIGH</td><td>Scope is 10x what a solo dev can ship</td></tr>
+<tr><td>4. Financial Strategy</td><td>10</td><td>CRITICAL</td><td>No monetization model, no cost projections</td></tr>
+<tr><td>5. Organizational Capacity</td><td>58</td><td>HIGH</td><td>Solo developer is the binding constraint</td></tr>
+<tr><td>6. Technology</td><td>68</td><td>LOW</td><td>Stack is solid, minor auth/storage risks</td></tr>
+<tr><td>7. User Experience</td><td>50</td><td>MEDIUM</td><td>Untested with real children</td></tr>
+<tr><td>8. Go-to-Market</td><td>20</td><td>HIGH</td><td>No distribution plan, no app store presence</td></tr>
+<tr><td>9. Risk Management</td><td>45</td><td>MEDIUM</td><td>IP, COPPA, and data backup gaps</td></tr>
+<tr><td>10. Stakeholder/Sustainability</td><td>65</td><td>MEDIUM</td><td>Motivation risk from long timeline</td></tr>
+<tr><td><strong>Overall</strong></td><td><strong>40.2</strong></td><td><strong>--</strong></td><td><strong>Pre-revenue passion project with startup ambitions</strong></td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="top-5-actions-ordered-by-impact">Top 5 Actions (Ordered by Impact)</h2>
+<h3 id="action-1-decide-the-path-week-1">Action 1: Decide the Path (Week 1)</h3>
+<p><strong>Choose:</strong> Personal project or public product. Write it down. Share it with someone. This unlocks every other decision. If personal: build for your son, skip monetization, skip GTM, use Sonic freely. If public: design monetization, plan original characters, validate the Hebrew niche.</p>
+<h3 id="action-2-validate-before-building-weeks-1-2">Action 2: Validate Before Building (Weeks 1-2)</h3>
+<p><strong>Do:</strong> Search Israeli app stores for Hebrew math apps. Post in 2 Hebrew parenting groups asking "what math apps do your kids use?" Talk to 5 parents. Check son's textbooks against the level map. This takes 5-10 hours and could save 500+ hours of building the wrong thing.</p>
+<h3 id="action-3-scope-to-a-4-6-week-mvp-week-2">Action 3: Scope to a 4-6 Week MVP (Week 2)</h3>
+<p><strong>Do:</strong> Take the 11-phase plan and ruthlessly cut it to 3 phases (level config + problem generator, basic confidence tracking, Hebrew/English). Ship it. Let your son and 5 other kids use it. Learn from their behavior. Then decide what Phase 4 is.</p>
+<h3 id="action-4-design-monetization-if-going-public-week-3">Action 4: Design Monetization If Going Public (Week 3)</h3>
+<p><strong>Do:</strong> Define free vs. premium tiers. Set a price. Model Firebase costs at 100/1000/10000 users. Determine if this can be self-sustaining or will always be subsidized. This is a 2-hour exercise that shapes every technical and product decision.</p>
+<h3 id="action-5-build-a-landing-page-week-4">Action 5: Build a Landing Page (Week 4)</h3>
+<p><strong>Do:</strong> One page explaining the product, with a "Try Free" button. This is the prerequisite for any distribution. It also forces you to articulate the value proposition in parent-facing language, which clarifies the product vision.</p>
+<hr>
+<h2 id="swot-analysis-math-trainer-specific">SWOT Analysis (Math Trainer Specific)</h2>
+<h3 id="strengths">Strengths</h3>
+<ul>
+<li>Genuine personal motivation (built for his own son)</li>
+<li>Hebrew language creates natural niche with minimal competition</li>
+<li>Strong technical foundation (React, Firebase, CI/CD, tests)</li>
+<li>Complete design documentation (rare for a personal project)</li>
+<li>Low operational cost (Firebase free tier, OSS stack)</li>
+<li>Developer has strong engineering skills (evidenced by architecture choices)</li>
+</ul>
+<h3 id="weaknesses">Weaknesses</h3>
+<ul>
+<li>Solo developer with limited available time</li>
+<li>Zero users, zero brand, zero distribution</li>
+<li>No monetization design</li>
+<li>No content creation capability (audio, video, design)</li>
+<li>Superhero IP creates legal exposure</li>
+<li>No validation with target users beyond one child</li>
+</ul>
+<h3 id="opportunities">Opportunities</h3>
+<ul>
+<li>Hebrew math app market is genuinely underserved</li>
+<li>Israeli parent communities are tight-knit (strong word-of-mouth potential)</li>
+<li>"Father built this for his son" is a compelling narrative for organic marketing</li>
+<li>PWA means no app store gatekeeping (ship fast, iterate fast)</li>
+<li>AI tools (for content generation) are rapidly improving and could solve content bottleneck</li>
+<li>Potential to expand to other subjects (reading, science) using same engine</li>
+</ul>
+<h3 id="threats">Threats</h3>
+<ul>
+<li>Well-funded competitors (Khan Academy, Prodigy) could add Hebrew support</li>
+<li>Parent attention is fragmented across many screen-time options</li>
+<li>Regulatory complexity (COPPA, GDPR-K) for children's products</li>
+<li>Firebase pricing changes could increase costs unpredictably</li>
+<li>Developer burnout from ambitious scope vs. limited time</li>
+<li>Son outgrowing the product before completion</li>
+</ul>
+<hr>
+<h2 id="blue-ocean-strategy-assessment">Blue Ocean Strategy Assessment</h2>
+<h3 id="four-actions-framework-for-math-trainer">Four Actions Framework for Math Trainer</h3>
+<p><strong>ELIMINATE</strong> (factors the industry competes on that Math Trainer should drop):</p>
+<ul>
+<li>Complex onboarding flows (go straight to playing)</li>
+<li>Account creation requirements (anonymous auth is correct)</li>
+<li>Curriculum breadth (focus on math only, do it deeply)</li>
+<li>Desktop-first design (mobile-first, always)</li>
+</ul>
+<p><strong>REDUCE</strong> (factors that should be reduced well below industry standard):</p>
+<ul>
+<li>Number of features at launch (3-4 core features vs. dozens)</li>
+<li>Content production scope (no AI videos in V1 -- simple hints only)</li>
+<li>Age range at launch (focus on ages 5-8 first, expand later)</li>
+<li>Gamification complexity (simple streaks and stars, not elaborate quest systems)</li>
+</ul>
+<p><strong>RAISE</strong> (factors that should be raised well above industry standard):</p>
+<ul>
+<li>Hebrew language quality (not Google Translate -- native, natural Hebrew)</li>
+<li>Emotional design (a child should feel proud, not punished, when they struggle)</li>
+<li>Speed to first fun moment (under 10 seconds from opening the app)</li>
+<li>Parent trust (transparent about what data is collected -- almost nothing)</li>
+</ul>
+<p><strong>CREATE</strong> (factors the industry has never offered):</p>
+<ul>
+<li>Hebrew-first adaptive math with Israeli curriculum alignment</li>
+<li>Superhero motivation layer (original characters) on rigorous math pedagogy</li>
+<li>Confidence engine that adapts to emotional state, not just correctness</li>
+<li>Family-first design (multiple kids per device, no individual accounts needed)</li>
+</ul>
+<hr>
+<h2 id="closing-assessment">Closing Assessment</h2>
+<p>Math Trainer is a product built with love, designed with care, and planned with ambition that significantly exceeds the available execution capacity. This is not a criticism -- it is a common and understandable pattern for passionate founders.</p>
+<p>The product idea is sound. The Hebrew niche is real. The technical foundation is solid. The design documentation is unusually thorough for a personal project. These are genuine strengths.</p>
+<p>The strategic risk is not failure -- it is stagnation. A 3-year plan that delivers 30% of the vision is worse than a 6-week plan that delivers 100% of a smaller vision. The most important decision is not what to build next, but what to explicitly decide NOT to build.</p>
+<p>Ship something small. Put it in your son's hands. Watch him play. That will teach you more about what Math Trainer should become than any strategic audit ever could.</p>
+<hr>
+<p><em>Generated by cs-ceo-advisor | Strategy Analyzer Score: 40.2/100 | Financial Scenario Analysis: 3 scenarios modeled | Knowledge bases consulted: Executive Decision Framework, Board Governance & Investor Relations, Leadership & Organizational Culture</em></p>
+</section>
+<hr>
+<section id="math-trainer-execution-plan-from-40-2-100-to-working-mvp">
+<h1 id="math-trainer-execution-plan-from-40-2-100-to-working-mvp">Math Trainer Execution Plan: From 40.2/100 to Working MVP</h1>
+<p><strong>Date:</strong> 2026-03-12</p>
+<p><strong>Input:</strong> CEO Strategic Audit (score: 40.2/100 -- Weak)</p>
+<p><strong>Author:</strong> Solution Designer Agent</p>
+<p><strong>Constraint:</strong> Solo developer, ~10 hrs/week, 2-week sprints, max 3 stories/sprint</p>
+<hr>
+<h2 id="1-situation-assessment">1. Situation Assessment</h2>
+<h3 id="what-the-audit-got-wrong">What the Audit Got Wrong</h3>
+<p>The CEO audit was based on the handoff document from March 7, which described a project with "0% of redesigned product implemented." That was accurate on March 7. It is not accurate on March 12.</p>
+<p><strong>Actual progress as of 2026-03-12:</strong></p>
+<div class="table-wrap"><table><thead>
+<tr><th>Phase</th><th>Status</th><th>Issues</th><th>Tests Added</th></tr>
+</thead><tbody>
+<tr><td>1 -- Level Config + Problem Generator</td><td>COMPLETE</td><td>#12, #13</td><td>~40</td></tr>
+<tr><td>2 -- Confidence Engine</td><td>COMPLETE</td><td>#15, #16 (6 sub-issues)</td><td>~80</td></tr>
+<tr><td>3 -- Multi-Profile + PIN</td><td>COMPLETE</td><td>#18, #19, #20 (12 sub-issues)</td><td>~180</td></tr>
+<tr><td>6 -- Learning Aids (Tier 1+2)</td><td>COMPLETE</td><td>#26, #27 (7 sub-issues)</td><td>~130</td></tr>
+<tr><td>7 -- Level Progression UI</td><td>COMPLETE (on epic branch)</td><td>#28 (5 sub-issues)</td><td>~105</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>5 of 11 phases done</strong></td><td><strong>32 sub-issues closed</strong></td><td><strong>613 tests passing</strong></td></tr>
+</tbody></table></div>
+<p>The current codebase is not a "basic prototype." It is a functional adaptive math trainer with 13 levels, a confidence engine, multi-profile support, learning aids, and a level progression UI. The remaining work is polish and distribution, not core engine.</p>
+<h3 id="what-the-audit-got-right">What the Audit Got Right</h3>
+<p>These findings remain valid and important:</p>
+<ol>
+<li><strong>CRITICAL: No monetization model.</strong> Still true. No premium tier, no pricing, no cost modeling.</li>
+<li><strong>HIGH: IP risk from Sonic/Spiderman.</strong> Still true. Themes are designed but not yet implemented (Phase 5 is in backlog). This is the right time to make the IP decision.</li>
+<li><strong>HIGH: No distribution strategy.</strong> Still true. No landing page, no app store presence, no SEO.</li>
+<li><strong>HIGH: Content bottleneck.</strong> Still true. Audio files and AI videos are external blockers. AI video PM scripts failed to generate.</li>
+<li><strong>MEDIUM: COPPA compliance.</strong> Still true. Anonymous auth is good, but leaderboard nicknames and analytics need review.</li>
+<li><strong>MEDIUM: Son may outgrow it.</strong> Partially addressed -- 5 phases are done. The faster we ship what exists, the less this risk matters.</li>
+</ol>
+<h3 id="current-blockers">Current Blockers</h3>
+<div class="table-wrap"><table><thead>
+<tr><th>Blocker</th><th>Severity</th><th>Notes</th></tr>
+</thead><tbody>
+<tr><td>Issue #93: Production regression e2e failure</td><td>P0</td><td>Must fix before any new work</td></tr>
+<tr><td>Epic #25 promotion PR #76</td><td>Blocking</td><td>3 green bake days, ready to merge to main</td></tr>
+<tr><td>Epic #28 staging</td><td>Queued</td><td>Waiting for #25 promotion</td></tr>
+<tr><td>i18n not built into architecture</td><td>Technical debt</td><td>Phase 4 groomed but not started</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="2-strategic-decision-path-a-personal-tool-first-path-b-public-product-later">2. Strategic Decision: Path A (Personal Tool) First, Path B (Public Product) Later</h2>
+<p>The CEO audit's top recommendation is correct: <strong>pick a path.</strong> The recommended answer is:</p>
+<blockquote><strong>Path A first.</strong> Ship a working product the founder's son uses daily within 2-3 weeks. THEN evaluate Path B based on real usage data.</blockquote>
+<p>This means:</p>
+<ul>
+<li><strong>IN:</strong> Hebrew toggle, basic progress view, fix the regression, promote what is built</li>
+<li><strong>OUT (for now):</strong> Monetization, landing page, app store, SEO, AI videos, leaderboard</li>
+<li><strong>DECISION DEFERRED:</strong> Superhero theme IP, COPPA compliance, distribution strategy</li>
+</ul>
+<p>The reasoning: 5 phases of core engine are done. The son can start using this product today if it ships. Spending 4 more weeks on polish before shipping is the exact anti-pattern the audit warns about.</p>
+<hr>
+<h2 id="3-revised-phase-prioritization">3. Revised Phase Prioritization</h2>
+<h3 id="original-11-phase-plan-vs-mvp-execution-plan">Original 11-Phase Plan vs. MVP Execution Plan</h3>
+<div class="table-wrap"><table><thead>
+<tr><th>Original Phase</th><th>Original Priority</th><th>MVP Decision</th><th>Rationale</th></tr>
+</thead><tbody>
+<tr><td>1 -- Level Config</td><td>P0</td><td>DONE</td><td>Shipped 2026-03-08</td></tr>
+<tr><td>2 -- Confidence Engine</td><td>P0</td><td>DONE</td><td>Shipped 2026-03-08</td></tr>
+<tr><td>3 -- Multi-Profile</td><td>P0</td><td>DONE</td><td>Shipped 2026-03-08</td></tr>
+<tr><td>6 -- Learning Aids</td><td>P0</td><td>DONE</td><td>Shipped 2026-03-09</td></tr>
+<tr><td>7 -- Level Progression UI</td><td>P0</td><td>DONE (needs merge)</td><td>Epic branch complete 2026-03-11</td></tr>
+<tr><td><strong>4 -- i18n Hebrew/English</strong></td><td><strong>P1</strong></td><td><strong>MVP-IN (Sprint 1)</strong></td><td><strong>Son's primary language is Hebrew</strong></td></tr>
+<tr><td><strong>9 -- Progress View</strong></td><td><strong>P1</strong></td><td><strong>MVP-IN (Sprint 2)</strong></td><td><strong>"How am I doing?" -- minimal child view</strong></td></tr>
+<tr><td>5 -- Superhero Themes</td><td>P1</td><td>DEFER to V2</td><td>IP risk + content dependency. Defer until path decision</td></tr>
+<tr><td>8 -- Leaderboard</td><td>P1</td><td>DEFER to V2</td><td>Requires other users to be meaningful</td></tr>
+<tr><td>10 -- AI Videos</td><td>P2</td><td>DEFER indefinitely</td><td>Highest effort, lowest impact for personal use</td></tr>
+<tr><td>11 -- SEO + GTM</td><td>P2</td><td>DEFER to V2</td><td>No value until going public</td></tr>
+</tbody></table></div>
+<h3 id="what-mvp-means-shippable-in-4-6-weeks">What "MVP" Means (Shippable in 4-6 Weeks)</h3>
+<p>The son opens the app on a phone. He sees his profile. He enters his PIN. The app is in Hebrew. He plays math at his level. The confidence engine adapts. If he struggles, visual aids appear. When he masters a level, a celebration screen plays and the next level unlocks. He can see his progress on a level map. His father can see accuracy trends and time played.</p>
+<p>That is a complete product for a 6-year-old. Everything else is enhancement.</p>
+<hr>
+<h2 id="4-execution-plan-4-sprints-8-weeks">4. Execution Plan (4 Sprints, 8 Weeks)</h2>
+<h3 id="pre-sprint-unblock-the-pipeline-days-1-2">Pre-Sprint: Unblock the Pipeline (Days 1-2)</h3>
+<p>These are blocking operations that must happen before sprint work begins.</p>
+<div class="table-wrap"><table><thead>
+<tr><th>#</th><th>Action</th><th>Est.</th><th>Existing Issue</th></tr>
+</thead><tbody>
+<tr><td>0.1</td><td>Fix production regression (Issue #93)</td><td>2h</td><td>#93</td></tr>
+<tr><td>0.2</td><td>Merge Epic #25 promotion PR #76 (learning aids to main)</td><td>30m</td><td>PR #76</td></tr>
+<tr><td>0.3</td><td>Stage Epic #28 (level progression UI) for bake</td><td>1h</td><td>TL_STATE queue</td></tr>
+<tr><td>0.4</td><td>Wait for Epic #28 bake period (3 green days)</td><td>3 days</td><td>CI automated</td></tr>
+<tr><td>0.5</td><td>Promote Epic #28 to main</td><td>30m</td><td>--</td></tr>
+</tbody></table></div>
+<p><strong>Gate:</strong> After 0.5, <code>main</code> has Phases 1-3, 6, 7 merged. The app on production has all core features except i18n and progress view.</p>
+<hr>
+<h3 id="sprint-1-hebrew-language-weeks-1-2">Sprint 1: Hebrew Language (Weeks 1-2)</h3>
+<p><strong>Goal:</strong> The app speaks Hebrew. RTL layout works. The son's profile defaults to Hebrew.</p>
+<p><strong>Epic:</strong> #21 -- Phase 4 -- i18n Hebrew + English</p>
+<p><strong>Sub-issues (already groomed):</strong> #87, #88, #89, #90, #91, #92</p>
+<div class="table-wrap"><table><thead>
+<tr><th>Story</th><th>Issue</th><th>Description</th><th>Size</th><th>Sprint Slot</th></tr>
+</thead><tbody>
+<tr><td>i18n Infrastructure</td><td>#87</td><td>react-i18next setup, translation files, LanguageProvider</td><td>S</td><td>Week 1</td></tr>
+<tr><td>Profile Language + RTL</td><td>#88</td><td>Per-profile language switching, document dir attribute</td><td>S</td><td>Week 1</td></tr>
+<tr><td>Core Screens Strings</td><td>#89</td><td>Externalize all hardcoded strings in StartScreen, GameScreen, ResultScreen</td><td>M</td><td>Week 1-2</td></tr>
+<tr><td>Profile Components</td><td>#90</td><td>Externalize strings in ProfileSwitcher, PinEntry, CreateProfile</td><td>S</td><td>Week 2</td></tr>
+<tr><td>Strategy Engine i18n</td><td>#91</td><td>Translate strategy hint text, number line labels</td><td>S</td><td>Week 2</td></tr>
+<tr><td>Test Infrastructure</td><td>#92</td><td>i18n test helpers, integration tests for RTL layout</td><td>S</td><td>Week 2</td></tr>
+</tbody></table></div>
+<p><strong>Sprint capacity:</strong> 6 sub-issues is aggressive for a 2-week sprint. Sub-issues #87-#90 are the critical path. #91 and #92 can slip to Sprint 2 if needed.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul>
+<li>[ ] App renders in Hebrew with RTL layout when profile language is "he"</li>
+<li>[ ] App renders in English with LTR layout when profile language is "en"</li>
+<li>[ ] All visible UI strings come from translation files (no hardcoded text)</li>
+<li>[ ] Profile creation lets child pick language</li>
+<li>[ ] Strategy hints display in profile language</li>
+<li>[ ] All existing tests pass + new i18n tests added</li>
+</ul>
+<p><strong>Dependencies:</strong> None. Phase 4 was groomed with 6 sub-issues and an execution plan.</p>
+<p><strong>CEO audit alignment:</strong> Addresses [PRD-04] "build i18n into architecture from day one" and is the single most important feature for the son's actual usage.</p>
+<hr>
+<h3 id="sprint-2-progress-view-stabilization-weeks-3-4">Sprint 2: Progress View + Stabilization (Weeks 3-4)</h3>
+<p><strong>Goal:</strong> The child can see "how am I doing" and the parent can see accuracy trends.</p>
+<p><strong>Epic:</strong> #33 -- Phase 9 -- Progress Visualization</p>
+<p><strong>Existing issue:</strong> #34 (Task 15: ProgressView component)</p>
+<p>This issue needs grooming and sub-issue breakdown before sprint start. Suggested decomposition:</p>
+<div class="table-wrap"><table><thead>
+<tr><th>Story</th><th>New Issue?</th><th>Description</th><th>Size</th></tr>
+</thead><tbody>
+<tr><td>Child progress view</td><td>Sub-issue of #34</td><td>Level map with completion status, current confidence thermometer, streak display</td><td>M</td></tr>
+<tr><td>Parent stats view</td><td>Sub-issue of #34</td><td>Accuracy trend (7-day), time played per day, learning aids triggered</td><td>M</td></tr>
+<tr><td>Navigation integration</td><td>Sub-issue of #34</td><td>Add progress button to StartScreen, long-press for parent view</td><td>S</td></tr>
+</tbody></table></div>
+<p><strong>Scope cut from original design:</strong></p>
+<ul>
+<li>NO stars-per-level (criteria undefined, not needed for MVP)</li>
+<li>NO trend chart library -- use simple CSS bars or text stats initially</li>
+<li>Parent view can be basic text stats, not charts</li>
+</ul>
+<p><strong>Acceptance criteria:</strong></p>
+<ul>
+<li>[ ] Child can tap a progress button on StartScreen to see level map with completion status</li>
+<li>[ ] Current level shows confidence thermometer (animated, color-coded)</li>
+<li>[ ] Best streak displayed per level</li>
+<li>[ ] Parent can access stats via long-press + PIN</li>
+<li>[ ] Parent sees: accuracy %, problems solved, time played per day (last 7 days)</li>
+<li>[ ] Works in both Hebrew and English</li>
+</ul>
+<p><strong>Dependencies:</strong> Sprint 1 (i18n) should be done so progress view ships bilingual from day one.</p>
+<p><strong>Remaining Sprint 2 capacity (if i18n items slipped):</strong> Absorb #91, #92 from Sprint 1.</p>
+<hr>
+<h3 id="sprint-3-ship-son-testing-weeks-5-6">Sprint 3: Ship + Son Testing (Weeks 5-6)</h3>
+<p><strong>Goal:</strong> Product is deployed to production. Son uses it daily. Father observes and collects feedback.</p>
+<p>This is NOT a coding sprint. This is a validation sprint.</p>
+<div class="table-wrap"><table><thead>
+<tr><th>#</th><th>Action</th><th>Est.</th><th>Notes</th></tr>
+</thead><tbody>
+<tr><td>3.1</td><td>Final merge: promote Sprint 1+2 code to main</td><td>2h</td><td>Follow bake process</td></tr>
+<tr><td>3.2</td><td>Deploy to production Firebase</td><td>30m</td><td>CD pipeline handles this</td></tr>
+<tr><td>3.3</td><td>Son testing (daily, 15-20 min)</td><td>2 weeks</td><td>Observe: what levels? where stuck? engagement?</td></tr>
+<tr><td>3.4</td><td>Fix bugs found during son testing</td><td>4-6h</td><td>Budget for 2-3 issues</td></tr>
+<tr><td>3.5</td><td>Test with 2-3 other kids (friends/family)</td><td>2h setup</td><td>Watch silently, take notes</td></tr>
+<tr><td>3.6</td><td>Validate level map vs. son's textbooks</td><td>1h</td><td>Check levels 1-7 specifically</td></tr>
+<tr><td>3.7</td><td>Document findings in <code>docs/plans/mvp-validation-report.md</code></td><td>1h</td><td>What worked, what didn't, what's next</td></tr>
+</tbody></table></div>
+<p><strong>CEO audit alignment:</strong> Directly addresses [UX-01] "test with real children", [STK-01] "ship something your son can use within 4 weeks", [STK-03] "celebrate milestones visibly."</p>
+<p><strong>This sprint has minimal coding.</strong> The developer's job is to watch, listen, and learn.</p>
+<hr>
+<h3 id="sprint-4-decide-path-v2-planning-weeks-7-8">Sprint 4: Decide Path + V2 Planning (Weeks 7-8)</h3>
+<p><strong>Goal:</strong> Based on validation data, decide: personal project or public product. Plan accordingly.</p>
+<div class="table-wrap"><table><thead>
+<tr><th>#</th><th>Action</th><th>Est.</th><th>Depends On</th></tr>
+</thead><tbody>
+<tr><td>4.1</td><td>Analyze validation report from Sprint 3</td><td>1h</td><td>Sprint 3 complete</td></tr>
+<tr><td>4.2</td><td><strong>PATH DECISION:</strong> Write 1-paragraph vision statement</td><td>30m</td><td>4.1</td></tr>
+<tr><td>4.3a</td><td>IF personal: plan confidence tuning + minor UX fixes</td><td>2h</td><td>4.2</td></tr>
+<tr><td>4.3b</td><td>IF public: design monetization model (free vs premium tiers)</td><td>3h</td><td>4.2</td></tr>
+<tr><td>4.4b</td><td>IF public: calculate Firebase cost ceiling at 100/1K/10K users</td><td>2h</td><td>4.3b</td></tr>
+<tr><td>4.5b</td><td>IF public: create original characters to replace Sonic/Spiderman</td><td>4h</td><td>4.3b</td></tr>
+<tr><td>4.6b</td><td>IF public: build landing page</td><td>4h</td><td>4.5b</td></tr>
+<tr><td>4.7</td><td>Create V2 roadmap based on path decision</td><td>2h</td><td>All above</td></tr>
+</tbody></table></div>
+<p><strong>CEO audit alignment:</strong> Addresses [VIS-01] "vision ambiguity", [FIN-01] "no monetization model", [MKT-03] "IP risk", [GTM-03] "no landing page."</p>
+<hr>
+<h2 id="5-github-issue-mapping">5. GitHub Issue Mapping</h2>
+<h3 id="issues-to-reuse-as-is">Issues to Reuse As-Is</h3>
+<div class="table-wrap"><table><thead>
+<tr><th>Issue</th><th>Title</th><th>Sprint</th><th>Notes</th></tr>
+</thead><tbody>
+<tr><td>#93</td><td>Production regression</td><td>Pre-Sprint</td><td>P0 bug, fix immediately</td></tr>
+<tr><td>#87</td><td>#21.1: i18n Infrastructure + Translation Files</td><td>Sprint 1</td><td>Groomed, ready</td></tr>
+<tr><td>#88</td><td>#21.2: Profile-Driven Language Switching + RTL Setup</td><td>Sprint 1</td><td>Groomed, ready</td></tr>
+<tr><td>#89</td><td>#21.3: Externalize Strings -- Core Screens</td><td>Sprint 1</td><td>Groomed, ready</td></tr>
+<tr><td>#90</td><td>#21.4: Externalize Strings -- Profile Components</td><td>Sprint 1</td><td>Groomed, ready</td></tr>
+<tr><td>#91</td><td>#21.5: Strategy Engine i18n Refactoring</td><td>Sprint 1-2</td><td>Groomed, can slip</td></tr>
+<tr><td>#92</td><td>#21.6: Test Infrastructure + Integration Tests</td><td>Sprint 1-2</td><td>Groomed, can slip</td></tr>
+<tr><td>#34</td><td>Task 15: ProgressView component</td><td>Sprint 2</td><td>Needs grooming + sub-issue breakdown</td></tr>
+</tbody></table></div>
+<h3 id="issues-to-keep-open-but-explicitly-defer">Issues to Keep Open but Explicitly Defer</h3>
+<div class="table-wrap"><table><thead>
+<tr><th>Issue</th><th>Title</th><th>Defer Until</th><th>CEO Audit Ref</th></tr>
+</thead><tbody>
+<tr><td>#24</td><td>Task 9: ThemeProvider + voice lines</td><td>V2 (post path decision)</td><td>[MKT-03] IP risk</td></tr>
+<tr><td>#23</td><td>Phase 5 -- Superhero Theme System</td><td>V2</td><td>[MKT-03] IP risk</td></tr>
+<tr><td>#32</td><td>Task 14: Leaderboard</td><td>V2</td><td>Needs other users</td></tr>
+<tr><td>#31</td><td>Phase 8 -- Leaderboard</td><td>V2</td><td>Needs other users</td></tr>
+<tr><td>#36</td><td>Task 16: AI Teaching Videos</td><td>V2+ or indefinite</td><td>[PRD-02] Content bottleneck</td></tr>
+<tr><td>#35</td><td>Phase 10 -- AI Teaching Videos</td><td>V2+ or indefinite</td><td>[PRD-02] Content bottleneck</td></tr>
+<tr><td>#38</td><td>Task 17: SEO + llms.txt</td><td>V2 (post path decision)</td><td>[GTM-01] No value until public</td></tr>
+<tr><td>#37</td><td>Phase 11 -- SEO + GTM</td><td>V2 (post path decision)</td><td>[GTM-01] No value until public</td></tr>
+</tbody></table></div>
+<h3 id="issues-to-close-already-done">Issues to Close (Already Done)</h3>
+<p>These parent issues should be closed since their sub-issues are all complete:</p>
+<div class="table-wrap"><table><thead>
+<tr><th>Issue</th><th>Title</th><th>Reason</th></tr>
+</thead><tbody>
+<tr><td>#26</td><td>Task 10: Tier 1 visual aids</td><td>All sub-issues (#63-#66) closed</td></tr>
+<tr><td>#28</td><td>Phase 7 -- Level Progression UI</td><td>All sub-issues (#77-#81) closed, pending merge</td></tr>
+</tbody></table></div>
+<p><em>(Note: #26 and #28 may already be partially closed based on workflow state. Verify before acting.)</em></p>
+<h3 id="new-issues-needed">New Issues Needed</h3>
+<div class="table-wrap"><table><thead>
+<tr><th>Title</th><th>Parent</th><th>Sprint</th><th>Priority</th></tr>
+</thead><tbody>
+<tr><td>MVP Validation: Son testing protocol</td><td>--</td><td>Sprint 3</td><td>P0</td></tr>
+<tr><td>MVP Validation: Level map vs textbook verification</td><td>--</td><td>Sprint 3</td><td>P1</td></tr>
+<tr><td>MVP Validation: Test with 3 external kids</td><td>--</td><td>Sprint 3</td><td>P1</td></tr>
+<tr><td>Path Decision: Write vision statement</td><td>--</td><td>Sprint 4</td><td>P0</td></tr>
+<tr><td>Path Decision: Monetization model (if public)</td><td>--</td><td>Sprint 4</td><td>P0</td></tr>
+<tr><td>Path Decision: Firebase cost ceiling model</td><td>--</td><td>Sprint 4</td><td>P1</td></tr>
+</tbody></table></div>
+<p>Do NOT create these issues now. Create them at sprint boundary when context is fresh.</p>
+<hr>
+<h2 id="6-dependency-graph">6. Dependency Graph</h2>
+<pre><code class="lang-">
+[Pre-Sprint]
+  Fix #93 (regression) ──┐
+  Promote Epic #25 ──────┤
+                         ├──&gt; Stage Epic #28 ──&gt; Bake (3 days) ──&gt; Promote #28
+                         │
+[Sprint 1 - i18n]        │
+  #87 (infra) ───────────┤
+       │                 │
+       ├──&gt; #88 (profile lang + RTL)
+       │         │
+       ├──&gt; #89 (core screens) ──&gt; #91 (strategy i18n)
+       │         │
+       └──&gt; #90 (profile components) ──&gt; #92 (test infra)
+                                              │
+[Sprint 2 - Progress]                         │
+  #34.1 (child view) ────────────────────────&gt;│
+  #34.2 (parent view) ──&gt; #34.3 (nav)        │
+                                              │
+[Sprint 3 - Ship]                             │
+  Promote all to main ──&gt; Deploy ──&gt; Son tests│
+                                              │
+[Sprint 4 - Decide]                           │
+  Validation report ──&gt; Path decision ──&gt; V2 plan
+</code></pre>
+<p><strong>Critical path:</strong> Fix #93 --> Promote #25 --> Stage #28 --> Bake --> Promote #28 --> Sprint 1 start</p>
+<p><strong>Parallel opportunity:</strong> Sprint 1 i18n work can begin on <code>develop</code> branch while Epic #28 bakes on staging. The i18n epic creates its own epic branch from <code>develop</code>.</p>
+<hr>
+<h2 id="7-risk-register">7. Risk Register</h2>
+<div class="table-wrap"><table><thead>
+<tr><th>Risk</th><th>Probability</th><th>Impact</th><th>Mitigation</th></tr>
+</thead><tbody>
+<tr><td>Regression #93 reveals deeper issue</td><td>20%</td><td>High</td><td>Timebox to 4h. If complex, skip e2e and ship with unit tests only</td></tr>
+<tr><td>i18n scope creep (every string needs Hebrew)</td><td>40%</td><td>Medium</td><td>Define "good enough" list: game UI + profile UI. Defer admin/debug text</td></tr>
+<tr><td>Son finds app boring without superhero theme</td><td>30%</td><td>High</td><td>Add simple color theming (blue vs red) without IP-protected characters</td></tr>
+<tr><td>Level map does not match son's school curriculum</td><td>50%</td><td>Medium</td><td>Sprint 3 validation catches this. Levels are config-driven, easy to reorder</td></tr>
+<tr><td>Developer burnout from 10h/week pace</td><td>30%</td><td>Critical</td><td>Sprint 3 is intentionally light (observation, not coding). Budget slack</td></tr>
+<tr><td>Firebase free tier exceeded during testing</td><td>5%</td><td>Low</td><td>Current usage is negligible. Monitor Firestore reads in console</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="8-what-is-explicitly-not-in-this-plan">8. What Is Explicitly NOT in This Plan</h2>
+<p>These items from the original 11-phase plan and the CEO audit are intentionally excluded:</p>
+<div class="table-wrap"><table><thead>
+<tr><th>Item</th><th>Reason for Exclusion</th></tr>
+</thead><tbody>
+<tr><td>Superhero themes (Phase 5)</td><td>IP risk must be resolved before any theme work. Theme system is designed but not needed for personal use</td></tr>
+<tr><td>AI Teaching Videos (Phase 10)</td><td>Highest effort, lowest impact. Content creation pipeline undefined. Defer indefinitely</td></tr>
+<tr><td>Leaderboard (Phase 8)</td><td>Meaningless with 1 user. Build when there are 10+ active children</td></tr>
+<tr><td>SEO + GTM (Phase 11)</td><td>No value until the path decision is made</td></tr>
+<tr><td>Monetization model</td><td>Premature before validation. Sprint 4 addresses this</td></tr>
+<tr><td>Landing page</td><td>Premature before path decision</td></tr>
+<tr><td>COPPA compliance</td><td>Only relevant if going public. Sprint 4 addresses this</td></tr>
+<tr><td>App Store submission</td><td>Only relevant if going public</td></tr>
+<tr><td>Custom domain</td><td>Only relevant if going public</td></tr>
+<tr><td>Voice audio files</td><td>Content dependency. Son can use app without voice lines</td></tr>
+<tr><td>Competitive analysis (Israeli app stores)</td><td>Important but not blocking MVP. Can happen during Sprint 3 idle time</td></tr>
+<tr><td>Daily streak / retention hook</td><td>Good idea from audit [UX-02]. Add in V2 Sprint 1 -- trivial feature, high impact</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="9-success-criteria">9. Success Criteria</h2>
+<h3 id="mvp-is-done-when">MVP is "Done" When:</h3>
+<ol>
+<li>Son opens the app on a phone, in Hebrew, plays math at his level, sees progress -- all without help</li>
+<li>613+ tests passing (regression + new i18n + progress view tests)</li>
+<li>Production deployment is green (CI/CD pipeline, no regression failures)</li>
+<li>Father has a written validation report with observations from 2+ weeks of usage</li>
+<li>A conscious, documented path decision (personal vs public) has been made</li>
+</ol>
+<h3 id="score-improvement-estimate">Score Improvement Estimate</h3>
+<p>If this plan executes successfully, the CEO audit score would improve roughly as follows:</p>
+<div class="table-wrap"><table><thead>
+<tr><th>Domain</th><th>Current</th><th>After MVP</th><th>Driver</th></tr>
+</thead><tbody>
+<tr><td>Vision & Clarity</td><td>62</td><td>75</td><td>Path decision documented</td></tr>
+<tr><td>Market Position</td><td>36</td><td>40</td><td>Niche validated with real usage (minimal change)</td></tr>
+<tr><td>Product Strategy</td><td>55</td><td>80</td><td>Scope reduced to shippable MVP, executed</td></tr>
+<tr><td>Financial Strategy</td><td>10</td><td>25</td><td>Cost awareness, decision framework (not yet monetized)</td></tr>
+<tr><td>Org Capacity</td><td>58</td><td>70</td><td>Shipped something with realistic scope</td></tr>
+<tr><td>Technology</td><td>68</td><td>72</td><td>i18n built in, 700+ tests</td></tr>
+<tr><td>UX & PMF</td><td>50</td><td>70</td><td>Real child testing, validation report</td></tr>
+<tr><td>Go-to-Market</td><td>20</td><td>25</td><td>Minimal change (intentional -- premature until path decided)</td></tr>
+<tr><td>Risk Management</td><td>45</td><td>55</td><td>IP decision deferred properly, regression fixed</td></tr>
+<tr><td>Sustainability</td><td>65</td><td>80</td><td>Son using the product, motivation sustained</td></tr>
+<tr><td><strong>Estimated Total</strong></td><td><strong>40.2</strong></td><td><strong>~58</strong></td><td><strong>+18 points from shipping + validating</strong></td></tr>
+</tbody></table></div>
+<p>The score does not reach 80+ because monetization, GTM, and distribution are intentionally deferred. That is the correct strategic choice: validate first, invest second.</p>
+<hr>
+<h2 id="10-immediate-next-actions-for-today">10. Immediate Next Actions (For Today)</h2>
+<ol>
+<li><strong>Fix Issue #93</strong> (production regression e2e failure). Read the workflow run log, identify the failing test, fix it.</li>
+<li><strong>Merge PR #76</strong> (Epic #25 promotion to main). Approve and merge.</li>
+<li><strong>Stage Epic #28</strong> (level progression UI) for bake period.</li>
+<li><strong>Add "deferred" label</strong> to issues #24, #23, #32, #31, #36, #35, #38, #37 with a comment: "Deferred to V2 per MVP execution plan. See docs/plans/math-trainer-execution-plan.md"</li>
+<li><strong>Begin Sprint 1</strong> with Issue #87 (i18n infrastructure).</li>
+</ol>
+<hr>
+<h2 id="appendix-a-timeline-summary">Appendix A: Timeline Summary</h2>
+<pre><code class="lang-">
+Week 0 (Mar 12-13):  Unblock pipeline -- fix #93, promote #25, stage #28
+Week 1 (Mar 14-20):  Sprint 1a -- i18n infrastructure (#87, #88, #89)
+Week 2 (Mar 21-27):  Sprint 1b -- i18n completion (#90, #91, #92)
+Week 3 (Mar 28-Apr 3): Sprint 2a -- Progress view child (#34 sub-issues)
+Week 4 (Apr 4-10):   Sprint 2b -- Progress view parent + polish
+Week 5 (Apr 11-17):  Sprint 3a -- Ship to production, son starts testing
+Week 6 (Apr 18-24):  Sprint 3b -- Observe, fix bugs, test with other kids
+Week 7 (Apr 25-May 1): Sprint 4a -- Analyze validation data
+Week 8 (May 2-8):    Sprint 4b -- Path decision + V2 roadmap
+</code></pre>
+<p><strong>MVP in son's hands: Week 5 (April 11)</strong></p>
+<p><strong>Path decision: Week 8 (May 8)</strong></p>
+<hr>
+<h2 id="appendix-b-ceo-audit-finding-disposition">Appendix B: CEO Audit Finding Disposition</h2>
+<div class="table-wrap"><table><thead>
+<tr><th>Finding ID</th><th>Severity</th><th>Disposition</th><th>When</th></tr>
+</thead><tbody>
+<tr><td>VIS-01</td><td>MEDIUM</td><td>Sprint 4 -- path decision</td><td>Week 7-8</td></tr>
+<tr><td>VIS-02</td><td>LOW</td><td>Sprint 4 -- vision statement</td><td>Week 7-8</td></tr>
+<tr><td>MKT-01</td><td>HIGH</td><td>Accept for now. Niche focus inherent in Hebrew-first design</td><td>--</td></tr>
+<tr><td>MKT-02</td><td>HIGH</td><td>Sprint 3 idle time -- search Israeli app stores</td><td>Week 5-6</td></tr>
+<tr><td>MKT-03</td><td>MEDIUM</td><td>Defer themes to V2. No IP-protected content in MVP</td><td>V2</td></tr>
+<tr><td>MKT-04</td><td>LOW</td><td>Acknowledged. Niche strategy is the answer</td><td>--</td></tr>
+<tr><td>PRD-01</td><td>CRITICAL</td><td>THIS PLAN is the response. Scoped to 4 sprints</td><td>Now</td></tr>
+<tr><td>PRD-02</td><td>HIGH</td><td>Content deferred entirely. No audio/video in MVP</td><td>V2+</td></tr>
+<tr><td>PRD-03</td><td>MEDIUM</td><td>Sprint 3 -- validate level map vs textbooks</td><td>Week 5-6</td></tr>
+<tr><td>PRD-04</td><td>MEDIUM</td><td>Sprint 1 -- i18n built in from this point forward</td><td>Week 1-2</td></tr>
+<tr><td>FIN-01</td><td>CRITICAL</td><td>Sprint 4 -- monetization model IF going public</td><td>Week 7-8</td></tr>
+<tr><td>FIN-02</td><td>CRITICAL</td><td>Sprint 4 -- Firebase cost modeling IF going public</td><td>Week 7-8</td></tr>
+<tr><td>FIN-03</td><td>MEDIUM</td><td>Acknowledged. Time tracking is personal discipline</td><td>Ongoing</td></tr>
+<tr><td>ORG-01</td><td>HIGH</td><td>THIS PLAN scopes to solo capacity</td><td>Now</td></tr>
+<tr><td>ORG-02</td><td>MEDIUM</td><td>Defer CONTRIBUTING.md to V2</td><td>V2</td></tr>
+<tr><td>ORG-03</td><td>MEDIUM</td><td>No content in MVP. Eliminates the skills gap for now</td><td>--</td></tr>
+<tr><td>TECH-01</td><td>LOW</td><td>No action. Stack is solid</td><td>--</td></tr>
+<tr><td>TECH-02</td><td>MEDIUM</td><td>Defer auth upgrade to V2. Document ADR in Sprint 4</td><td>V2</td></tr>
+<tr><td>TECH-03</td><td>LOW</td><td>Accept risk for personal use. Firestore backup in V2</td><td>V2</td></tr>
+<tr><td>TECH-04</td><td>LOW</td><td>613 tests and growing. Healthy trajectory</td><td>Ongoing</td></tr>
+<tr><td>UX-01</td><td>MEDIUM</td><td>Sprint 3 -- test with real children</td><td>Week 5-6</td></tr>
+<tr><td>UX-02</td><td>MEDIUM</td><td>V2 Sprint 1 -- daily streak (trivial, high impact)</td><td>V2</td></tr>
+<tr><td>UX-03</td><td>LOW</td><td>Defer accessibility to V2</td><td>V2</td></tr>
+<tr><td>GTM-01</td><td>HIGH</td><td>Sprint 4 IF going public</td><td>Week 7-8</td></tr>
+<tr><td>GTM-02</td><td>HIGH</td><td>V2 -- Capacitor/TWA wrapper</td><td>V2</td></tr>
+<tr><td>GTM-03</td><td>MEDIUM</td><td>Sprint 4 IF going public</td><td>Week 7-8</td></tr>
+<tr><td>RISK-01</td><td>HIGH</td><td>No IP content in MVP. Decision in Sprint 4</td><td>Week 7-8</td></tr>
+<tr><td>RISK-02</td><td>MEDIUM</td><td>Sprint 4 IF going public</td><td>Week 7-8</td></tr>
+<tr><td>RISK-03</td><td>MEDIUM</td><td>Enable Firebase daily backups today (1-click)</td><td>Today</td></tr>
+<tr><td>RISK-04</td><td>LOW</td><td>Accept for personal use</td><td>--</td></tr>
+<tr><td>STK-01</td><td>MEDIUM</td><td>THIS PLAN -- son uses it in 5 weeks</td><td>Week 5</td></tr>
+<tr><td>STK-02</td><td>MEDIUM</td><td>Sprint 3 is intentionally light to prevent burnout</td><td>Week 5-6</td></tr>
+<tr><td>STK-03</td><td>LOW</td><td>Acknowledged. Sprint 3 is "play together" time</td><td>Week 5-6</td></tr>
+</tbody></table></div>
+<hr>
+<p><em>This plan turns 14 CEO audit findings into 4 sprints of focused work. Everything that matters for a father building a math game for his son ships in 5 weeks. Everything that matters for a public product gets a decision framework in 8 weeks. Nothing is wasted -- deferred work stays in groomed GitHub issues, ready to execute when the path is clear.</em></p>
+</section>
+<hr>
+
+<footer style="text-align:center;color:var(--muted);font-size:0.85em;margin-top:3em;padding:1em 0;">
+Generated 2026-03-12
+</footer>
+</body>
+</html>

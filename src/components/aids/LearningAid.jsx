@@ -23,6 +23,7 @@
 
 import { useState } from 'react'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import DotCounter from './DotCounter'
 import StrategyHint from './StrategyHint'
 
@@ -46,6 +47,7 @@ function selectAid(level) {
 }
 
 function LearningAid({ isStruggling, currentLevel, num1, num2, operator }) {
+  const { t } = useTranslation()
   const [dismissed, setDismissed] = useState(false)
 
   // Nothing to show if not struggling or dismissed
@@ -85,10 +87,10 @@ function LearningAid({ isStruggling, currentLevel, num1, num2, operator }) {
           hover:scale-105 active:scale-95
           focus:outline-none focus:ring-2 focus:ring-yellow-300
         "
-        aria-label="Dismiss learning aid"
+        aria-label={t('learningAid.dismissLabel')}
         data-testid="dismiss-aid-button"
       >
-        I got it!
+        {t('learningAid.dismiss')}
       </button>
     </div>
   )

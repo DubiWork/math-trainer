@@ -158,6 +158,44 @@
       "count_on": "Count On",
       "count_back": "Count Back"
     },
+    "bridgingAdd": {
+      "step1": "Make {{tens}}: {{base}}+{{complement}}={{tens}}",
+      "step2": "Left over: {{addend}}-{{complement}}={{remainder}}",
+      "step3": "Add: {{tens}}+{{remainder}}=?"
+    },
+    "bridgingSub": {
+      "step1": "Go to {{tens}}: {{num1}}-{{onesOfNum1}}={{tens}}",
+      "step2": "Left: {{num2}}-{{onesOfNum1}}={{remainder}}",
+      "step3": "Take away: {{tens}}-{{remainder}}=?"
+    },
+    "doublesAdd": {
+      "step1": "It's a double!",
+      "step2": "Think: {{num1}}+{{num1}}=?"
+    },
+    "doublesSub": {
+      "step1": "Half of {{num1}} is ?",
+      "step2": "{{num1}}-?=?"
+    },
+    "nearDoublesAdd": {
+      "step1": "Double {{smaller}}: {{smaller}}+{{smaller}}={{doubleVal}}",
+      "step2": "Add 1 more: {{doubleVal}}+1=?"
+    },
+    "nearDoublesSub": {
+      "step1": "Half of {{num1}} is {{approx}}{{half}}",
+      "step2": "Adjust by 1: {{num1}}-{{num2}}=?"
+    },
+    "countOn": {
+      "step1": "Start at {{larger}}",
+      "step2enum": "Count up {{smaller}}: {{seqParts}}",
+      "step2more": "Count up {{smaller}} more",
+      "step3": "You land on ?"
+    },
+    "countBack": {
+      "step1": "Start at {{num1}}",
+      "step2enum": "Count back {{num2}}: {{seqParts}}",
+      "step2steps": "Count back {{num2}} steps",
+      "step3": "You land on ?"
+    },
     "hintFor": "Strategy hint for {{num1}} {{operator}} {{num2}}",
     "counter": "Strategy {{current}} of {{total}}",
     "showAnother": "Show me another way",

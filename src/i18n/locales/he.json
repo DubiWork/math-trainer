@@ -158,6 +158,44 @@
       "count_on": "ספור קדימה",
       "count_back": "ספור אחורה"
     },
+    "bridgingAdd": {
+      "step1": "עשה {{tens}}: {{base}}+{{complement}}={{tens}}",
+      "step2": "נשאר: {{addend}}-{{complement}}={{remainder}}",
+      "step3": "חבר: {{tens}}+{{remainder}}=?"
+    },
+    "bridgingSub": {
+      "step1": "לך ל-{{tens}}: {{num1}}-{{onesOfNum1}}={{tens}}",
+      "step2": "נשאר: {{num2}}-{{onesOfNum1}}={{remainder}}",
+      "step3": "חסר: {{tens}}-{{remainder}}=?"
+    },
+    "doublesAdd": {
+      "step1": "זה כפול!",
+      "step2": "חשוב: {{num1}}+{{num1}}=?"
+    },
+    "doublesSub": {
+      "step1": "חצי של {{num1}} זה ?",
+      "step2": "{{num1}}-?=?"
+    },
+    "nearDoublesAdd": {
+      "step1": "כפול {{smaller}}: {{smaller}}+{{smaller}}={{doubleVal}}",
+      "step2": "עוד 1: {{doubleVal}}+1=?"
+    },
+    "nearDoublesSub": {
+      "step1": "חצי של {{num1}} זה {{approx}}{{half}}",
+      "step2": "תקן ב-1: {{num1}}-{{num2}}=?"
+    },
+    "countOn": {
+      "step1": "התחל מ-{{larger}}",
+      "step2enum": "ספור {{smaller}}: {{seqParts}}",
+      "step2more": "ספור עוד {{smaller}}",
+      "step3": "הגעת ל-?"
+    },
+    "countBack": {
+      "step1": "התחל מ-{{num1}}",
+      "step2enum": "ספור אחורה {{num2}}: {{seqParts}}",
+      "step2steps": "ספור אחורה {{num2}} צעדים",
+      "step3": "הגעת ל-?"
+    },
     "hintFor": "רמז לתרגיל {{num1}} {{operator}} {{num2}}",
     "counter": "דרך {{current}} מתוך {{total}}",
     "showAnother": "הראה דרך אחרת",

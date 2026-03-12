@@ -14,6 +14,22 @@
     "close": "Close",
     "accuracy": "Accuracy",
     "levelName": "Level {{level}}: {{name}}",
-    "keepGoing": "Keep going!"
+    "keepGoing": "Keep going!",
+    "parentView": "Parent View",
+    "parentViewLabel": "Open parent statistics view",
+    "parentStatsTitle": "Parent Statistics",
+    "parentStatsLabel": "Parent statistics section",
+    "totalScore": "Total Score",
+    "memberSince": "Member Since",
+    "lastPlayed": "Last Played",
+    "never": "Never",
+    "dateUnknown": "Unknown",
+    "confidenceStatus": "Confidence Status",
+    "confidenceExcellent": "Excellent! Mastering the material!",
+    "confidenceGood": "Good progress! Building strong skills!",
+    "confidenceDeveloping": "Developing! Practice makes perfect!",
+    "confidenceBuilding": "Building foundations! Keep encouraging!",
+    "pinWrong": "Incorrect PIN. Try again.",
+    "pinError": "Something went wrong. Try again."
   }
 }

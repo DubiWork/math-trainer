@@ -31,16 +31,16 @@ describe('strategies', () => {
       const result = getStrategies(8, 5, '+');
       const bridging = result.find(s => s.id === STRATEGY_IDS.BRIDGING_ADD);
       expect(bridging).toBeDefined();
-      expect(bridging.name).toBe('Bridge to 10');
+      expect(bridging.nameKey).toBe('strategy.names.bridging_add');
     });
 
-    it('produces correct steps for 8+5', () => {
+    it('produces correct step keys and params for 8+5', () => {
       const result = getStrategies(8, 5, '+');
       const bridging = result.find(s => s.id === STRATEGY_IDS.BRIDGING_ADD);
       expect(bridging.steps).toEqual([
-        'Make 10: 8+2=10',
-        'Left over: 5-2=3',
-        'Add: 10+3=?',
+        { key: 'strategy.bridgingAdd.step1', params: { tens: 10, base: 8, complement: 2 } },
+        { key: 'strategy.bridgingAdd.step2', params: { addend: 5, complement: 2, remainder: 3 } },
+        { key: 'strategy.bridgingAdd.step3', params: { tens: 10, remainder: 3 } },
       ]);
     });
 
@@ -54,7 +54,10 @@ describe('strategies', () => {
       const result = getStrategies(17, 5, '+');
       const bridging = result.find(s => s.id === STRATEGY_IDS.BRIDGING_ADD);
       expect(bridging).toBeDefined();
-      expect(bridging.steps[0]).toBe('Make 20: 17+3=20');
+      expect(bridging.steps[0]).toEqual({
+        key: 'strategy.bridgingAdd.step1',
+        params: { tens: 20, base: 17, complement: 3 },
+      });
     });
 
     it('does NOT trigger for 3+2 (ones sum = 5, no crossing)', () => {
@@ -73,7 +76,9 @@ describe('strategies', () => {
       const result = getStrategies(5, 8, '+');
       const bridging = result.find(s => s.id === STRATEGY_IDS.BRIDGING_ADD);
       // Should bridge from 8 (larger), not 5
-      expect(bridging.steps[0]).toBe('Make 10: 8+2=10');
+      expect(bridging.steps[0].params.base).toBe(8);
+      expect(bridging.steps[0].params.complement).toBe(2);
+      expect(bridging.steps[0].params.tens).toBe(10);
     });
   });
 
@@ -84,16 +89,16 @@ describe('strategies', () => {
       const result = getStrategies(13, 5, '-');
       const bridging = result.find(s => s.id === STRATEGY_IDS.BRIDGING_SUB);
       expect(bridging).toBeDefined();
-      expect(bridging.name).toBe('Bridge to 10');
+      expect(bridging.nameKey).toBe('strategy.names.bridging_sub');
     });
 
-    it('produces correct steps for 13-5', () => {
+    it('produces correct step keys and params for 13-5', () => {
       const result = getStrategies(13, 5, '-');
       const bridging = result.find(s => s.id === STRATEGY_IDS.BRIDGING_SUB);
       expect(bridging.steps).toEqual([
-        'Go to 10: 13-3=10',
-        'Left: 5-3=2',
-        'Take away: 10-2=?',
+        { key: 'strategy.bridgingSub.step1', params: { tens: 10, num1: 13, onesOfNum1: 3 } },
+        { key: 'strategy.bridgingSub.step2', params: { num2: 5, onesOfNum1: 3, remainder: 2 } },
+        { key: 'strategy.bridgingSub.step3', params: { tens: 10, remainder: 2 } },
       ]);
     });
 
@@ -129,15 +134,15 @@ describe('strategies', () => {
       const result = getStrategies(7, 7, '+');
       const doubles = result.find(s => s.id === STRATEGY_IDS.DOUBLES);
       expect(doubles).toBeDefined();
-      expect(doubles.name).toBe('Use Doubles');
+      expect(doubles.nameKey).toBe('strategy.names.doubles');
     });
 
-    it('produces correct steps for 7+7 addition', () => {
+    it('produces correct step keys and params for 7+7 addition', () => {
       const result = getStrategies(7, 7, '+');
       const doubles = result.find(s => s.id === STRATEGY_IDS.DOUBLES);
       expect(doubles.steps).toEqual([
-        "It's a double!",
-        'Think: 7+7=?',
+        { key: 'strategy.doublesAdd.step1', params: {} },
+        { key: 'strategy.doublesAdd.step2', params: { num1: 7 } },
       ]);
     });
 
@@ -147,12 +152,12 @@ describe('strategies', () => {
       expect(doubles).toBeDefined();
     });
 
-    it('produces correct steps for 5-5 subtraction', () => {
+    it('produces correct step keys and params for 5-5 subtraction', () => {
       const result = getStrategies(5, 5, '-');
       const doubles = result.find(s => s.id === STRATEGY_IDS.DOUBLES);
       expect(doubles.steps).toEqual([
-        'Half of 5 is ?',
-        '5-?=?',
+        { key: 'strategy.doublesSub.step1', params: { num1: 5 } },
+        { key: 'strategy.doublesSub.step2', params: { num1: 5 } },
       ]);
     });
 
@@ -176,15 +181,15 @@ describe('strategies', () => {
       const result = getStrategies(6, 7, '+');
       const nd = result.find(s => s.id === STRATEGY_IDS.NEAR_DOUBLES);
       expect(nd).toBeDefined();
-      expect(nd.name).toBe('Near Doubles');
+      expect(nd.nameKey).toBe('strategy.names.near_doubles');
     });
 
-    it('produces correct steps for 6+7 addition', () => {
+    it('produces correct step keys and params for 6+7 addition', () => {
       const result = getStrategies(6, 7, '+');
       const nd = result.find(s => s.id === STRATEGY_IDS.NEAR_DOUBLES);
       expect(nd.steps).toEqual([
-        'Double 6: 6+6=12',
-        'Add 1 more: 12+1=?',
+        { key: 'strategy.nearDoublesAdd.step1', params: { smaller: 6, doubleVal: 12 } },
+        { key: 'strategy.nearDoublesAdd.step2', params: { doubleVal: 12 } },
       ]);
     });
 
@@ -194,19 +199,20 @@ describe('strategies', () => {
       expect(nd).toBeDefined();
     });
 
-    it('produces correct steps for 7-6 subtraction', () => {
+    it('produces correct step keys and params for 7-6 subtraction', () => {
       const result = getStrategies(7, 6, '-');
       const nd = result.find(s => s.id === STRATEGY_IDS.NEAR_DOUBLES);
       expect(nd.steps).toEqual([
-        'Half of 7 is ~3',
-        'Adjust by 1: 7-6=?',
+        { key: 'strategy.nearDoublesSub.step1', params: { num1: 7, approx: '~', half: 3 } },
+        { key: 'strategy.nearDoublesSub.step2', params: { num1: 7, num2: 6 } },
       ]);
     });
 
     it('uses exact half (no tilde) for even num1 in subtraction', () => {
       const result = getStrategies(6, 5, '-');
       const nd = result.find(s => s.id === STRATEGY_IDS.NEAR_DOUBLES);
-      expect(nd.steps[0]).toBe('Half of 6 is 3');
+      expect(nd.steps[0].params.approx).toBe('');
+      expect(nd.steps[0].params.half).toBe(3);
     });
 
     it('does NOT trigger for 6+9 (differ by 3)', () => {
@@ -229,16 +235,16 @@ describe('strategies', () => {
       const result = getStrategies(9, 2, '+');
       const co = result.find(s => s.id === STRATEGY_IDS.COUNT_ON);
       expect(co).toBeDefined();
-      expect(co.name).toBe('Count On');
+      expect(co.nameKey).toBe('strategy.names.count_on');
     });
 
-    it('produces correct steps for 9+2', () => {
+    it('produces correct step keys and params for 9+2', () => {
       const result = getStrategies(9, 2, '+');
       const co = result.find(s => s.id === STRATEGY_IDS.COUNT_ON);
       expect(co.steps).toEqual([
-        'Start at 9',
-        'Count up 2: 10,?',
-        'You land on ?',
+        { key: 'strategy.countOn.step1', params: { larger: 9 } },
+        { key: 'strategy.countOn.step2enum', params: { smaller: 2, seqParts: '10,?' } },
+        { key: 'strategy.countOn.step3', params: {} },
       ]);
     });
 
@@ -247,7 +253,7 @@ describe('strategies', () => {
       const co = result.find(s => s.id === STRATEGY_IDS.COUNT_ON);
       expect(co).toBeDefined();
       // Should count from 9 (larger)
-      expect(co.steps[0]).toBe('Start at 9');
+      expect(co.steps[0].params.larger).toBe(9);
     });
 
     it('triggers for 1+1 (min operand 1 <= 3)', () => {
@@ -256,10 +262,12 @@ describe('strategies', () => {
       expect(co).toBeDefined();
     });
 
-    it('produces correct steps for count of 1', () => {
+    it('produces correct step keys for count of 1', () => {
       const result = getStrategies(8, 1, '+');
       const co = result.find(s => s.id === STRATEGY_IDS.COUNT_ON);
-      expect(co.steps[1]).toBe('Count up 1: ?');
+      expect(co.steps[1].key).toBe('strategy.countOn.step2enum');
+      expect(co.steps[1].params.seqParts).toBe('?');
+      expect(co.steps[1].params.smaller).toBe(1);
     });
 
     it('does NOT trigger for 9+5 (min operand 5 > 3)', () => {
@@ -282,16 +290,16 @@ describe('strategies', () => {
       const result = getStrategies(12, 3, '-');
       const cb = result.find(s => s.id === STRATEGY_IDS.COUNT_BACK);
       expect(cb).toBeDefined();
-      expect(cb.name).toBe('Count Back');
+      expect(cb.nameKey).toBe('strategy.names.count_back');
     });
 
-    it('produces correct steps for 12-3', () => {
+    it('produces correct step keys and params for 12-3', () => {
       const result = getStrategies(12, 3, '-');
       const cb = result.find(s => s.id === STRATEGY_IDS.COUNT_BACK);
       expect(cb.steps).toEqual([
-        'Start at 12',
-        'Count back 3: 11,10,?',
-        'You land on ?',
+        { key: 'strategy.countBack.step1', params: { num1: 12 } },
+        { key: 'strategy.countBack.step2enum', params: { num2: 3, seqParts: '11,10,?' } },
+        { key: 'strategy.countBack.step3', params: {} },
       ]);
     });
 
@@ -301,10 +309,12 @@ describe('strategies', () => {
       expect(cb).toBeDefined();
     });
 
-    it('produces correct steps for count back of 1', () => {
+    it('produces correct step keys for count back of 1', () => {
       const result = getStrategies(7, 1, '-');
       const cb = result.find(s => s.id === STRATEGY_IDS.COUNT_BACK);
-      expect(cb.steps[1]).toBe('Count back 1: ?');
+      expect(cb.steps[1].key).toBe('strategy.countBack.step2enum');
+      expect(cb.steps[1].params.seqParts).toBe('?');
+      expect(cb.steps[1].params.num2).toBe(1);
     });
 
     it('does NOT trigger for 12-5 (subtrahend 5 > 3)', () => {
@@ -326,10 +336,6 @@ describe('strategies', () => {
     it('doubles appears before near-doubles', () => {
       // 1+1 triggers doubles (1===1) and count-on (min<=3)
       // but NOT near-doubles (diff===0, not 1)
-      // Use a case where both can appear...
-      // Actually doubles and near-doubles are mutually exclusive
-      // (doubles: diff===0, near-doubles: diff===1)
-      // So we test them separately in overlap cases
       const result = getStrategies(1, 1, '+');
       const ids = result.map(s => s.id);
       expect(ids[0]).toBe(STRATEGY_IDS.DOUBLES);
@@ -471,22 +477,28 @@ describe('strategies', () => {
       expect(result.some(s => s.id === STRATEGY_IDS.COUNT_ON)).toBe(true);
     });
 
-    it('each strategy result has id, name, and steps array', () => {
+    it('each strategy result has id, nameKey, and steps array of {key, params} objects', () => {
       const result = getStrategies(8, 5, '+');
       for (const strategy of result) {
         expect(strategy).toHaveProperty('id');
-        expect(strategy).toHaveProperty('name');
+        expect(strategy).toHaveProperty('nameKey');
         expect(strategy).toHaveProperty('steps');
         expect(Array.isArray(strategy.steps)).toBe(true);
         expect(typeof strategy.id).toBe('string');
-        expect(typeof strategy.name).toBe('string');
+        expect(typeof strategy.nameKey).toBe('string');
+        for (const step of strategy.steps) {
+          expect(step).toHaveProperty('key');
+          expect(step).toHaveProperty('params');
+          expect(typeof step.key).toBe('string');
+          expect(typeof step.params).toBe('object');
+        }
       }
     });
   });
 
-  // ─── Step Text Constraints ────────────────────────────────────────────────
+  // ─── Step Constraints ────────────────────────────────────────────────────
 
-  describe('step text constraints', () => {
+  describe('step constraints', () => {
     it('step count never exceeds 3 per strategy', () => {
       const testCases = [
         [8, 5, '+'], [13, 5, '-'], [7, 7, '+'], [6, 7, '+'],
@@ -501,7 +513,7 @@ describe('strategies', () => {
       }
     });
 
-    it('step length never exceeds 30 characters', () => {
+    it('all step keys are non-empty strings', () => {
       const testCases = [
         [8, 5, '+'], [13, 5, '-'], [7, 7, '+'], [6, 7, '+'],
         [9, 2, '+'], [12, 3, '-'], [99, 3, '+'], [97, 3, '-'],
@@ -511,46 +523,32 @@ describe('strategies', () => {
         const strategies = getStrategies(n1, n2, op);
         for (const s of strategies) {
           for (const step of s.steps) {
-            expect(step.length).toBeLessThanOrEqual(30);
+            expect(typeof step.key).toBe('string');
+            expect(step.key.length).toBeGreaterThan(0);
+            expect(step.key).toMatch(/^strategy\./);
           }
         }
       }
     });
 
-    it('step text never contains the final answer (addition)', () => {
-      const testCases = [
-        [8, 5, '+'], [7, 7, '+'], [6, 7, '+'], [9, 2, '+'],
-        [3, 9, '+'], [1, 1, '+'], [17, 5, '+'], [8, 3, '+'],
-      ];
-      for (const [n1, n2, op] of testCases) {
-        const answer = n1 + n2;
-        const strategies = getStrategies(n1, n2, op);
-        for (const s of strategies) {
-          for (const step of s.steps) {
-            // The answer string should not appear as a standalone number at the end
-            // after an = sign (i.e., "=answer" should not appear, but "=?" is OK)
-            expect(step).not.toMatch(new RegExp(`=${answer}(?:\\s|$|,)`));
-            expect(step).not.toMatch(new RegExp(`=${answer}$`));
-          }
-        }
-      }
+    it('step params contain correct arithmetic for bridging_add', () => {
+      const result = getStrategies(8, 5, '+');
+      const bridging = result.find(s => s.id === STRATEGY_IDS.BRIDGING_ADD);
+      const { base, complement, tens } = bridging.steps[0].params;
+      expect(base + complement).toBe(tens);
+      const { addend, remainder } = bridging.steps[1].params;
+      expect(addend - bridging.steps[1].params.complement).toBe(remainder);
+      expect(tens + remainder).toBe(8 + 5);
     });
 
-    it('step text never contains the final answer (subtraction)', () => {
-      const testCases = [
-        [13, 5, '-'], [15, 8, '-'], [5, 5, '-'], [7, 6, '-'],
-        [12, 3, '-'], [7, 1, '-'], [20, 3, '-'],
-      ];
-      for (const [n1, n2, op] of testCases) {
-        const answer = n1 - n2;
-        const strategies = getStrategies(n1, n2, op);
-        for (const s of strategies) {
-          for (const step of s.steps) {
-            expect(step).not.toMatch(new RegExp(`=${answer}(?:\\s|$|,)`));
-            expect(step).not.toMatch(new RegExp(`=${answer}$`));
-          }
-        }
-      }
+    it('step params contain correct arithmetic for bridging_sub', () => {
+      const result = getStrategies(13, 5, '-');
+      const bridging = result.find(s => s.id === STRATEGY_IDS.BRIDGING_SUB);
+      const { num1, onesOfNum1, tens } = bridging.steps[0].params;
+      expect(num1 - onesOfNum1).toBe(tens);
+      const { num2, remainder } = bridging.steps[1].params;
+      expect(num2 - bridging.steps[1].params.onesOfNum1).toBe(remainder);
+      expect(tens - remainder).toBe(13 - 5);
     });
   });
 
@@ -618,16 +616,12 @@ describe('strategies', () => {
         const bridging = result.find(s => s.id === STRATEGY_IDS.BRIDGING_ADD);
         expect(bridging).toBeDefined();
 
-        // Parse intermediate values from step text
-        const step1Match = bridging.steps[0].match(/(\d+)\+(\d+)=(\d+)/);
-        expect(step1Match).not.toBeNull();
-        const [, base, complement, tens] = step1Match.map(Number);
+        // Verify intermediate values from params
+        const { base, complement, tens } = bridging.steps[0].params;
         expect(base + complement).toBe(tens);
 
-        const step2Match = bridging.steps[1].match(/(\d+)-(\d+)=(\d+)/);
-        expect(step2Match).not.toBeNull();
-        const [, addend, comp2, remainder] = step2Match.map(Number);
-        expect(addend - comp2).toBe(remainder);
+        const { addend, remainder } = bridging.steps[1].params;
+        expect(addend - bridging.steps[1].params.complement).toBe(remainder);
 
         // Verify final equation adds up to the correct answer
         expect(tens + remainder).toBe(num1 + num2);
@@ -649,19 +643,15 @@ describe('strategies', () => {
         const bridging = result.find(s => s.id === STRATEGY_IDS.BRIDGING_SUB);
         if (!bridging) continue;
 
-        // Parse intermediate values
-        const step1Match = bridging.steps[0].match(/(\d+)-(\d+)=(\d+)/);
-        expect(step1Match).not.toBeNull();
-        const [, minuend, sub, tens] = step1Match.map(Number);
-        expect(minuend - sub).toBe(tens);
+        // Verify intermediate values from params
+        const step1 = bridging.steps[0].params;
+        expect(step1.num1 - step1.onesOfNum1).toBe(step1.tens);
 
-        const step2Match = bridging.steps[1].match(/(\d+)-(\d+)=(\d+)/);
-        expect(step2Match).not.toBeNull();
-        const [, subtrahend, ones, remainder] = step2Match.map(Number);
-        expect(subtrahend - ones).toBe(remainder);
+        const step2 = bridging.steps[1].params;
+        expect(step2.num2 - step2.onesOfNum1).toBe(step2.remainder);
 
         // Verify final equation
-        expect(tens - remainder).toBe(num1 - num2);
+        expect(step1.tens - step2.remainder).toBe(num1 - num2);
         verified++;
       }
       expect(verified).toBeGreaterThanOrEqual(50);
@@ -676,14 +666,12 @@ describe('strategies', () => {
         const nd = result.find(s => s.id === STRATEGY_IDS.NEAR_DOUBLES);
         expect(nd).toBeDefined();
 
-        const step1Match = nd.steps[0].match(/(\d+)\+(\d+)=(\d+)/);
-        expect(step1Match).not.toBeNull();
-        const [, a, b, sum] = step1Match.map(Number);
-        expect(a + b).toBe(sum);
-        expect(a).toBe(b); // It's a double
+        const { smaller, doubleVal } = nd.steps[0].params;
+        expect(smaller + smaller).toBe(doubleVal);
+        expect(smaller).toBe(Math.min(n1, n2));
 
         // Verify sum + 1 = actual answer
-        expect(sum + 1).toBe(n1 + n2);
+        expect(doubleVal + 1).toBe(n1 + n2);
       }
     });
 
@@ -695,15 +683,18 @@ describe('strategies', () => {
         const strategies = getStrategies(num1, num2, '+');
         for (const s of strategies) {
           for (const step of s.steps) {
-            // Find all "X+Y=Z" patterns and verify
-            const addMatches = [...step.matchAll(/(\d+)\+(\d+)=(\d+)/g)];
-            for (const m of addMatches) {
-              expect(Number(m[1]) + Number(m[2])).toBe(Number(m[3]));
+            // Verify params arithmetic for bridging steps
+            if (step.key.includes('bridgingAdd.step1')) {
+              const { base, complement, tens } = step.params;
+              expect(base + complement).toBe(tens);
             }
-            // Find all "X-Y=Z" patterns and verify
-            const subMatches = [...step.matchAll(/(\d+)-(\d+)=(\d+)/g)];
-            for (const m of subMatches) {
-              expect(Number(m[1]) - Number(m[2])).toBe(Number(m[3]));
+            if (step.key.includes('bridgingAdd.step2')) {
+              const { addend, complement, remainder } = step.params;
+              expect(addend - complement).toBe(remainder);
+            }
+            if (step.key.includes('nearDoublesAdd.step1')) {
+              const { smaller, doubleVal } = step.params;
+              expect(smaller + smaller).toBe(doubleVal);
             }
             totalChecks++;
           }
@@ -721,13 +712,14 @@ describe('strategies', () => {
         const strategies = getStrategies(num1, num2, '-');
         for (const s of strategies) {
           for (const step of s.steps) {
-            const addMatches = [...step.matchAll(/(\d+)\+(\d+)=(\d+)/g)];
-            for (const m of addMatches) {
-              expect(Number(m[1]) + Number(m[2])).toBe(Number(m[3]));
+            // Verify params arithmetic for bridging steps
+            if (step.key.includes('bridgingSub.step1')) {
+              const { num1: n1, onesOfNum1, tens } = step.params;
+              expect(n1 - onesOfNum1).toBe(tens);
             }
-            const subMatches = [...step.matchAll(/(\d+)-(\d+)=(\d+)/g)];
-            for (const m of subMatches) {
-              expect(Number(m[1]) - Number(m[2])).toBe(Number(m[3]));
+            if (step.key.includes('bridgingSub.step2')) {
+              const { num2: n2, onesOfNum1, remainder } = step.params;
+              expect(n2 - onesOfNum1).toBe(remainder);
             }
             totalChecks++;
           }

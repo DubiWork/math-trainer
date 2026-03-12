@@ -20,6 +20,7 @@
  */
 
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 
 /** Maximum dots per row before wrapping */
 const DOTS_PER_ROW = 5
@@ -91,12 +92,14 @@ DotGroup.propTypes = {
 // ── Main Component ──────────────────────────────────────────────────────────
 
 function DotCounter({ num1, num2, operator }) {
+  const { t } = useTranslation()
+
   if (operator === '+') {
     return (
       <div
         className="flex flex-wrap items-center gap-3"
         role="img"
-        aria-label={`${num1} blue dots plus ${num2} gold dots`}
+        aria-label={t('dotCounter.addLabel', { num1, num2 })}
         data-testid="dot-counter"
       >
         {/* num1 group in sonic.blue */}
@@ -113,6 +116,7 @@ function DotCounter({ num1, num2, operator }) {
           className="text-2xl md:text-3xl font-game text-white drop-shadow-md select-none"
           aria-hidden="true"
           data-testid="operator-label"
+          dir="ltr"
         >
           +
         </span>
@@ -136,7 +140,7 @@ function DotCounter({ num1, num2, operator }) {
     <div
       className="flex flex-wrap items-center gap-3"
       role="img"
-      aria-label={`${num1} blue dots minus ${num2} faded dots`}
+      aria-label={t('dotCounter.subLabel', { num1, num2 })}
       data-testid="dot-counter"
     >
       {/* Solid dots (remaining after subtraction) */}
@@ -153,6 +157,7 @@ function DotCounter({ num1, num2, operator }) {
         className="text-2xl md:text-3xl font-game text-white drop-shadow-md select-none"
         aria-hidden="true"
         data-testid="operator-label"
+        dir="ltr"
       >
         -
       </span>

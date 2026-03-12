@@ -179,7 +179,6 @@ function ProgressView({ progress = null, currentLevel = 1, onClose, activeProfil
             {/* Performance message */}
             <div
               className={`text-xl md:text-2xl font-game ${performance.color} text-center drop-shadow-md`}
-              role="status"
               aria-label={performance.text}
               data-testid="performance-message"
             >
@@ -268,7 +267,7 @@ function ProgressView({ progress = null, currentLevel = 1, onClose, activeProfil
 
       {/* Bottom decoration */}
       <div className="absolute bottom-4 text-center text-white/40 font-game text-sm z-10">
-        Keep going!
+        {t('progress.keepGoing')}
       </div>
     </div>
   )

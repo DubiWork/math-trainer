@@ -13,7 +13,7 @@
     "performanceEncouragement": "You're learning! Every try makes you stronger!",
     "close": "Close",
     "accuracy": "Accuracy",
-    "streakFire": "{{streak}} in a row!",
-    "levelName": "Level {{level}}: {{name}}"
+    "levelName": "Level {{level}}: {{name}}",
+    "keepGoing": "Keep going!"
   }
 }

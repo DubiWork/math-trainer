@@ -266,10 +266,10 @@ describe('ProgressView', () => {
       expect(container.getAttribute('role')).toBe('status')
     })
 
-    it('performance message has role="status"', () => {
+    it('performance message does NOT have role="status" (kept only on stats container)', () => {
       renderProgressView()
       const msg = screen.getByTestId('performance-message')
-      expect(msg.getAttribute('role')).toBe('status')
+      expect(msg.getAttribute('role')).toBeNull()
     })
 
     it('close button meets minimum touch target size (min-w and min-h classes)', () => {

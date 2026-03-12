@@ -88,9 +88,6 @@ async function goToStep4(name = 'TestHero', pin = '1234') {
   completeThemeStep()
   enterPin(pin)
   await flush()
-  // PinEntry reconciles from step 3 to step 4 -- digits carry over.
-  // Clear them with backspace so the step-4 PinEntry is ready for input.
-  clearPinDigits()
 }
 
 /**
@@ -110,21 +107,6 @@ async function enterMismatchedPinAndFlush(pin = '9999') {
   mockHashPin.mockResolvedValueOnce('different-hash')
   enterPin(pin)
   await flush()
-}
-
-/**
- * Clear all 4 digits in the PinEntry via backspace button.
- * After step 3 -> step 4 reconciliation, digits carry over and
- * must be cleared before entering the confirmation PIN.
- */
-function clearPinDigits() {
-  const backspaceBtn = screen.queryByLabelText('Delete last digit')
-  if (!backspaceBtn) return
-  for (let i = 0; i < 4; i++) {
-    if (!backspaceBtn.disabled) {
-      fireEvent.click(backspaceBtn)
-    }
-  }
 }
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
@@ -766,8 +748,7 @@ describe('CreateProfile', () => {
       await flush()
       expect(screen.getByText('Confirm your PIN')).toBeTruthy()
 
-      // Step 4: confirm PIN (clear stale digits from step 3 first)
-      clearPinDigits()
+      // Step 4: confirm PIN
       mockHashPin.mockResolvedValueOnce('hash-abc')
       enterPin('1234')
       await flush()
@@ -803,8 +784,7 @@ describe('CreateProfile', () => {
       mockHashPin.mockResolvedValueOnce('new-hash-5555')
       enterPin('5555')
       await flush()
-      // On step 4 with new hash -- clear stale digits from step 3
-      clearPinDigits()
+      // On step 4 with new hash
       // Confirm with new matching hash
       mockHashPin.mockResolvedValueOnce('new-hash-5555')
       enterPin('5555')

@@ -534,6 +534,7 @@ function CreateProfile({ onComplete, onCancel }) {
   /** Step 3: PIN entry */
   const renderPinStep = () => (
     <PinEntry
+      key="pin-set"
       profileName="Choose a secret PIN"
       onSubmit={handlePinSet}
       onCancel={handleBack}
@@ -548,6 +549,7 @@ function CreateProfile({ onComplete, onCancel }) {
   /** Step 4: PIN confirmation */
   const renderPinConfirmStep = () => (
     <PinEntry
+      key="pin-confirm"
       profileName="Confirm your PIN"
       onSubmit={handlePinConfirm}
       onCancel={handleBack}

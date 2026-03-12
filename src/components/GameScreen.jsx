@@ -23,8 +23,9 @@ import { useGameState } from '../hooks'
  * @param {object} initialProgress - Optional initial progress from Firestore
  * @param {number} currentLevel - Current difficulty level (1-13, default 1)
  * @param {function} onLevelUp - Optional callback when confidence engine signals level-up
+ * @param {object} activeProfile - Optional active profile (provides theme)
  */
-function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, currentLevel = 1, onLevelUp }) {
+function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, currentLevel = 1, onLevelUp, activeProfile = null }) {
   const {
     currentProblem,
     score,
@@ -86,7 +87,7 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
       <header className="flex justify-between items-start gap-4 mb-6 md:mb-8">
         {/* Score Display */}
         <div className="flex-1">
-          <ScoreDisplay score={score} streak={streak} />
+          <ScoreDisplay score={score} streak={streak} theme={activeProfile?.theme} />
         </div>
 
         {/* Exit Button */}
@@ -143,7 +144,7 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
 
       {/* Feedback Overlay - Shows on answer */}
       {showFeedback && (
-        <Feedback isCorrect={isCorrect} />
+        <Feedback isCorrect={isCorrect} theme={activeProfile?.theme} />
       )}
     </div>
   )
@@ -160,6 +161,9 @@ GameScreen.propTypes = {
   }),
   currentLevel: PropTypes.number,
   onLevelUp: PropTypes.func,
+  activeProfile: PropTypes.shape({
+    theme: PropTypes.string,
+  }),
 }
 
 export default GameScreen

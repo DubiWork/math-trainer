@@ -26,7 +26,7 @@ export const STRUGGLING_THRESHOLD = 35
 export const CRITICAL_THRESHOLD = 20
 export const CRITICAL_CONSECUTIVE_WRONG = 5
 export const LEVEL_UP_THRESHOLD = 85
-export const LEVEL_UP_CONSECUTIVE_CORRECT = 3
+export const LEVEL_UP_CONSECUTIVE_CORRECT = 5
 export const DEFAULT_INITIAL_SCORE = 50
 
 // --- Action Types ---
@@ -173,7 +173,7 @@ function confidenceReducer(state, action) {
  * @returns {number} returns.consecutiveWrong - Consecutive wrong answers
  * @returns {boolean} returns.isStruggling - True when score < 35
  * @returns {boolean} returns.isCritical - True when score < 20 AND consecutiveWrong >= 5
- * @returns {boolean} returns.shouldLevelUp - True when score >= 85 AND streak >= 3 (sticky)
+ * @returns {boolean} returns.shouldLevelUp - True when score >= 85 AND streak >= 5 (sticky)
  * @returns {number} returns.lastDelta - Last score change for UI animations
  * @returns {Function} returns.recordAnswer - (isCorrect, responseTimeMs) => void
  * @returns {Function} returns.acknowledgeLevelUp - () => void

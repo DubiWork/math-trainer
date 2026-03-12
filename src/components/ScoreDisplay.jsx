@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { getTheme } from '../config/themes'
 
 /**
  * ScoreDisplay Component - Shows score and streak in Sonic theme
@@ -9,12 +10,14 @@ import PropTypes from 'prop-types'
  * @param {number} score - Current game score
  * @param {number} streak - Current correct answer streak
  */
-function ScoreDisplay({ score, streak }) {
+function ScoreDisplay({ score, streak, theme: themeKey = null }) {
+  const themeObj = getTheme(themeKey)
+
   // Determine streak emoji based on streak count
   const getStreakEmoji = () => {
     if (streak >= 10) return { emoji: '\u{1F525}', label: 'On Fire!' }  // Fire
     if (streak >= 5) return { emoji: '\u{26A1}', label: 'Lightning!' }  // Lightning
-    if (streak >= 3) return { emoji: '\u{1F994}', label: 'Speedy!' }    // Hedgehog
+    if (streak >= 3) return { emoji: themeObj.streakEmoji, label: 'Speedy!' }
     return { emoji: '\u{2B50}', label: 'Keep going!' }                  // Star
   }
 
@@ -76,6 +79,7 @@ function ScoreDisplay({ score, streak }) {
 ScoreDisplay.propTypes = {
   score: PropTypes.number.isRequired,
   streak: PropTypes.number.isRequired,
+  theme: PropTypes.string,
 }
 
 export default ScoreDisplay

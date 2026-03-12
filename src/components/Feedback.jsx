@@ -1,26 +1,28 @@
 import { useEffect, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { getTheme } from '../config/themes'
 
 /**
  * Feedback Component
  *
  * Shows animated visual feedback after answer submission.
- * Designed for a 7-year-old with Sonic theming - fun and encouraging!
+ * Designed for a 7-year-old with hero theming - fun and encouraging!
  *
  * @param {boolean} isCorrect - Whether the answer was correct
  * @param {function} onComplete - Callback when animation finishes
+ * @param {string} theme - Theme key (e.g. 'sonic', 'spiderman')
  */
 
-// Correct answer messages - exciting and rewarding!
-const CORRECT_MESSAGES = [
-  { text: 'Sonic Speed!', emoji: '🦔💨' },
-  { text: 'Amazing!', emoji: '⭐' },
-  { text: 'Perfect!', emoji: '🎯' },
-  { text: 'Great Job!', emoji: '🎉' },
-  { text: "You're on Fire!", emoji: '🔥' },
-  { text: 'Super Star!', emoji: '🌟' },
-  { text: 'Awesome!', emoji: '✨' },
-  { text: 'Incredible!', emoji: '💫' },
+// Build correct-answer messages themed to the active hero
+const getCorrectMessages = (themeObj) => [
+  { text: themeObj.correctMessage, emoji: themeObj.emoji },
+  { text: 'Amazing!', emoji: '\u{2B50}' },
+  { text: 'Perfect!', emoji: '\u{1F3AF}' },
+  { text: 'Great Job!', emoji: '\u{1F389}' },
+  { text: "You're on Fire!", emoji: '\u{1F525}' },
+  { text: 'Super Star!', emoji: '\u{1F31F}' },
+  { text: 'Awesome!', emoji: '\u{2728}' },
+  { text: 'Incredible!', emoji: '\u{1F4AB}' },
 ]
 
 // Wrong answer messages - gentle and encouraging!
@@ -38,17 +40,18 @@ const FADE_IN_DURATION = 200
 const SHOW_DURATION = 1500
 const FADE_OUT_DURATION = 200
 
-function Feedback({ isCorrect, onComplete = null }) {
+function Feedback({ isCorrect, onComplete = null, theme: themeKey = null }) {
+  const themeObj = getTheme(themeKey)
   const [visible, setVisible] = useState(false)
   const [fadeOut, setFadeOut] = useState(false)
   const [message, setMessage] = useState({ text: '', emoji: '' })
 
   // Pick a random message based on correctness
   const pickMessage = useCallback(() => {
-    const messages = isCorrect ? CORRECT_MESSAGES : WRONG_MESSAGES
+    const messages = isCorrect ? getCorrectMessages(themeObj) : WRONG_MESSAGES
     const randomIndex = Math.floor(Math.random() * messages.length)
     return messages[randomIndex]
-  }, [isCorrect])
+  }, [isCorrect, themeObj])
 
   useEffect(() => {
     // Pick message and start animation
@@ -151,6 +154,7 @@ function Feedback({ isCorrect, onComplete = null }) {
 Feedback.propTypes = {
   isCorrect: PropTypes.bool.isRequired,
   onComplete: PropTypes.func,
+  theme: PropTypes.string,
 }
 
 export default Feedback

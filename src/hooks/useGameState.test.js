@@ -248,11 +248,13 @@ describe('useGameState - confidence integration', () => {
       result.current.startGame()
     })
 
-    // Need score >= 85 AND streak >= 3.
+    // Need score >= 85 AND streak >= 5.
     // Fast answers (500ms): CORRECT_DELTA(8) + FAST_BONUS(3) = 11 base
     // Streak 1: +11                    → 50 + 11 = 61
     // Streak 2: +round(11*1.3)=+14     → 61 + 14 = 75
-    // Streak 3: +round(11*1.3)=+14     → 75 + 14 = 89 >= 85, streak=3 >= 3
+    // Streak 3: +round(11*1.3)=+14     → 75 + 14 = 89 >= 85, streak=3
+    // Streak 4: +round(11*1.3)=+14     → 100 (clamped), streak=4
+    // Streak 5: +round(11*1.6)=+18     → 100 (clamped), streak=5 >= 5
 
     answerAndAdvance(result, 5) // streak 1 → 61
     expect(result.current.shouldLevelUp).toBe(false)
@@ -261,8 +263,13 @@ describe('useGameState - confidence integration', () => {
     expect(result.current.shouldLevelUp).toBe(false)
 
     answerAndAdvance(result, 5) // streak 3 → 89
+    expect(result.current.shouldLevelUp).toBe(false)
+
+    answerAndAdvance(result, 5) // streak 4 → 100
+    expect(result.current.shouldLevelUp).toBe(false)
+
+    answerAndAdvance(result, 5) // streak 5 → 100, LEVEL UP
     expect(result.current.shouldLevelUp).toBe(true)
-    expect(result.current.confidenceScore).toBe(89)
   })
 
   it('should expose acknowledgeLevelUp that clears shouldLevelUp', () => {
@@ -272,10 +279,12 @@ describe('useGameState - confidence integration', () => {
       result.current.startGame()
     })
 
-    // Drive to shouldLevelUp = true (3 fast correct answers)
+    // Drive to shouldLevelUp = true (5 fast correct answers)
     answerAndAdvance(result, 5) // streak 1 → 61
     answerAndAdvance(result, 5) // streak 2 → 75
     answerAndAdvance(result, 5) // streak 3 → 89
+    answerAndAdvance(result, 5) // streak 4 → 100
+    answerAndAdvance(result, 5) // streak 5 → 100, LEVEL UP
 
     expect(result.current.shouldLevelUp).toBe(true)
 

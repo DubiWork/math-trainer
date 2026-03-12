@@ -29,17 +29,25 @@ import StrategyHint from './StrategyHint'
 /** Maximum level that shows the DotCounter aid */
 const DOT_COUNTER_MAX_LEVEL = 4
 
+/** Operators that DotCounter and NumberLine support */
+const VISUAL_AID_OPERATORS = new Set(['+', '-'])
+
 /**
- * Select the aid component for a given level.
+ * Select the aid component for a given level and operator.
+ *
+ * DotCounter (levels 1-4) only supports + and -. For * and / operators
+ * at those levels, fall through to StrategyHint instead.
  *
  * @param {number} level
+ * @param {string} operator - '+', '-', '*', or '/'
  * @returns {Function|null} React component or null
  */
-function selectAid(level) {
-  if (level >= 1 && level <= DOT_COUNTER_MAX_LEVEL) {
+function selectAid(level, operator) {
+  if (level >= 1 && level <= DOT_COUNTER_MAX_LEVEL && VISUAL_AID_OPERATORS.has(operator)) {
     return DotCounter
   }
-  if (level >= DOT_COUNTER_MAX_LEVEL + 1) {
+  // Levels 5+ always use StrategyHint; levels 1-4 with * or / also fall through here
+  if (level >= 1) {
     return StrategyHint
   }
   return null
@@ -53,31 +61,31 @@ function LearningAid({ isStruggling, currentLevel, num1, num2, operator }) {
     return null
   }
 
-  const AidComponent = selectAid(currentLevel)
+  const AidComponent = selectAid(currentLevel, operator)
 
   // No aid available for this level tier
   if (!AidComponent) {
     return null
   }
 
-  const maxHeight = AidComponent === StrategyHint ? 'max-h-[160px]' : 'max-h-[120px]'
-
   return (
     <div
-      className={`
-        ${maxHeight} overflow-hidden
+      className="
+        flex flex-col max-h-[50vh]
         bg-black/20 backdrop-blur-sm rounded-2xl p-3
         animate-aid-enter motion-reduce:animate-none
-      `}
+      "
       data-testid="learning-aid-container"
     >
-      <AidComponent num1={num1} num2={num2} operator={operator} />
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <AidComponent num1={num1} num2={num2} operator={operator} />
+      </div>
 
       <button
         type="button"
         onClick={() => setDismissed(true)}
         className="
-          mt-2 w-full min-h-[44px]
+          mt-2 w-full min-h-[44px] shrink-0
           bg-sonic-gold hover:bg-yellow-400
           text-black font-game text-base
           rounded-xl shadow-md

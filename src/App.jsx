@@ -231,6 +231,7 @@ function App() {
           initialProgress={progress}
           currentLevel={currentLevel}
           onLevelUp={handleLevelUp}
+          activeProfile={activeProfile}
         />
       )}
 
@@ -246,6 +247,7 @@ function App() {
           sessionStats={sessionStats}
           onPlayAgain={handlePlayAgain}
           onExit={handleExit}
+          theme={activeProfile?.theme}
         />
       )}
     </>

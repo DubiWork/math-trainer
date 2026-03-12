@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import LevelMap from './LevelMap'
+import { getTheme } from '../config/themes'
 
 /**
  * StartScreen Component - Welcome screen before game starts
@@ -22,7 +23,9 @@ import LevelMap from './LevelMap'
  * @param {number} progress.correctAnswers - Total correct answers
  * @param {number} [currentLevel=1] - The player's current level (1-13)
  */
-function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
+function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile = null }) {
+  const theme = getTheme(activeProfile?.theme)
+
   // Check if user has previous progress to display
   const hasPreviousProgress = progress && (progress.score > 0 || progress.streak > 0)
 
@@ -47,13 +50,12 @@ function StartScreen({ onStart, progress = null, currentLevel = 1 }) {
           className="text-4xl md:text-5xl lg:text-6xl font-game text-white
                      drop-shadow-lg mb-4 animate-pulse-scale"
         >
-          Sonic Math Trainer!
+          {theme.titlePrefix} Math Trainer!
         </h1>
 
-        {/* Sonic Emoji Row */}
+        {/* Hero Emoji Row */}
         <div className="flex justify-center gap-2 text-4xl md:text-5xl mb-6">
-          <span role="img" aria-label="hedgehog">&#x1F994;</span>
-          <span role="img" aria-label="dash">&#x1F4A8;</span>
+          <span role="img" aria-label={theme.name}>{theme.emoji}</span>
         </div>
 
         {/* Subtitle */}
@@ -157,6 +159,9 @@ StartScreen.propTypes = {
     correctAnswers: PropTypes.number,
   }),
   currentLevel: PropTypes.number,
+  activeProfile: PropTypes.shape({
+    theme: PropTypes.string,
+  }),
 }
 
 export default StartScreen

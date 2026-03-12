@@ -56,7 +56,7 @@ describe('useConfidence - exported constants', () => {
     expect(CRITICAL_THRESHOLD).toBe(20)
     expect(CRITICAL_CONSECUTIVE_WRONG).toBe(5)
     expect(LEVEL_UP_THRESHOLD).toBe(85)
-    expect(LEVEL_UP_CONSECUTIVE_CORRECT).toBe(3)
+    expect(LEVEL_UP_CONSECUTIVE_CORRECT).toBe(5)
     expect(DEFAULT_INITIAL_SCORE).toBe(50)
   })
 })
@@ -335,25 +335,27 @@ describe('useConfidence - isCritical flag', () => {
 // Threshold Flags — shouldLevelUp (sticky)
 // =============================================================
 describe('useConfidence - shouldLevelUp flag', () => {
-  it('should become true when score >= 85 AND streak >= 3', () => {
+  it('should become true when score >= 85 AND streak >= 5', () => {
     const { result } = renderHook(() => useConfidence(80))
-    // Need score >= 85 and streak >= 3
-    // 1st correct: +8  = 88, streak=1 → not yet
-    // 2nd correct: +10 = 98, streak=2 → not yet
-    // 3rd correct: +10 = 100 (clamped), streak=3 → LEVEL UP
-    recordCorrect(result, 3)
+    // Need score >= 85 and streak >= 5
+    // 1st correct: +8  = 88, streak=1
+    // 2nd correct: +10 = 98, streak=2
+    // 3rd correct: +10 = 100, streak=3
+    // 4th correct: +10 = 100, streak=4
+    // 5th correct: +10 = 100, streak=5 → LEVEL UP
+    recordCorrect(result, 5)
     expect(result.current.shouldLevelUp).toBe(true)
   })
 
-  it('should NOT trigger if score >= 85 but streak < 3', () => {
+  it('should NOT trigger if score >= 85 but streak < 5', () => {
     const { result } = renderHook(() => useConfidence(90))
-    recordCorrect(result, 1) // streak=1, score=98
+    recordCorrect(result, 4) // streak=4, score=100
     expect(result.current.shouldLevelUp).toBe(false)
   })
 
   it('should be sticky — stays true even after wrong answers', () => {
     const { result } = renderHook(() => useConfidence(80))
-    recordCorrect(result, 3) // triggers shouldLevelUp
+    recordCorrect(result, 5) // triggers shouldLevelUp
     expect(result.current.shouldLevelUp).toBe(true)
 
     recordWrong(result, 1) // score drops, streak resets
@@ -362,7 +364,7 @@ describe('useConfidence - shouldLevelUp flag', () => {
 
   it('should be cleared by acknowledgeLevelUp()', () => {
     const { result } = renderHook(() => useConfidence(80))
-    recordCorrect(result, 3)
+    recordCorrect(result, 5)
     expect(result.current.shouldLevelUp).toBe(true)
 
     act(() => {
@@ -373,14 +375,14 @@ describe('useConfidence - shouldLevelUp flag', () => {
 
   it('should not re-trigger until conditions are met again after acknowledgement', () => {
     const { result } = renderHook(() => useConfidence(80))
-    recordCorrect(result, 3) // triggers level up
+    recordCorrect(result, 5) // triggers level up
     act(() => {
       result.current.acknowledgeLevelUp()
     })
     expect(result.current.shouldLevelUp).toBe(false)
 
-    // One more correct — streak=4, score=100, but shouldLevelUp was cleared
-    // Streak >= 3 and score >= 85, so it re-triggers
+    // One more correct — streak=6, score=100, but shouldLevelUp was cleared
+    // Streak >= 5 and score >= 85, so it re-triggers
     recordCorrect(result, 1)
     expect(result.current.shouldLevelUp).toBe(true)
   })
@@ -392,7 +394,7 @@ describe('useConfidence - shouldLevelUp flag', () => {
 describe('useConfidence - reset', () => {
   it('should reset to DEFAULT_INITIAL_SCORE when called without args', () => {
     const { result } = renderHook(() => useConfidence(80))
-    recordCorrect(result, 3)
+    recordCorrect(result, 5)
     act(() => {
       result.current.reset()
     })
@@ -426,7 +428,7 @@ describe('useConfidence - reset', () => {
 
   it('should clear shouldLevelUp on reset', () => {
     const { result } = renderHook(() => useConfidence(80))
-    recordCorrect(result, 3)
+    recordCorrect(result, 5)
     expect(result.current.shouldLevelUp).toBe(true)
     act(() => {
       result.current.reset()

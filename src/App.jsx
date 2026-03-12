@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useFirebase, useGameProgress } from './hooks'
-import { StartScreen, GameScreen, ResultScreen, LevelUpScreen, ProfileSwitcher, CreateProfile } from './components'
+import { StartScreen, GameScreen, ResultScreen, LevelUpScreen, ProfileSwitcher, CreateProfile, ProgressView } from './components'
 import { useProfile } from './context/useProfile'
 import { MAX_LEVEL } from './config/levels'
 
@@ -16,9 +16,14 @@ import { MAX_LEVEL } from './config/levels'
  *                                      |
  *                                      v (onComplete)
  * [activeProfile set]             -> StartScreen -> GameScreen -> ResultScreen
- *                                      ^            |    |         |
- *                                      +------------+----+---------+
- *                                                   |
+ *                                      ^    |       |    |         |
+ *                                      +----+-------+----+---------+
+ *                                      |    |
+ *                                      |    v (My Progress)
+ *                                      | ProgressView
+ *                                      |    |
+ *                                      +----+ (Close)
+ *                                           |
  *                                                   v (shouldLevelUp)
  *                                               LevelUpScreen
  *                                                   |
@@ -27,7 +32,7 @@ import { MAX_LEVEL } from './config/levels'
  *
  * Manages:
  * - Profile-gated entry: shows ProfileSwitcher or CreateProfile when no active profile
- * - Screen state ('start', 'game', 'result', 'levelup')
+ * - Screen state ('start', 'game', 'result', 'levelup', 'progress')
  * - Firebase authentication
  * - Game progress persistence (keyed to activeProfile.firebaseUid)
  * - Session statistics between screens
@@ -102,6 +107,11 @@ function App() {
     setSessionStats(null) // Clear session stats
     setScreen('start')
   }, [forceSave])
+
+  // Handle navigating to progress view
+  const handleViewProgress = useCallback(() => {
+    setScreen('progress')
+  }, [])
 
   // Handle switching profile (back to switcher)
   const handleSwitchProfile = useCallback(() => {
@@ -217,10 +227,20 @@ function App() {
       {screen === 'start' && (
         <StartScreen
           onStart={handleStartGame}
+          onViewProgress={handleViewProgress}
           progress={progress}
           onSwitchProfile={handleSwitchProfile}
           activeProfile={activeProfile}
           currentLevel={currentLevel}
+        />
+      )}
+
+      {screen === 'progress' && (
+        <ProgressView
+          currentLevel={currentLevel}
+          progress={progress}
+          activeProfile={activeProfile}
+          onClose={() => setScreen('start')}
         />
       )}
 

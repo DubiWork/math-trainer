@@ -23,7 +23,7 @@ import { getTheme } from '../config/themes'
  * @param {number} progress.correctAnswers - Total correct answers
  * @param {number} [currentLevel=1] - The player's current level (1-13)
  */
-function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile = null }) {
+function StartScreen({ onStart, onViewProgress, progress = null, currentLevel = 1, activeProfile = null }) {
   const theme = getTheme(activeProfile?.theme)
 
   // Check if user has previous progress to display
@@ -135,6 +135,29 @@ function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile
           Start Game!
         </button>
 
+        {/* My Progress Button - secondary styling, visible when profile is active */}
+        {activeProfile && (
+          <button
+            onClick={onViewProgress}
+            className="
+              mt-4
+              bg-white/20 hover:bg-white/30
+              text-white font-game text-xl md:text-2xl
+              px-10 py-4 rounded-2xl
+              shadow-md
+              transform transition-all duration-300
+              hover:scale-105
+              active:scale-95
+              focus:outline-none focus:ring-4 focus:ring-white/40
+              min-w-[44px] min-h-[44px]
+            "
+            aria-label="View my progress"
+            data-testid="my-progress-button"
+          >
+            My Progress
+          </button>
+        )}
+
         {/* Encouraging Tip */}
         <p className="text-lg md:text-xl font-game text-white/70 mt-8">
           <span role="img" aria-label="star">&#x2B50;</span> Tap the correct answer to score points!{' '}
@@ -152,6 +175,7 @@ function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile
 
 StartScreen.propTypes = {
   onStart: PropTypes.func.isRequired,
+  onViewProgress: PropTypes.func,
   progress: PropTypes.shape({
     score: PropTypes.number,
     streak: PropTypes.number,

@@ -1,4 +1,7 @@
 {
+  "startScreen": {
+    "myProgress": "\u05d4\u05d4\u05ea\u05e7\u05d3\u05de\u05d5\u05ea \u05e9\u05dc\u05d9"
+  },
   "progress": {
     "title": "\u05d4\u05d4\u05ea\u05e7\u05d3\u05de\u05d5\u05ea \u05e9\u05dc\u05d9",
     "accuracyFraction": "{{correct}} \u05de\u05ea\u05d5\u05da {{total}} \u05e0\u05db\u05d5\u05e0\u05d9\u05dd!",

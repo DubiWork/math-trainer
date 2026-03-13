@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { getTheme } from '../config/themes'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Feedback Component
@@ -10,29 +10,29 @@ import { getTheme } from '../config/themes'
  *
  * @param {boolean} isCorrect - Whether the answer was correct
  * @param {function} onComplete - Callback when animation finishes
- * @param {string} theme - Theme key (e.g. 'sonic', 'spiderman')
+ * @param {string} theme - Theme key (e.g. 'sonic', 'spiderman') — accepted for API compat, unused (messages via i18n)
  */
 
-// Build correct-answer messages themed to the active hero
-const getCorrectMessages = (themeObj) => [
-  { text: themeObj.correctMessage, emoji: themeObj.emoji },
-  { text: 'Amazing!', emoji: '\u{2B50}' },
-  { text: 'Perfect!', emoji: '\u{1F3AF}' },
-  { text: 'Great Job!', emoji: '\u{1F389}' },
-  { text: "You're on Fire!", emoji: '\u{1F525}' },
-  { text: 'Super Star!', emoji: '\u{1F31F}' },
-  { text: 'Awesome!', emoji: '\u{2728}' },
-  { text: 'Incredible!', emoji: '\u{1F4AB}' },
+// Correct answer emojis (text comes from translations)
+const CORRECT_EMOJIS = [
+  '\u{1F994}\u{1F4A8}', // hedgehog + dash
+  '\u{2B50}',           // star
+  '\u{1F3AF}',          // bullseye
+  '\u{1F389}',          // party popper
+  '\u{1F525}',          // fire
+  '\u{1F31F}',          // glowing star
+  '\u{2728}',           // sparkles
+  '\u{1F4AB}',          // dizzy star
 ]
 
-// Wrong answer messages - gentle and encouraging!
-const WRONG_MESSAGES = [
-  { text: 'Try Again!', emoji: '💪' },
-  { text: 'Almost There!', emoji: '🎈' },
-  { text: 'Keep Going!', emoji: '🚀' },
-  { text: "You've Got This!", emoji: '👍' },
-  { text: 'So Close!', emoji: '🌈' },
-  { text: 'One More Try!', emoji: '🎮' },
+// Wrong answer emojis (text comes from translations)
+const WRONG_EMOJIS = [
+  '\u{1F4AA}',  // muscle
+  '\u{1F388}',  // balloon
+  '\u{1F680}',  // rocket
+  '\u{1F44D}',  // thumbs up
+  '\u{1F308}',  // rainbow
+  '\u{1F3AE}',  // game controller
 ]
 
 // Animation timing constants (in ms)
@@ -40,31 +40,28 @@ const FADE_IN_DURATION = 200
 const SHOW_DURATION = 1500
 const FADE_OUT_DURATION = 200
 
-function Feedback({ isCorrect, onComplete = null, theme: themeKey = null }) {
-  const themeObj = getTheme(themeKey)
+function Feedback({ isCorrect, onComplete = null }) {
+  const { t } = useTranslation()
   const [visible, setVisible] = useState(false)
   const [fadeOut, setFadeOut] = useState(false)
   const [message, setMessage] = useState({ text: '', emoji: '' })
 
   // Pick a random message based on correctness
   const pickMessage = useCallback(() => {
-    const messages = isCorrect ? getCorrectMessages(themeObj) : WRONG_MESSAGES
-    const randomIndex = Math.floor(Math.random() * messages.length)
-    return messages[randomIndex]
-  }, [isCorrect, themeObj])
+  const pickMessage = useCallback(() => {
+    const texts = isCorrect
+      ? t('feedback.correct', { returnObjects: true })
+      : t('feedback.wrong', { returnObjects: true })
+    const emojis = isCorrect ? CORRECT_EMOJIS : WRONG_EMOJIS
+    const randomIndex = Math.floor(Math.random() * texts.length)
+    return { text: texts[randomIndex], emoji: emojis[randomIndex % emojis.length] }
+  }, [isCorrect, t])
 
   useEffect(() => {
     // Pick message and start animation
     setMessage(pickMessage())
     setVisible(true)
     setFadeOut(false)
-
-    // TODO: Play success/failure sound here
-    // if (isCorrect) {
-    //   playSound('success')
-    // } else {
-    //   playSound('tryAgain')
-    // }
 
     // Start fade out after show duration
     const fadeOutTimer = setTimeout(() => {
@@ -116,7 +113,7 @@ function Feedback({ isCorrect, onComplete = null, theme: themeKey = null }) {
       >
         {/* Main Icon */}
         <div className={`text-6xl md:text-7xl mb-4 ${isCorrect ? 'animate-bounce-custom' : 'animate-shake'}`}>
-          {isCorrect ? '✅' : '🔄'}
+          {isCorrect ? '\u{2705}' : '\u{1F504}'}
         </div>
 
         {/* Message Text */}
@@ -138,12 +135,12 @@ function Feedback({ isCorrect, onComplete = null, theme: themeKey = null }) {
         {/* Sparkles/Confetti for correct answers */}
         {isCorrect && (
           <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
-            <div className="sparkle sparkle-1">✨</div>
-            <div className="sparkle sparkle-2">⭐</div>
-            <div className="sparkle sparkle-3">💫</div>
-            <div className="sparkle sparkle-4">🌟</div>
-            <div className="sparkle sparkle-5">✨</div>
-            <div className="sparkle sparkle-6">⭐</div>
+            <div className="sparkle sparkle-1">{'\u{2728}'}</div>
+            <div className="sparkle sparkle-2">{'\u{2B50}'}</div>
+            <div className="sparkle sparkle-3">{'\u{1F4AB}'}</div>
+            <div className="sparkle sparkle-4">{'\u{1F31F}'}</div>
+            <div className="sparkle sparkle-5">{'\u{2728}'}</div>
+            <div className="sparkle sparkle-6">{'\u{2B50}'}</div>
           </div>
         )}
       </div>

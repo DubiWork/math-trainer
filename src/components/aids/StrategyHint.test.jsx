@@ -5,6 +5,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest'
 import { render, screen, cleanup, fireEvent } from '@testing-library/react'
 import StrategyHint from './StrategyHint'
 import { getStrategies } from '../../utils/strategies'
+import i18n from 'i18next'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -16,6 +17,16 @@ const defaultProps = {
 
 function renderStrategyHint(overrides = {}) {
   return render(<StrategyHint {...defaultProps} {...overrides} />)
+}
+
+/** Resolve a { key, params } step to its English translation */
+function translateStep(step) {
+  return i18n.t(step.key, step.params)
+}
+
+/** Resolve a nameKey to its English translation */
+function translateName(nameKey) {
+  return i18n.t(nameKey)
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
@@ -31,15 +42,15 @@ describe('StrategyHint', () => {
     it('renders first strategy name on mount', () => {
       renderStrategyHint({ num1: 8, num2: 5, operator: '+' })
       const strategies = getStrategies(8, 5, '+')
-      expect(screen.getByText(strategies[0].name)).toBeTruthy()
+      expect(screen.getByText(translateName(strategies[0].nameKey))).toBeTruthy()
     })
 
-    it('renders numbered steps for the first strategy', () => {
+    it('renders translated steps for the first strategy', () => {
       renderStrategyHint({ num1: 8, num2: 5, operator: '+' })
       const strategies = getStrategies(8, 5, '+')
       const steps = strategies[0].steps
       for (const step of steps) {
-        expect(screen.getByText(step)).toBeTruthy()
+        expect(screen.getByText(translateStep(step))).toBeTruthy()
       }
     })
 
@@ -88,7 +99,7 @@ describe('StrategyHint', () => {
       const button = screen.getByRole('button', { name: /show me another way/i })
       fireEvent.click(button)
 
-      expect(screen.getByText(strategies[1].name)).toBeTruthy()
+      expect(screen.getByText(translateName(strategies[1].nameKey))).toBeTruthy()
       expect(
         screen.getByText(`Strategy 2 of ${strategies.length}`),
       ).toBeTruthy()
@@ -106,7 +117,7 @@ describe('StrategyHint', () => {
       }
 
       // Should be back to strategy 1
-      expect(screen.getByText(strategies[0].name)).toBeTruthy()
+      expect(screen.getByText(translateName(strategies[0].nameKey))).toBeTruthy()
       expect(
         screen.getByText(`Strategy 1 of ${strategies.length}`),
       ).toBeTruthy()
@@ -226,14 +237,14 @@ describe('StrategyHint', () => {
       renderStrategyHint({ num1: 3, num2: 4, operator: '*' })
       const strategies = getStrategies(3, 4, '*')
       expect(strategies.length).toBeGreaterThan(0)
-      expect(screen.getByText(strategies[0].name)).toBeTruthy()
+      expect(screen.getByText(translateName(strategies[0].nameKey))).toBeTruthy()
     })
 
     it('renders steps for multiplication strategy', () => {
       renderStrategyHint({ num1: 3, num2: 4, operator: '*' })
       const strategies = getStrategies(3, 4, '*')
       for (const step of strategies[0].steps) {
-        expect(screen.getByText(step)).toBeTruthy()
+        expect(screen.getByText(translateStep(step))).toBeTruthy()
       }
     })
 
@@ -247,13 +258,13 @@ describe('StrategyHint', () => {
 
     it('renders times-ten strategy for 6*10', () => {
       renderStrategyHint({ num1: 6, num2: 10, operator: '*' })
-      expect(screen.getByText('Times Ten')).toBeTruthy()
+      expect(screen.getByText(translateName('strategy.names.times_ten'))).toBeTruthy()
     })
 
     it('renders doubles strategy for 5*2', () => {
       renderStrategyHint({ num1: 5, num2: 2, operator: '*' })
       const strategies = getStrategies(5, 2, '*')
-      expect(strategies.some(s => s.name === 'Use Doubles')).toBe(true)
+      expect(strategies.some(s => s.nameKey === 'strategy.names.doubles_mult')).toBe(true)
     })
 
     it('shows "Show me another way" when multiple mult strategies exist', () => {
@@ -279,25 +290,25 @@ describe('StrategyHint', () => {
       renderStrategyHint({ num1: 12, num2: 3, operator: '/' })
       const strategies = getStrategies(12, 3, '/')
       expect(strategies.length).toBeGreaterThan(0)
-      expect(screen.getByText(strategies[0].name)).toBeTruthy()
+      expect(screen.getByText(translateName(strategies[0].nameKey))).toBeTruthy()
     })
 
     it('renders steps for division strategy', () => {
       renderStrategyHint({ num1: 12, num2: 3, operator: '/' })
       const strategies = getStrategies(12, 3, '/')
       for (const step of strategies[0].steps) {
-        expect(screen.getByText(step)).toBeTruthy()
+        expect(screen.getByText(translateStep(step))).toBeTruthy()
       }
     })
 
     it('renders halving strategy for 12/2', () => {
       renderStrategyHint({ num1: 12, num2: 2, operator: '/' })
-      expect(screen.getByText('Halving')).toBeTruthy()
+      expect(screen.getByText(translateName('strategy.names.halving'))).toBeTruthy()
     })
 
     it('renders inverse-mult strategy for 20/5', () => {
       renderStrategyHint({ num1: 20, num2: 5, operator: '/' })
-      expect(screen.getByText('Think Multiplication')).toBeTruthy()
+      expect(screen.getByText(translateName('strategy.names.inverse_mult'))).toBeTruthy()
     })
 
     it('shows "Show me another way" for 12/2 (halving + inverse-mult)', () => {
@@ -326,7 +337,7 @@ describe('StrategyHint', () => {
     it('strategy name has correct Tailwind classes', () => {
       renderStrategyHint({ num1: 8, num2: 5, operator: '+' })
       const strategies = getStrategies(8, 5, '+')
-      const nameEl = screen.getByText(strategies[0].name)
+      const nameEl = screen.getByText(translateName(strategies[0].nameKey))
       expect(nameEl.className).toContain('text-sonic-gold')
       expect(nameEl.className).toContain('font-game')
       expect(nameEl.className).toContain('font-bold')
@@ -449,6 +460,15 @@ describe('StrategyHint', () => {
       renderStrategyHint()
       expect(screen.getByTestId('strategy-hint')).toBeTruthy()
     })
+
+    it('step text has dir="ltr" for math content', () => {
+      renderStrategyHint({ num1: 8, num2: 5, operator: '+' })
+      const stepSpans = screen.getByTestId('strategy-hint')
+        .querySelectorAll('ol li span:not([aria-hidden])')
+      for (const span of stepSpans) {
+        expect(span.getAttribute('dir')).toBe('ltr')
+      }
+    })
   })
 
   // ── PropTypes ─────────────────────────────────────────────────────────
@@ -522,7 +542,7 @@ describe('StrategyHint', () => {
       renderStrategyHint({ num1: 15, num2: 7, operator: '-' })
       const strategies = getStrategies(15, 7, '-')
       expect(strategies.length).toBeGreaterThan(0)
-      expect(screen.getByText(strategies[0].name)).toBeTruthy()
+      expect(screen.getByText(translateName(strategies[0].nameKey))).toBeTruthy()
     })
 
     it('shows correct strategy counter for subtraction', () => {
@@ -533,11 +553,11 @@ describe('StrategyHint', () => {
       ).toBeTruthy()
     })
 
-    it('renders steps for subtraction strategy', () => {
+    it('renders translated steps for subtraction strategy', () => {
       renderStrategyHint({ num1: 15, num2: 7, operator: '-' })
       const strategies = getStrategies(15, 7, '-')
       for (const step of strategies[0].steps) {
-        expect(screen.getByText(step)).toBeTruthy()
+        expect(screen.getByText(translateStep(step))).toBeTruthy()
       }
     })
   })

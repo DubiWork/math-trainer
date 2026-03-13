@@ -17,6 +17,7 @@
  */
 
 import { useReducer, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import {
   getProfiles,
@@ -48,6 +49,7 @@ import ProfileContext from './profileContext'
  */
 export default function ProfileProvider({ children }) {
   const [state, dispatch] = useReducer(profileReducer, initialState)
+  const { i18n } = useTranslation()
 
   // ── Bootstrap: load profiles + restore session ────────────────────────
   useEffect(() => {
@@ -65,6 +67,14 @@ export default function ProfileProvider({ children }) {
       }
     }
   }, [])
+
+  // ── Sync i18n language + document dir with active profile ─────────────
+  useEffect(() => {
+    const lang = state.activeProfile?.language || 'he'
+    i18n.changeLanguage(lang)
+    document.documentElement.lang = lang
+    document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr'
+  }, [state.activeProfile?.language, i18n])
 
   // ── Actions exposed to consumers ──────────────────────────────────────
 

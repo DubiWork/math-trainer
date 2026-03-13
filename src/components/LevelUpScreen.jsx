@@ -17,6 +17,7 @@
  */
 
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { LEVELS, MAX_LEVEL } from '../config/levels'
 
 /** Number of confetti particles to render */
@@ -33,6 +34,7 @@ const CONFETTI_COLORS = [
 ]
 
 function LevelUpScreen({ completedLevel, onContinue }) {
+  const { t } = useTranslation()
   const completedLevelConfig = LEVELS[completedLevel - 1]
   const isChampion = completedLevel >= MAX_LEVEL
   const nextLevelConfig = isChampion ? null : LEVELS[completedLevel]
@@ -59,7 +61,7 @@ function LevelUpScreen({ completedLevel, onContinue }) {
         />
       ))}
 
-      {/* Hero emoji with bounce animation — trophy for champion, rocket otherwise */}
+      {/* Hero emoji with bounce animation -- trophy for champion, rocket otherwise */}
       <div
         data-testid="hero-emoji"
         className="text-7xl md:text-8xl mb-4 animate-bounce-hero motion-reduce:animate-none"
@@ -71,26 +73,26 @@ function LevelUpScreen({ completedLevel, onContinue }) {
       {/* Screen-reader announcement */}
       <div role="status" aria-live="polite" className="sr-only">
         {isChampion
-          ? `Congratulations! You mastered all ${MAX_LEVEL} levels!`
-          : `Level complete! You finished ${completedLevelConfig?.name}. Next up: ${nextLevelConfig?.name}.`}
+          ? t('levelup.srChampion', { count: MAX_LEVEL })
+          : t('levelup.srComplete', { completed: completedLevelConfig?.name, next: nextLevelConfig?.name })}
       </div>
 
       {/* Main heading */}
       <h1 className="text-4xl md:text-6xl font-game text-sonic-gold drop-shadow-lg text-center mb-2">
-        {isChampion ? 'Math Champion!' : 'Level Complete!'}
+        {isChampion ? t('levelup.mathChampion') : t('levelup.levelComplete')}
       </h1>
 
       {/* Sub-message */}
       <p className="text-xl md:text-2xl font-game text-white text-center mb-1">
         {isChampion
-          ? `You mastered all ${MAX_LEVEL} levels!`
+          ? t('levelup.masteredAll', { count: MAX_LEVEL })
           : completedLevelConfig?.name}
       </p>
 
       {/* Next level subheading (normal flow only) */}
       {nextLevelConfig && (
         <p className="text-lg md:text-xl font-game text-yellow-200 text-center mb-8">
-          Next: {nextLevelConfig.name}
+          {t('levelup.next', { name: nextLevelConfig.name })}
         </p>
       )}
 
@@ -110,13 +112,13 @@ function LevelUpScreen({ completedLevel, onContinue }) {
         "
         aria-label={
           isChampion
-            ? `Play Again at Level ${MAX_LEVEL}`
-            : `Continue to Level ${completedLevel + 1}`
+            ? t('levelup.playAgainAtLevel', { level: MAX_LEVEL })
+            : t('levelup.continueToLevel', { level: completedLevel + 1 })
         }
       >
         {isChampion
-          ? `Play Again at Level ${MAX_LEVEL}!`
-          : `Continue to Level ${completedLevel + 1}!`}
+          ? t('levelup.playAgainButton', { level: MAX_LEVEL })
+          : t('levelup.continueButton', { level: completedLevel + 1 })}
       </button>
 
       {/* Audio placeholder for future audio hook */}

@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   test: {
     exclude: ['tests/**', 'node_modules/**'],
+    setupFiles: ['./src/setupTests.js'],
   },
   plugins: [
     react(),

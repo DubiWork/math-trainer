@@ -6,7 +6,17 @@
     "loadingProgress": "Loading your progress...",
     "errorTitle": "Oops!",
     "errorConnection": "Could not connect to save your progress",
-    "playAnyway": "Play Anyway!"
+    "playAnyway": "Play Anyway!",
+    "errors": {
+      "network": "No internet connection",
+      "tooManyRequests": "Too many attempts, try again later",
+      "internal": "Something went wrong",
+      "generic": "Connection error"
+    },
+    "game": {
+      "stuck": "Having trouble?",
+      "goBack": "Go Back"
+    }
   },
   "start": {
     "title": "Sonic Math Trainer!",

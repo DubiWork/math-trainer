@@ -6,7 +6,17 @@
     "loadingProgress": "טוען את ההתקדמות שלך...",
     "errorTitle": "אופס!",
     "errorConnection": "לא הצלחנו לשמור את ההתקדמות שלך",
-    "playAnyway": "בוא נשחק!"
+    "playAnyway": "בוא נשחק!",
+    "errors": {
+      "network": "אין חיבור לאינטרנט",
+      "tooManyRequests": "יותר מדי נסיונות, נסה מאוחר יותר",
+      "internal": "משהו השתבש",
+      "generic": "שגיאת חיבור"
+    },
+    "game": {
+      "stuck": "נתקעת?",
+      "goBack": "חזור"
+    }
   },
   "start": {
     "title": "סוניק מתמטיקה!",

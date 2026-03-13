@@ -48,7 +48,6 @@ function Feedback({ isCorrect, onComplete = null }) {
 
   // Pick a random message based on correctness
   const pickMessage = useCallback(() => {
-  const pickMessage = useCallback(() => {
     const texts = isCorrect
       ? t('feedback.correct', { returnObjects: true })
       : t('feedback.wrong', { returnObjects: true })

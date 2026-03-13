@@ -2,6 +2,7 @@
  * React components for Math Trainer
  *
  * Sonic-themed UI components designed for 7-year-old children:
+ * - ErrorBoundary: Root-level error catcher with bilingual fallback UI
  * - Problem: Math problem display (e.g., "5 + 3 = ?")
  * - AnswerButtons: Grid of answer options
  * - ScoreDisplay: Current score and streak
@@ -16,6 +17,7 @@
  * - LevelUpScreen: Celebration screen when player levels up
  */
 
+export { default as ErrorBoundary } from './ErrorBoundary'
 export { default as Problem } from './Problem'
 export { default as AnswerButtons } from './AnswerButtons'
 export { default as ScoreDisplay } from './ScoreDisplay'

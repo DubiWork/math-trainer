@@ -41,6 +41,10 @@ vi.mock('react-i18next', () => ({
   initReactI18next: { type: '3rdParty', init: vi.fn() },
 }))
 
+vi.mock('./components/ErrorBoundary.jsx', () => ({
+  default: function MockErrorBoundary({ children }) { return children },
+}))
+
 vi.mock('./styles/index.css', () => ({}))
 
 describe('main.jsx', () => {
@@ -65,15 +69,22 @@ describe('main.jsx', () => {
     expect(capturedElement).not.toBeNull()
   })
 
-  it('wraps App inside I18nextProvider inside ProfileProvider inside StrictMode', () => {
-    // The rendered element is: <StrictMode><I18nextProvider><ProfileProvider><App /></ProfileProvider></I18nextProvider></StrictMode>
+  it('wraps tree inside StrictMode at the root', () => {
     expect(capturedElement.type).toBe(React.StrictMode.type ?? React.StrictMode)
+  })
 
-    const i18nProviderElement = capturedElement.props.children
+  it('wraps App inside ErrorBoundary inside I18nextProvider inside ProfileProvider inside StrictMode', () => {
+    // Tree: <StrictMode><ErrorBoundary><I18nextProvider><ProfileProvider><App/></ProfileProvider></I18nextProvider></ErrorBoundary></StrictMode>
+    const strictModeChild = capturedElement.props.children // ErrorBoundary
+    expect(strictModeChild).toBeTruthy()
+
+    const i18nProviderElement = strictModeChild.props.children // I18nextProvider
     expect(i18nProviderElement).toBeTruthy()
-    // I18nextProvider wraps ProfileProvider which wraps App
-    const profileProviderElement = i18nProviderElement.props.children
+
+    const profileProviderElement = i18nProviderElement.props.children // ProfileProvider
     expect(profileProviderElement).toBeTruthy()
+
+    // ProfileProvider's child is App
     expect(profileProviderElement.props.children).toBeTruthy()
   })
 })

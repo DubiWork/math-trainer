@@ -12,7 +12,7 @@
  * @param {Object} props
  * @param {number} props.num1      Left operand
  * @param {number} props.num2      Right operand
- * @param {string} props.operator  '+' or '-'
+ * @param {string} props.operator  '+', '-', '*', or '/'
  */
 
 import { useState, useEffect } from 'react'
@@ -100,7 +100,7 @@ function StrategyHint({ num1, num2, operator }) {
 StrategyHint.propTypes = {
   num1: PropTypes.number.isRequired,
   num2: PropTypes.number.isRequired,
-  operator: PropTypes.oneOf(['+', '-']).isRequired,
+  operator: PropTypes.oneOf(['+', '-', '*', '/']).isRequired,
 }
 
 export default StrategyHint

@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
 import { useFirebase, useGameProgress } from './hooks'
-import { StartScreen, GameScreen, ResultScreen, ProfileSwitcher, CreateProfile } from './components'
+import { StartScreen, GameScreen, ResultScreen, LevelUpScreen, ProfileSwitcher, CreateProfile } from './components'
 import { useProfile } from './context/useProfile'
+import { MAX_LEVEL } from './config/levels'
 
 /**
  * App Component - Main application with screen navigation
@@ -15,18 +16,24 @@ import { useProfile } from './context/useProfile'
  *                                      |
  *                                      v (onComplete)
  * [activeProfile set]             -> StartScreen -> GameScreen -> ResultScreen
- *                                      ^            |              |
- *                                      +------------+--------------+
+ *                                      ^            |    |         |
+ *                                      +------------+----+---------+
+ *                                                   |
+ *                                                   v (shouldLevelUp)
+ *                                               LevelUpScreen
+ *                                                   |
+ *                                                   v (Continue)
+ *                                               GameScreen (next level)
  *
  * Manages:
  * - Profile-gated entry: shows ProfileSwitcher or CreateProfile when no active profile
- * - Screen state ('start', 'game', 'result')
+ * - Screen state ('start', 'game', 'result', 'levelup')
  * - Firebase authentication
  * - Game progress persistence (keyed to activeProfile.firebaseUid)
  * - Session statistics between screens
  */
 function App() {
-  const { activeProfile, isLoading: profileLoading, clearActiveProfile, createAndActivate } = useProfile()
+  const { activeProfile, isLoading: profileLoading, clearActiveProfile, createAndActivate, updateProfile } = useProfile()
   const { user, loading: authLoading, error: authError } = useFirebase()
   const {
     progress,
@@ -34,6 +41,9 @@ function App() {
     forceSave,
     loading: progressLoading,
   } = useGameProgress(activeProfile?.firebaseUid ?? user?.uid)
+
+  // Extract currentLevel from active profile (default to 1 when no profile)
+  const currentLevel = activeProfile?.currentLevel ?? 1
 
   // Screen navigation state
   const [screen, setScreen] = useState('start')
@@ -43,6 +53,9 @@ function App() {
 
   // Whether to show CreateProfile wizard (when no active profile)
   const [showCreate, setShowCreate] = useState(false)
+
+  // Track which level was just completed (for LevelUpScreen)
+  const [completedLevel, setCompletedLevel] = useState(null)
 
   // Combine loading states
   const loading = profileLoading || authLoading || progressLoading
@@ -113,6 +126,25 @@ function App() {
   const handleCreateCancel = useCallback(() => {
     setShowCreate(false)
   }, [])
+
+  // Handle level-up detection from GameScreen
+  const handleLevelUp = useCallback((level) => {
+    setCompletedLevel(level)
+    setScreen('levelup')
+  }, [])
+
+  // Handle continue after level-up celebration
+  const handleContinueAfterLevelUp = useCallback(() => {
+    if (completedLevel !== null && activeProfile) {
+      const nextLevel = completedLevel + 1
+      // Max level guard: do not update profile beyond MAX_LEVEL
+      if (nextLevel <= MAX_LEVEL) {
+        updateProfile(activeProfile.id, { currentLevel: nextLevel })
+      }
+    }
+    setCompletedLevel(null)
+    setScreen('game')
+  }, [completedLevel, activeProfile, updateProfile])
 
   // Show loading state while authenticating or loading progress
   if (loading) {
@@ -188,6 +220,7 @@ function App() {
           progress={progress}
           onSwitchProfile={handleSwitchProfile}
           activeProfile={activeProfile}
+          currentLevel={currentLevel}
         />
       )}
 
@@ -196,6 +229,16 @@ function App() {
           onGameEnd={handleGameEnd}
           updateProgress={updateProgress}
           initialProgress={progress}
+          currentLevel={currentLevel}
+          onLevelUp={handleLevelUp}
+          activeProfile={activeProfile}
+        />
+      )}
+
+      {screen === 'levelup' && completedLevel !== null && (
+        <LevelUpScreen
+          completedLevel={completedLevel}
+          onContinue={handleContinueAfterLevelUp}
         />
       )}
 
@@ -204,6 +247,7 @@ function App() {
           sessionStats={sessionStats}
           onPlayAgain={handlePlayAgain}
           onExit={handleExit}
+          theme={activeProfile?.theme}
         />
       )}
     </>

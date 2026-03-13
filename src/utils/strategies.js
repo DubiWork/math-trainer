@@ -1,15 +1,20 @@
 /**
  * Math Strategy Engine for Math Trainer
  *
- * Detects applicable mental math strategies for addition and subtraction
- * problems and returns step-by-step explanations. Designed for children
- * at grade 1-2 reading level.
+ * Detects applicable mental math strategies for addition, subtraction,
+ * multiplication, and division problems and returns step-by-step
+ * explanations. Designed for children at grade 1-2 reading level.
  *
- * Strategies are ordered by priority: doubles > near-doubles > bridging >
- * count-on/count-back. Count-on/count-back serve as universal fallbacks,
- * guaranteeing at least one strategy for every + or - problem.
+ * Addition/Subtraction strategies are ordered by priority:
+ *   doubles > near-doubles > bridging > count-on/count-back.
+ *   Count-on/count-back serve as universal fallbacks.
  *
- * Returns an empty array for * and / operators (deferred to future release).
+ * Multiplication strategies:
+ *   times-ten > doubles-mult > repeated-addition > commutative-mult.
+ *   Inverse multiplication serves as universal fallback for division.
+ *
+ * Division strategies:
+ *   halving > inverse-multiplication (universal fallback).
  *
  * All step text is defined as extractable template constants for future
  * i18n support (issue #22).
@@ -25,6 +30,12 @@ export const STRATEGY_IDS = {
   NEAR_DOUBLES: 'near_doubles',
   COUNT_ON: 'count_on',
   COUNT_BACK: 'count_back',
+  REPEATED_ADDITION: 'repeated_addition',
+  COMMUTATIVE_MULT: 'commutative_mult',
+  TIMES_TEN: 'times_ten',
+  DOUBLES_MULT: 'doubles_mult',
+  INVERSE_MULT: 'inverse_mult',
+  HALVING: 'halving',
 };
 
 // ─── Strategy Names ─────────────────────────────────────────────────────────
@@ -37,6 +48,12 @@ const STRATEGY_NAMES = {
   [STRATEGY_IDS.NEAR_DOUBLES]: 'Near Doubles',
   [STRATEGY_IDS.COUNT_ON]: 'Count On',
   [STRATEGY_IDS.COUNT_BACK]: 'Count Back',
+  [STRATEGY_IDS.REPEATED_ADDITION]: 'Repeated Addition',
+  [STRATEGY_IDS.COMMUTATIVE_MULT]: 'Swap the Numbers',
+  [STRATEGY_IDS.TIMES_TEN]: 'Times Ten',
+  [STRATEGY_IDS.DOUBLES_MULT]: 'Use Doubles',
+  [STRATEGY_IDS.INVERSE_MULT]: 'Think Multiplication',
+  [STRATEGY_IDS.HALVING]: 'Halving',
 };
 
 // ─── Step Templates (extractable for i18n #22) ─────────────────────────────
@@ -161,6 +178,58 @@ const STEP_TEMPLATES = {
       `You land on ?`,
     ];
   },
+
+  // ─── Multiplication Templates ───────────────────────────────────────
+
+  repeated_addition: (num1, num2) => {
+    // Pick the smaller operand as the multiplier for skip counting
+    const base = num1 <= num2 ? num1 : num2;
+    const times = num1 <= num2 ? num2 : num1;
+    const addends = Array.from({ length: times }, () => base).join('+');
+    return [
+      `${times} groups of ${base}`,
+      `${addends}=?`,
+    ];
+  },
+
+  commutative_mult: (num1, num2) => {
+    return [
+      `Don't know ${num1}x${num2}?`,
+      `Try ${num2}x${num1}=?`,
+    ];
+  },
+
+  times_ten: (num1, num2) => {
+    const other = num1 === 10 ? num2 : num1;
+    return [
+      `Any numberx10: add a zero!`,
+      `${other}x10=?`,
+    ];
+  },
+
+  doubles_mult: (num1, num2) => {
+    const other = num1 === 2 ? num2 : num1;
+    return [
+      `x2 = double it!`,
+      `Double ${other}=?`,
+    ];
+  },
+
+  // ─── Division Templates ─────────────────────────────────────────────
+
+  inverse_mult: (num1, num2) => {
+    return [
+      `${num1} / ${num2} = ?`,
+      `Think: ${num2} x ? = ${num1}`,
+    ];
+  },
+
+  halving: (num1) => {
+    return [
+      `Divide by 2 = half!`,
+      `Half of ${num1} = ?`,
+    ];
+  },
 };
 
 // ─── Strategy Detectors ─────────────────────────────────────────────────────
@@ -225,14 +294,71 @@ function isCountBack(num2) {
   return num2 <= 3;
 }
 
+// ─── Multiplication Detectors ──────────────────────────────────────────────
+
+/**
+ * Checks if either operand is 10 (times-ten shortcut).
+ * @param {number} num1
+ * @param {number} num2
+ * @returns {boolean}
+ */
+function isTimesTen(num1, num2) {
+  return num1 === 10 || num2 === 10;
+}
+
+/**
+ * Checks if either operand is 2 (doubles/double-it strategy).
+ * @param {number} num1
+ * @param {number} num2
+ * @returns {boolean}
+ */
+function isDoublesMult(num1, num2) {
+  return num1 === 2 || num2 === 2;
+}
+
+/**
+ * Checks if either operand is <= 5 (repeated addition / skip counting).
+ * @param {number} num1
+ * @param {number} num2
+ * @returns {boolean}
+ */
+function isRepeatedAddition(num1, num2) {
+  return Math.min(num1, num2) <= 5;
+}
+
+/**
+ * Checks if swapping operands could be easier (num2 < num1).
+ * @param {number} num1
+ * @param {number} num2
+ * @returns {boolean}
+ */
+function isCommutativeMult(num1, num2) {
+  return num2 < num1;
+}
+
+// ─── Division Detectors ────────────────────────────────────────────────────
+
+/**
+ * Checks if divisor is 2 (halving strategy).
+ * @param {number} num2 - Divisor
+ * @returns {boolean}
+ */
+function isHalving(num2) {
+  return num2 === 2;
+}
+
 // ─── Main API ───────────────────────────────────────────────────────────────
 
 /**
  * Returns applicable math strategies for a given problem, ordered by priority.
  *
- * Priority: doubles > near-doubles > bridging > count-on/count-back.
- * At least one strategy is guaranteed for every + or - problem.
- * Returns an empty array for * and / operators.
+ * Addition/Subtraction priority: doubles > near-doubles > bridging > count-on/count-back.
+ * At least one strategy is guaranteed for every +, -, *, or / problem.
+ *
+ * Multiplication priority: times-ten > doubles-mult > repeated-addition > commutative-mult.
+ * Repeated-addition serves as universal fallback for multiplication.
+ *
+ * Division priority: halving > inverse-multiplication (universal fallback).
  *
  * @param {number} num1 - First operand
  * @param {number} num2 - Second operand
@@ -245,14 +371,10 @@ function isCountBack(num2) {
  * //  { id: 'count_on', name: 'Count On', steps: ['Start at 8', ...] }]
  *
  * @example
- * getStrategies(6, 3, '*');
- * // [] — multiplication strategies not yet implemented
+ * getStrategies(3, 4, '*');
+ * // [{ id: 'repeated_addition', name: 'Repeated Addition', steps: [...] }, ...]
  */
 export function getStrategies(num1, num2, operator) {
-  if (operator !== '+' && operator !== '-') {
-    return [];
-  }
-
   const strategies = [];
 
   if (operator === '+') {
@@ -298,9 +420,7 @@ export function getStrategies(num1, num2, operator) {
         steps: STEP_TEMPLATES.count_on(num1, num2),
       });
     }
-  } else {
-    // operator === '-'
-
+  } else if (operator === '-') {
     // Priority 1: doubles (num1 === num2 → answer is 0)
     if (isDoubles(num1, num2)) {
       strategies.push({
@@ -343,6 +463,67 @@ export function getStrategies(num1, num2, operator) {
         steps: STEP_TEMPLATES.count_back(num1, num2),
       });
     }
+  } else if (operator === '*') {
+    // Priority 1: times-ten (highest priority — simplest rule)
+    if (isTimesTen(num1, num2)) {
+      strategies.push({
+        id: STRATEGY_IDS.TIMES_TEN,
+        name: STRATEGY_NAMES[STRATEGY_IDS.TIMES_TEN],
+        steps: STEP_TEMPLATES.times_ten(num1, num2),
+      });
+    }
+
+    // Priority 2: doubles-mult (x2 = double it)
+    if (isDoublesMult(num1, num2)) {
+      strategies.push({
+        id: STRATEGY_IDS.DOUBLES_MULT,
+        name: STRATEGY_NAMES[STRATEGY_IDS.DOUBLES_MULT],
+        steps: STEP_TEMPLATES.doubles_mult(num1, num2),
+      });
+    }
+
+    // Priority 3: repeated addition (when either operand <= 5)
+    if (isRepeatedAddition(num1, num2)) {
+      strategies.push({
+        id: STRATEGY_IDS.REPEATED_ADDITION,
+        name: STRATEGY_NAMES[STRATEGY_IDS.REPEATED_ADDITION],
+        steps: STEP_TEMPLATES.repeated_addition(num1, num2),
+      });
+    }
+
+    // Priority 4: commutative property (swap when num2 < num1)
+    if (isCommutativeMult(num1, num2)) {
+      strategies.push({
+        id: STRATEGY_IDS.COMMUTATIVE_MULT,
+        name: STRATEGY_NAMES[STRATEGY_IDS.COMMUTATIVE_MULT],
+        steps: STEP_TEMPLATES.commutative_mult(num1, num2),
+      });
+    }
+
+    // Universal fallback: repeated addition if nothing else matched
+    if (strategies.length === 0) {
+      strategies.push({
+        id: STRATEGY_IDS.REPEATED_ADDITION,
+        name: STRATEGY_NAMES[STRATEGY_IDS.REPEATED_ADDITION],
+        steps: STEP_TEMPLATES.repeated_addition(num1, num2),
+      });
+    }
+  } else if (operator === '/') {
+    // Priority 1: halving (divide by 2)
+    if (isHalving(num2)) {
+      strategies.push({
+        id: STRATEGY_IDS.HALVING,
+        name: STRATEGY_NAMES[STRATEGY_IDS.HALVING],
+        steps: STEP_TEMPLATES.halving(num1),
+      });
+    }
+
+    // Priority 2 / Universal fallback: inverse multiplication
+    strategies.push({
+      id: STRATEGY_IDS.INVERSE_MULT,
+      name: STRATEGY_NAMES[STRATEGY_IDS.INVERSE_MULT],
+      steps: STEP_TEMPLATES.inverse_mult(num1, num2),
+    });
   }
 
   return strategies;

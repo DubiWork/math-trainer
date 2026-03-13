@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Problem, AnswerButtons, ScoreDisplay, Feedback } from './index'
 import { LearningAid } from './aids'
@@ -20,8 +21,11 @@ import { useGameState } from '../hooks'
  * @param {function} onGameEnd - Callback when user exits the game
  * @param {function} updateProgress - Optional callback for Firestore persistence
  * @param {object} initialProgress - Optional initial progress from Firestore
+ * @param {number} currentLevel - Current difficulty level (1-13, default 1)
+ * @param {function} onLevelUp - Optional callback when confidence engine signals level-up
+ * @param {object} activeProfile - Optional active profile (provides theme)
  */
-function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null }) {
+function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, currentLevel = 1, onLevelUp, activeProfile = null }) {
   const {
     currentProblem,
     score,
@@ -36,7 +40,17 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null }
     correctAnswers,
     accuracy,
     isStruggling,
-  } = useGameState({ updateProgress, initialProgress })
+    shouldLevelUp,
+  } = useGameState({ currentLevel, updateProgress, initialProgress })
+
+  // Detect level-up: when confidence engine signals shouldLevelUp AND feedback
+  // animation has cleared, notify the parent (App) to transition to LevelUpScreen.
+  // The parent unmounts GameScreen, so no race condition with auto-advance.
+  useEffect(() => {
+    if (shouldLevelUp && !showFeedback && onLevelUp) {
+      onLevelUp(currentLevel)
+    }
+  }, [shouldLevelUp, showFeedback, onLevelUp, currentLevel])
 
   // Start game automatically if not playing
   // This handles the initial mount
@@ -73,7 +87,7 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null }
       <header className="flex justify-between items-start gap-4 mb-6 md:mb-8">
         {/* Score Display */}
         <div className="flex-1">
-          <ScoreDisplay score={score} streak={streak} />
+          <ScoreDisplay score={score} streak={streak} theme={activeProfile?.theme} />
         </div>
 
         {/* Exit Button */}
@@ -109,7 +123,7 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null }
         <LearningAid
           key={totalProblems}
           isStruggling={isStruggling}
-          currentLevel={2}
+          currentLevel={currentLevel}
           num1={currentProblem.num1}
           num2={currentProblem.num2}
           operator={currentProblem.operator}
@@ -130,7 +144,7 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null }
 
       {/* Feedback Overlay - Shows on answer */}
       {showFeedback && (
-        <Feedback isCorrect={isCorrect} />
+        <Feedback isCorrect={isCorrect} theme={activeProfile?.theme} />
       )}
     </div>
   )
@@ -144,6 +158,11 @@ GameScreen.propTypes = {
     streak: PropTypes.number,
     totalProblems: PropTypes.number,
     correctAnswers: PropTypes.number,
+  }),
+  currentLevel: PropTypes.number,
+  onLevelUp: PropTypes.func,
+  activeProfile: PropTypes.shape({
+    theme: PropTypes.string,
   }),
 }
 

@@ -7,7 +7,7 @@ describe('strategies', () => {
   // ─── STRATEGY_IDS export ──────────────────────────────────────────────────
 
   describe('STRATEGY_IDS', () => {
-    it('exports all 6 strategy identifiers', () => {
+    it('exports all 12 strategy identifiers', () => {
       expect(STRATEGY_IDS).toEqual({
         BRIDGING_ADD: 'bridging_add',
         BRIDGING_SUB: 'bridging_sub',
@@ -15,6 +15,12 @@ describe('strategies', () => {
         NEAR_DOUBLES: 'near_doubles',
         COUNT_ON: 'count_on',
         COUNT_BACK: 'count_back',
+        REPEATED_ADDITION: 'repeated_addition',
+        COMMUTATIVE_MULT: 'commutative_mult',
+        TIMES_TEN: 'times_ten',
+        DOUBLES_MULT: 'doubles_mult',
+        INVERSE_MULT: 'inverse_mult',
+        HALVING: 'halving',
       });
     });
 
@@ -411,15 +417,380 @@ describe('strategies', () => {
     });
   });
 
-  // ─── Multiplication and Division ──────────────────────────────────────────
+  // ─── Multiplication Strategies ─────────────────────────────────────────────
 
-  describe('unsupported operators', () => {
-    it('returns empty array for multiplication', () => {
-      expect(getStrategies(6, 3, '*')).toEqual([]);
+  describe('repeated_addition', () => {
+    it('triggers for 3*4 (min operand 3 <= 5)', () => {
+      const result = getStrategies(3, 4, '*');
+      const ra = result.find(s => s.id === STRATEGY_IDS.REPEATED_ADDITION);
+      expect(ra).toBeDefined();
+      expect(ra.name).toBe('Repeated Addition');
     });
 
-    it('returns empty array for division', () => {
-      expect(getStrategies(12, 4, '/')).toEqual([]);
+    it('produces correct steps for 3*4 (skip counting 3+3+3+3)', () => {
+      const result = getStrategies(3, 4, '*');
+      const ra = result.find(s => s.id === STRATEGY_IDS.REPEATED_ADDITION);
+      expect(ra.steps).toEqual([
+        '4 groups of 3',
+        '3+3+3+3=?',
+      ]);
+    });
+
+    it('picks the smaller operand as base for 5*8', () => {
+      const result = getStrategies(5, 8, '*');
+      const ra = result.find(s => s.id === STRATEGY_IDS.REPEATED_ADDITION);
+      expect(ra).toBeDefined();
+      expect(ra.steps[0]).toBe('8 groups of 5');
+      expect(ra.steps[1]).toBe('5+5+5+5+5+5+5+5=?');
+    });
+
+    it('triggers for 1*9 (min operand 1 <= 5)', () => {
+      const result = getStrategies(1, 9, '*');
+      const ra = result.find(s => s.id === STRATEGY_IDS.REPEATED_ADDITION);
+      expect(ra).toBeDefined();
+    });
+
+    it('does NOT trigger via detector for 7*8 (min operand 7 > 5), but fires as universal fallback', () => {
+      const result = getStrategies(7, 8, '*');
+      const ra = result.find(s => s.id === STRATEGY_IDS.REPEATED_ADDITION);
+      // The detector does not match (min=7 > 5), but the universal fallback kicks in
+      expect(ra).toBeDefined();
+      // Should be the only strategy (no times-ten, no doubles-mult, no commutative since 8>7)
+      expect(result).toHaveLength(1);
+    });
+  });
+
+  describe('commutative_mult', () => {
+    it('triggers for 7*3 (num2 < num1)', () => {
+      const result = getStrategies(7, 3, '*');
+      const cm = result.find(s => s.id === STRATEGY_IDS.COMMUTATIVE_MULT);
+      expect(cm).toBeDefined();
+      expect(cm.name).toBe('Swap the Numbers');
+    });
+
+    it('produces correct steps for 7*3', () => {
+      const result = getStrategies(7, 3, '*');
+      const cm = result.find(s => s.id === STRATEGY_IDS.COMMUTATIVE_MULT);
+      expect(cm.steps).toEqual([
+        "Don't know 7x3?",
+        'Try 3x7=?',
+      ]);
+    });
+
+    it('does NOT trigger for 3*7 (num2 > num1)', () => {
+      const result = getStrategies(3, 7, '*');
+      const cm = result.find(s => s.id === STRATEGY_IDS.COMMUTATIVE_MULT);
+      expect(cm).toBeUndefined();
+    });
+
+    it('does NOT trigger for 4*4 (num2 === num1)', () => {
+      const result = getStrategies(4, 4, '*');
+      const cm = result.find(s => s.id === STRATEGY_IDS.COMMUTATIVE_MULT);
+      expect(cm).toBeUndefined();
+    });
+  });
+
+  describe('times_ten', () => {
+    it('triggers for 6*10', () => {
+      const result = getStrategies(6, 10, '*');
+      const tt = result.find(s => s.id === STRATEGY_IDS.TIMES_TEN);
+      expect(tt).toBeDefined();
+      expect(tt.name).toBe('Times Ten');
+    });
+
+    it('triggers for 10*4', () => {
+      const result = getStrategies(10, 4, '*');
+      const tt = result.find(s => s.id === STRATEGY_IDS.TIMES_TEN);
+      expect(tt).toBeDefined();
+    });
+
+    it('produces correct steps for 6*10', () => {
+      const result = getStrategies(6, 10, '*');
+      const tt = result.find(s => s.id === STRATEGY_IDS.TIMES_TEN);
+      expect(tt.steps).toEqual([
+        'Any numberx10: add a zero!',
+        '6x10=?',
+      ]);
+    });
+
+    it('produces correct steps for 10*4', () => {
+      const result = getStrategies(10, 4, '*');
+      const tt = result.find(s => s.id === STRATEGY_IDS.TIMES_TEN);
+      expect(tt.steps).toEqual([
+        'Any numberx10: add a zero!',
+        '4x10=?',
+      ]);
+    });
+
+    it('does NOT trigger for 5*4 (no 10)', () => {
+      const result = getStrategies(5, 4, '*');
+      const tt = result.find(s => s.id === STRATEGY_IDS.TIMES_TEN);
+      expect(tt).toBeUndefined();
+    });
+  });
+
+  describe('doubles_mult', () => {
+    it('triggers for 5*2 (one operand is 2)', () => {
+      const result = getStrategies(5, 2, '*');
+      const dm = result.find(s => s.id === STRATEGY_IDS.DOUBLES_MULT);
+      expect(dm).toBeDefined();
+      expect(dm.name).toBe('Use Doubles');
+    });
+
+    it('triggers for 2*8 (first operand is 2)', () => {
+      const result = getStrategies(2, 8, '*');
+      const dm = result.find(s => s.id === STRATEGY_IDS.DOUBLES_MULT);
+      expect(dm).toBeDefined();
+    });
+
+    it('produces correct steps for 5*2', () => {
+      const result = getStrategies(5, 2, '*');
+      const dm = result.find(s => s.id === STRATEGY_IDS.DOUBLES_MULT);
+      expect(dm.steps).toEqual([
+        'x2 = double it!',
+        'Double 5=?',
+      ]);
+    });
+
+    it('produces correct steps for 2*8', () => {
+      const result = getStrategies(2, 8, '*');
+      const dm = result.find(s => s.id === STRATEGY_IDS.DOUBLES_MULT);
+      expect(dm.steps).toEqual([
+        'x2 = double it!',
+        'Double 8=?',
+      ]);
+    });
+
+    it('does NOT trigger for 3*4 (no 2)', () => {
+      const result = getStrategies(3, 4, '*');
+      const dm = result.find(s => s.id === STRATEGY_IDS.DOUBLES_MULT);
+      expect(dm).toBeUndefined();
+    });
+  });
+
+  // ─── Division Strategies ──────────────────────────────────────────────────
+
+  describe('inverse_mult', () => {
+    it('always triggers for division (universal fallback)', () => {
+      const result = getStrategies(12, 3, '/');
+      const im = result.find(s => s.id === STRATEGY_IDS.INVERSE_MULT);
+      expect(im).toBeDefined();
+      expect(im.name).toBe('Think Multiplication');
+    });
+
+    it('produces correct steps for 12/3', () => {
+      const result = getStrategies(12, 3, '/');
+      const im = result.find(s => s.id === STRATEGY_IDS.INVERSE_MULT);
+      expect(im.steps).toEqual([
+        '12 / 3 = ?',
+        'Think: 3 x ? = 12',
+      ]);
+    });
+
+    it('triggers for 20/5', () => {
+      const result = getStrategies(20, 5, '/');
+      const im = result.find(s => s.id === STRATEGY_IDS.INVERSE_MULT);
+      expect(im).toBeDefined();
+    });
+
+    it('triggers alongside halving for 12/2', () => {
+      const result = getStrategies(12, 2, '/');
+      const im = result.find(s => s.id === STRATEGY_IDS.INVERSE_MULT);
+      expect(im).toBeDefined();
+      const hv = result.find(s => s.id === STRATEGY_IDS.HALVING);
+      expect(hv).toBeDefined();
+    });
+  });
+
+  describe('halving', () => {
+    it('triggers for 12/2 (divisor is 2)', () => {
+      const result = getStrategies(12, 2, '/');
+      const hv = result.find(s => s.id === STRATEGY_IDS.HALVING);
+      expect(hv).toBeDefined();
+      expect(hv.name).toBe('Halving');
+    });
+
+    it('produces correct steps for 12/2', () => {
+      const result = getStrategies(12, 2, '/');
+      const hv = result.find(s => s.id === STRATEGY_IDS.HALVING);
+      expect(hv.steps).toEqual([
+        'Divide by 2 = half!',
+        'Half of 12 = ?',
+      ]);
+    });
+
+    it('does NOT trigger for 12/3 (divisor is not 2)', () => {
+      const result = getStrategies(12, 3, '/');
+      const hv = result.find(s => s.id === STRATEGY_IDS.HALVING);
+      expect(hv).toBeUndefined();
+    });
+
+    it('triggers for 8/2', () => {
+      const result = getStrategies(8, 2, '/');
+      const hv = result.find(s => s.id === STRATEGY_IDS.HALVING);
+      expect(hv).toBeDefined();
+      expect(hv.steps[1]).toBe('Half of 8 = ?');
+    });
+  });
+
+  // ─── Multiplication/Division Priority & Overlap ───────────────────────────
+
+  describe('multiplication priority', () => {
+    it('times-ten appears first for 10*5', () => {
+      const result = getStrategies(10, 5, '*');
+      expect(result[0].id).toBe(STRATEGY_IDS.TIMES_TEN);
+    });
+
+    it('doubles-mult appears before repeated-addition for 2*4', () => {
+      const result = getStrategies(2, 4, '*');
+      const ids = result.map(s => s.id);
+      const dmIdx = ids.indexOf(STRATEGY_IDS.DOUBLES_MULT);
+      const raIdx = ids.indexOf(STRATEGY_IDS.REPEATED_ADDITION);
+      expect(dmIdx).toBeLessThan(raIdx);
+    });
+
+    it('times-ten + doubles-mult + repeated-addition all trigger for 10*2', () => {
+      const result = getStrategies(10, 2, '*');
+      const ids = result.map(s => s.id);
+      expect(ids).toContain(STRATEGY_IDS.TIMES_TEN);
+      expect(ids).toContain(STRATEGY_IDS.DOUBLES_MULT);
+      expect(ids).toContain(STRATEGY_IDS.REPEATED_ADDITION);
+    });
+
+    it('7*8 gets repeated-addition fallback (both > 5, but fallback kicks in)', () => {
+      const result = getStrategies(7, 8, '*');
+      // commutative triggers (8 > 7? no, num2=8 > num1=7 so commutative does NOT trigger)
+      // But 7 > 8 is false, so commutative does not trigger. Fallback repeated addition.
+      expect(result.length).toBeGreaterThanOrEqual(1);
+      expect(result.some(s => s.id === STRATEGY_IDS.REPEATED_ADDITION)).toBe(true);
+    });
+
+    it('8*7 gets commutative only (no repeated-addition fallback since commutative matched)', () => {
+      const result = getStrategies(8, 7, '*');
+      const ids = result.map(s => s.id);
+      expect(ids).toContain(STRATEGY_IDS.COMMUTATIVE_MULT);
+      // repeated-addition does NOT fire as fallback because commutative already matched
+      expect(ids).not.toContain(STRATEGY_IDS.REPEATED_ADDITION);
+    });
+  });
+
+  describe('division priority', () => {
+    it('halving appears before inverse-mult for x/2', () => {
+      const result = getStrategies(12, 2, '/');
+      const ids = result.map(s => s.id);
+      const hvIdx = ids.indexOf(STRATEGY_IDS.HALVING);
+      const imIdx = ids.indexOf(STRATEGY_IDS.INVERSE_MULT);
+      expect(hvIdx).toBeLessThan(imIdx);
+    });
+
+    it('12/3 has only inverse-mult (divisor != 2)', () => {
+      const result = getStrategies(12, 3, '/');
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(STRATEGY_IDS.INVERSE_MULT);
+    });
+
+    it('12/2 has halving + inverse-mult (2 strategies)', () => {
+      const result = getStrategies(12, 2, '/');
+      expect(result).toHaveLength(2);
+    });
+  });
+
+  // ─── Multiplication/Division Guarantees ───────────────────────────────────
+
+  describe('mult/div coverage guarantee', () => {
+    it('every multiplication problem gets >= 1 strategy', () => {
+      for (let a = 1; a <= 10; a++) {
+        for (let b = 1; b <= 10; b++) {
+          const result = getStrategies(a, b, '*');
+          expect(result.length).toBeGreaterThanOrEqual(1);
+        }
+      }
+    });
+
+    it('every division problem gets >= 1 strategy', () => {
+      for (let b = 1; b <= 10; b++) {
+        for (let a = b; a <= b * 10; a += b) {
+          const result = getStrategies(a, b, '/');
+          expect(result.length).toBeGreaterThanOrEqual(1);
+        }
+      }
+    });
+  });
+
+  // ─── Multiplication/Division Step Constraints ─────────────────────────────
+
+  describe('mult/div step constraints', () => {
+    it('step count never exceeds 3 per multiplication strategy', () => {
+      const testCases = [
+        [3, 4], [5, 2], [10, 7], [7, 3], [2, 8], [6, 10], [1, 9], [8, 7],
+      ];
+      for (const [n1, n2] of testCases) {
+        const strategies = getStrategies(n1, n2, '*');
+        for (const s of strategies) {
+          expect(s.steps.length).toBeLessThanOrEqual(3);
+        }
+      }
+    });
+
+    it('step count never exceeds 3 per division strategy', () => {
+      const testCases = [
+        [12, 3], [20, 5], [8, 2], [10, 2], [15, 3], [18, 6],
+      ];
+      for (const [n1, n2] of testCases) {
+        const strategies = getStrategies(n1, n2, '/');
+        for (const s of strategies) {
+          expect(s.steps.length).toBeLessThanOrEqual(3);
+        }
+      }
+    });
+
+    it('step text never contains the final answer (multiplication)', () => {
+      const testCases = [
+        [3, 4], [5, 2], [6, 10], [7, 3], [2, 8],
+      ];
+      for (const [n1, n2] of testCases) {
+        const answer = n1 * n2;
+        const strategies = getStrategies(n1, n2, '*');
+        for (const s of strategies) {
+          for (const step of s.steps) {
+            expect(step).not.toMatch(new RegExp(`=${answer}(?:\\s|$|,)`));
+            expect(step).not.toMatch(new RegExp(`=${answer}$`));
+          }
+        }
+      }
+    });
+
+    it('step text never contains the final answer (division)', () => {
+      const testCases = [
+        [12, 3], [20, 5], [8, 2], [15, 3],
+      ];
+      for (const [n1, n2] of testCases) {
+        const answer = n1 / n2;
+        const strategies = getStrategies(n1, n2, '/');
+        for (const s of strategies) {
+          for (const step of s.steps) {
+            expect(step).not.toMatch(new RegExp(`=${answer}(?:\\s|$|,)`));
+            expect(step).not.toMatch(new RegExp(`=${answer}$`));
+          }
+        }
+      }
+    });
+
+    it('each mult/div strategy result has id, name, and steps array', () => {
+      const testCases = [
+        [3, 4, '*'], [12, 3, '/'], [5, 2, '*'], [8, 2, '/'],
+      ];
+      for (const [n1, n2, op] of testCases) {
+        const result = getStrategies(n1, n2, op);
+        for (const strategy of result) {
+          expect(strategy).toHaveProperty('id');
+          expect(strategy).toHaveProperty('name');
+          expect(strategy).toHaveProperty('steps');
+          expect(Array.isArray(strategy.steps)).toBe(true);
+          expect(typeof strategy.id).toBe('string');
+          expect(typeof strategy.name).toBe('string');
+        }
+      }
     });
   });
 

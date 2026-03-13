@@ -222,22 +222,46 @@ describe('LearningAid', () => {
   // ── Container Styling ──────────────────────────────────────────────────
 
   describe('container styling', () => {
-    it('has max-h-[120px] class for DotCounter', () => {
+    it('has max-h-[50vh] class for both DotCounter and StrategyHint', () => {
       renderAid({ currentLevel: 2 })
-      const container = screen.getByTestId('learning-aid-container')
-      expect(container.className).toContain('max-h-[120px]')
-    })
+      const dotContainer = screen.getByTestId('learning-aid-container')
+      expect(dotContainer.className).toContain('max-h-[50vh]')
+      cleanup()
 
-    it('has max-h-[160px] class for StrategyHint', () => {
       renderAid({ currentLevel: 5, num1: 8, num2: 5, operator: '+' })
-      const container = screen.getByTestId('learning-aid-container')
-      expect(container.className).toContain('max-h-[160px]')
+      const strategyContainer = screen.getByTestId('learning-aid-container')
+      expect(strategyContainer.className).toContain('max-h-[50vh]')
     })
 
-    it('has overflow-hidden class', () => {
+    it('has flex flex-col layout on the container', () => {
       renderAid()
       const container = screen.getByTestId('learning-aid-container')
-      expect(container.className).toContain('overflow-hidden')
+      expect(container.className).toContain('flex')
+      expect(container.className).toContain('flex-col')
+    })
+
+    it('button is outside the scrollable area (not nested inside overflow container)', () => {
+      renderAid()
+      const container = screen.getByTestId('learning-aid-container')
+      const button = screen.getByTestId('dismiss-aid-button')
+      // Button should be a direct child of the container, not inside the scrollable div
+      expect(button.parentElement).toBe(container)
+    })
+
+    it('scrollable content area has overflow-y-auto and min-h-0', () => {
+      renderAid()
+      const container = screen.getByTestId('learning-aid-container')
+      // First child div is the scrollable area
+      const scrollArea = container.querySelector(':scope > div')
+      expect(scrollArea.className).toContain('overflow-y-auto')
+      expect(scrollArea.className).toContain('min-h-0')
+      expect(scrollArea.className).toContain('flex-1')
+    })
+
+    it('dismiss button has shrink-0 class', () => {
+      renderAid()
+      const button = screen.getByTestId('dismiss-aid-button')
+      expect(button.className).toContain('shrink-0')
     })
 
     it('has bg-black/20 backdrop-blur-sm class', () => {
@@ -374,6 +398,79 @@ describe('LearningAid', () => {
       const ol = hint.querySelector('ol')
       expect(ol).toBeTruthy()
       expect(ol.querySelectorAll('li').length).toBeGreaterThan(0)
+    })
+  })
+
+  // ── Multiplication / Division Support ─────────────────────────────────
+
+  describe('multiplication and division', () => {
+    it('renders StrategyHint for level 7 multiplication', () => {
+      renderAid({ currentLevel: 7, num1: 3, num2: 4, operator: '*' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+    })
+
+    it('renders StrategyHint for level 8 multiplication', () => {
+      renderAid({ currentLevel: 8, num1: 5, num2: 2, operator: '*' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+    })
+
+    it('renders StrategyHint for level 9 division', () => {
+      renderAid({ currentLevel: 9, num1: 12, num2: 3, operator: '/' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+    })
+
+    it('renders StrategyHint for level 10 division', () => {
+      renderAid({ currentLevel: 10, num1: 20, num2: 5, operator: '/' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+    })
+
+    it('falls through to StrategyHint at level 3 with * operator (DotCounter unsupported)', () => {
+      renderAid({ currentLevel: 3, num1: 2, num2: 3, operator: '*' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+      expect(screen.queryByTestId('dot-counter')).toBeNull()
+    })
+
+    it('falls through to StrategyHint at level 2 with / operator (DotCounter unsupported)', () => {
+      renderAid({ currentLevel: 2, num1: 6, num2: 2, operator: '/' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+      expect(screen.queryByTestId('dot-counter')).toBeNull()
+    })
+
+    it('dismiss works with multiplication StrategyHint', () => {
+      renderAid({ currentLevel: 7, num1: 3, num2: 4, operator: '*' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+
+      fireEvent.click(screen.getByTestId('dismiss-aid-button'))
+
+      expect(screen.queryByTestId('learning-aid-container')).toBeNull()
+    })
+
+    it('dismiss works with division StrategyHint', () => {
+      renderAid({ currentLevel: 9, num1: 12, num2: 3, operator: '/' })
+      expect(screen.getByTestId('learning-aid-container')).toBeTruthy()
+
+      fireEvent.click(screen.getByTestId('dismiss-aid-button'))
+
+      expect(screen.queryByTestId('learning-aid-container')).toBeNull()
+    })
+
+    it('passes multiplication props to StrategyHint aria-label', () => {
+      renderAid({ currentLevel: 7, num1: 3, num2: 4, operator: '*' })
+      const hint = screen.getByTestId('strategy-hint')
+      expect(hint.getAttribute('aria-label')).toBe('Strategy hint for 3 * 4')
+    })
+
+    it('passes division props to StrategyHint aria-label', () => {
+      renderAid({ currentLevel: 9, num1: 12, num2: 3, operator: '/' })
+      const hint = screen.getByTestId('strategy-hint')
+      expect(hint.getAttribute('aria-label')).toBe('Strategy hint for 12 / 3')
     })
   })
 })

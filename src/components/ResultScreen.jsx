@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { getTheme } from '../config/themes'
 
 /**
  * ResultScreen Component - End-of-game summary screen
@@ -21,7 +22,8 @@ import PropTypes from 'prop-types'
  * @param {function} onPlayAgain - Callback when user wants to play again
  * @param {function} onExit - Callback when user wants to go back to start
  */
-function ResultScreen({ sessionStats, onPlayAgain, onExit }) {
+function ResultScreen({ sessionStats, onPlayAgain, onExit, theme: themeKey = null }) {
+  const themeObj = getTheme(themeKey)
   // Destructure stats with defaults
   const {
     score = 0,
@@ -35,8 +37,8 @@ function ResultScreen({ sessionStats, onPlayAgain, onExit }) {
   const getPerformanceMessage = () => {
     if (accuracy >= 80) {
       return {
-        text: 'Sonic Speed! Amazing!',
-        emoji: '\u{1F994}\u{1F4A8}', // hedgehog + dash
+        text: themeObj.amazingMessage,
+        emoji: themeObj.emoji,
         color: 'text-green-400',
       }
     }
@@ -208,6 +210,7 @@ ResultScreen.propTypes = {
   }).isRequired,
   onPlayAgain: PropTypes.func.isRequired,
   onExit: PropTypes.func.isRequired,
+  theme: PropTypes.string,
 }
 
 export default ResultScreen

@@ -18,9 +18,16 @@ vi.mock('../utils/mathProblems', () => ({
 
 // Mock getLevelConfig so tests don't depend on real level data
 vi.mock('../config/levels', () => ({
+  LEVELS: Array.from({ length: 13 }, (_, i) => ({
+    id: i + 1,
+    name: `Level ${i + 1}`,
+    operators: ['+'],
+    minNumber: 1,
+    maxNumber: 10,
+  })),
   getLevelConfig: vi.fn((id) => ({
-    id: id ?? 2,
-    name: `Level ${id ?? 2}`,
+    id: id ?? 1,
+    name: `Level ${id ?? 1}`,
     operators: ['+'],
     minNumber: 1,
     maxNumber: 10,
@@ -241,11 +248,13 @@ describe('useGameState - confidence integration', () => {
       result.current.startGame()
     })
 
-    // Need score >= 85 AND streak >= 3.
+    // Need score >= 85 AND streak >= 5.
     // Fast answers (500ms): CORRECT_DELTA(8) + FAST_BONUS(3) = 11 base
     // Streak 1: +11                    → 50 + 11 = 61
     // Streak 2: +round(11*1.3)=+14     → 61 + 14 = 75
-    // Streak 3: +round(11*1.3)=+14     → 75 + 14 = 89 >= 85, streak=3 >= 3
+    // Streak 3: +round(11*1.3)=+14     → 75 + 14 = 89 >= 85, streak=3
+    // Streak 4: +round(11*1.3)=+14     → 100 (clamped), streak=4
+    // Streak 5: +round(11*1.6)=+18     → 100 (clamped), streak=5 >= 5
 
     answerAndAdvance(result, 5) // streak 1 → 61
     expect(result.current.shouldLevelUp).toBe(false)
@@ -254,8 +263,13 @@ describe('useGameState - confidence integration', () => {
     expect(result.current.shouldLevelUp).toBe(false)
 
     answerAndAdvance(result, 5) // streak 3 → 89
+    expect(result.current.shouldLevelUp).toBe(false)
+
+    answerAndAdvance(result, 5) // streak 4 → 100
+    expect(result.current.shouldLevelUp).toBe(false)
+
+    answerAndAdvance(result, 5) // streak 5 → 100, LEVEL UP
     expect(result.current.shouldLevelUp).toBe(true)
-    expect(result.current.confidenceScore).toBe(89)
   })
 
   it('should expose acknowledgeLevelUp that clears shouldLevelUp', () => {
@@ -265,10 +279,12 @@ describe('useGameState - confidence integration', () => {
       result.current.startGame()
     })
 
-    // Drive to shouldLevelUp = true (3 fast correct answers)
+    // Drive to shouldLevelUp = true (5 fast correct answers)
     answerAndAdvance(result, 5) // streak 1 → 61
     answerAndAdvance(result, 5) // streak 2 → 75
     answerAndAdvance(result, 5) // streak 3 → 89
+    answerAndAdvance(result, 5) // streak 4 → 100
+    answerAndAdvance(result, 5) // streak 5 → 100, LEVEL UP
 
     expect(result.current.shouldLevelUp).toBe(true)
 
@@ -313,7 +329,7 @@ describe('useGameState - confidence integration', () => {
     expect(getLevelConfig).toHaveBeenCalledWith(7)
   })
 
-  it('should default to level 2 when currentLevel not provided', () => {
+  it('should default to level 1 when currentLevel not provided', () => {
     getLevelConfig.mockClear()
 
     const { result } = renderHook(() => useGameState())
@@ -322,7 +338,7 @@ describe('useGameState - confidence integration', () => {
       result.current.startGame()
     })
 
-    expect(getLevelConfig).toHaveBeenCalledWith(2)
+    expect(getLevelConfig).toHaveBeenCalledWith(1)
   })
 
   it('should reset confidence on fullReset', () => {
@@ -552,5 +568,102 @@ describe('useGameState - response time integration', () => {
     // Score: 61 + 10 = 71
     expect(result.current.confidenceScore).toBe(71)
     expect(result.current.lastDelta).toBe(10)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// currentLevel prop threading & boundary clamping
+// ---------------------------------------------------------------------------
+
+describe('useGameState - currentLevel prop threading', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'))
+    getLevelConfig.mockClear()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('should pass the provided currentLevel to getLevelConfig on startGame', () => {
+    const { result } = renderHook(() => useGameState({ currentLevel: 5 }))
+
+    act(() => {
+      result.current.startGame()
+    })
+
+    expect(getLevelConfig).toHaveBeenCalledWith(5)
+  })
+
+  it('should pass the provided currentLevel to getLevelConfig on nextProblem', () => {
+    const { result } = renderHook(() => useGameState({ currentLevel: 9 }))
+
+    act(() => {
+      result.current.startGame()
+    })
+
+    getLevelConfig.mockClear()
+
+    // Answer correctly and advance past feedback to trigger nextProblem
+    vi.advanceTimersByTime(500)
+    act(() => {
+      result.current.handleAnswer(5)
+    })
+    act(() => {
+      vi.advanceTimersByTime(2000)
+    })
+
+    expect(getLevelConfig).toHaveBeenCalledWith(9)
+  })
+
+  it('should clamp currentLevel below 1 to 1', () => {
+    const { result } = renderHook(() => useGameState({ currentLevel: 0 }))
+
+    act(() => {
+      result.current.startGame()
+    })
+
+    expect(getLevelConfig).toHaveBeenCalledWith(1)
+  })
+
+  it('should clamp currentLevel above 13 to 13', () => {
+    const { result } = renderHook(() => useGameState({ currentLevel: 99 }))
+
+    act(() => {
+      result.current.startGame()
+    })
+
+    expect(getLevelConfig).toHaveBeenCalledWith(13)
+  })
+
+  it('should clamp negative currentLevel to 1', () => {
+    const { result } = renderHook(() => useGameState({ currentLevel: -5 }))
+
+    act(() => {
+      result.current.startGame()
+    })
+
+    expect(getLevelConfig).toHaveBeenCalledWith(1)
+  })
+
+  it('should floor fractional currentLevel values', () => {
+    const { result } = renderHook(() => useGameState({ currentLevel: 3.7 }))
+
+    act(() => {
+      result.current.startGame()
+    })
+
+    expect(getLevelConfig).toHaveBeenCalledWith(3)
+  })
+
+  it('should use level 13 config when currentLevel is exactly 13', () => {
+    const { result } = renderHook(() => useGameState({ currentLevel: 13 }))
+
+    act(() => {
+      result.current.startGame()
+    })
+
+    expect(getLevelConfig).toHaveBeenCalledWith(13)
   })
 })

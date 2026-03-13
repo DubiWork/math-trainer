@@ -214,26 +214,109 @@ describe('StrategyHint', () => {
     })
   })
 
-  // ── Empty Strategies (null return) ────────────────────────────────────
+  // ── Multiplication Rendering ─────────────────────────────────────────
 
-  describe('empty strategies', () => {
-    it('returns null for multiplication operator', () => {
-      const { container } = render(
-        <StrategyHint num1={6} num2={3} operator="*" />,
-      )
-      expect(container.innerHTML).toBe('')
+  describe('multiplication', () => {
+    it('renders strategies for multiplication problems', () => {
+      renderStrategyHint({ num1: 3, num2: 4, operator: '*' })
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
     })
 
-    it('returns null for division operator', () => {
-      const { container } = render(
-        <StrategyHint num1={6} num2={3} operator="/" />,
-      )
-      expect(container.innerHTML).toBe('')
+    it('shows strategy name for 3*4', () => {
+      renderStrategyHint({ num1: 3, num2: 4, operator: '*' })
+      const strategies = getStrategies(3, 4, '*')
+      expect(strategies.length).toBeGreaterThan(0)
+      expect(screen.getByText(strategies[0].name)).toBeTruthy()
     })
 
-    it('does not render strategy-hint testid for unsupported operators', () => {
-      render(<StrategyHint num1={6} num2={3} operator="*" />)
-      expect(screen.queryByTestId('strategy-hint')).toBeNull()
+    it('renders steps for multiplication strategy', () => {
+      renderStrategyHint({ num1: 3, num2: 4, operator: '*' })
+      const strategies = getStrategies(3, 4, '*')
+      for (const step of strategies[0].steps) {
+        expect(screen.getByText(step)).toBeTruthy()
+      }
+    })
+
+    it('renders strategy counter for multiplication', () => {
+      renderStrategyHint({ num1: 3, num2: 4, operator: '*' })
+      const strategies = getStrategies(3, 4, '*')
+      expect(
+        screen.getByText(`Strategy 1 of ${strategies.length}`),
+      ).toBeTruthy()
+    })
+
+    it('renders times-ten strategy for 6*10', () => {
+      renderStrategyHint({ num1: 6, num2: 10, operator: '*' })
+      expect(screen.getByText('Times Ten')).toBeTruthy()
+    })
+
+    it('renders doubles strategy for 5*2', () => {
+      renderStrategyHint({ num1: 5, num2: 2, operator: '*' })
+      const strategies = getStrategies(5, 2, '*')
+      expect(strategies.some(s => s.name === 'Use Doubles')).toBe(true)
+    })
+
+    it('shows "Show me another way" when multiple mult strategies exist', () => {
+      // 5*2 triggers doubles-mult + repeated-addition + commutative
+      renderStrategyHint({ num1: 5, num2: 2, operator: '*' })
+      const strategies = getStrategies(5, 2, '*')
+      expect(strategies.length).toBeGreaterThan(1)
+      expect(
+        screen.getByRole('button', { name: /show me another way/i }),
+      ).toBeTruthy()
+    })
+  })
+
+  // ── Division Rendering ──────────────────────────────────────────────
+
+  describe('division', () => {
+    it('renders strategies for division problems', () => {
+      renderStrategyHint({ num1: 12, num2: 3, operator: '/' })
+      expect(screen.getByTestId('strategy-hint')).toBeTruthy()
+    })
+
+    it('shows strategy name for 12/3', () => {
+      renderStrategyHint({ num1: 12, num2: 3, operator: '/' })
+      const strategies = getStrategies(12, 3, '/')
+      expect(strategies.length).toBeGreaterThan(0)
+      expect(screen.getByText(strategies[0].name)).toBeTruthy()
+    })
+
+    it('renders steps for division strategy', () => {
+      renderStrategyHint({ num1: 12, num2: 3, operator: '/' })
+      const strategies = getStrategies(12, 3, '/')
+      for (const step of strategies[0].steps) {
+        expect(screen.getByText(step)).toBeTruthy()
+      }
+    })
+
+    it('renders halving strategy for 12/2', () => {
+      renderStrategyHint({ num1: 12, num2: 2, operator: '/' })
+      expect(screen.getByText('Halving')).toBeTruthy()
+    })
+
+    it('renders inverse-mult strategy for 20/5', () => {
+      renderStrategyHint({ num1: 20, num2: 5, operator: '/' })
+      expect(screen.getByText('Think Multiplication')).toBeTruthy()
+    })
+
+    it('shows "Show me another way" for 12/2 (halving + inverse-mult)', () => {
+      renderStrategyHint({ num1: 12, num2: 2, operator: '/' })
+      const strategies = getStrategies(12, 2, '/')
+      expect(strategies.length).toBe(2)
+      expect(
+        screen.getByRole('button', { name: /show me another way/i }),
+      ).toBeTruthy()
+    })
+
+    it('cycles through division strategies', () => {
+      renderStrategyHint({ num1: 12, num2: 2, operator: '/' })
+      const strategies = getStrategies(12, 2, '/')
+      expect(screen.getByText(`Strategy 1 of ${strategies.length}`)).toBeTruthy()
+
+      const button = screen.getByRole('button', { name: /show me another way/i })
+      fireEvent.click(button)
+      expect(screen.getByText(`Strategy 2 of ${strategies.length}`)).toBeTruthy()
     })
   })
 

@@ -94,7 +94,7 @@ Math Trainer occupies a specific niche that none of the major players own: a ful
 | **Gamification** | High (stickers, videos) | Low (points only) | High (RPG quests) | None | None | Medium |
 | **Free Tier** | Fully free | Limited (paywalled past basics) | Free core | Free (ads) | Free (ads) | Limited free |
 | **Hebrew / RTL** | No | No | No | No | No | No |
-| **Math Trainer** | Ages 5–13 | Adaptive confidence engine | Offline-first PWA | Character-driven | Hebrew + English | No ads, no paywall |
+| **Math Trainer** | 5–13 | Yes (confidence engine) | Yes (offline-first PWA) | High (character-driven) | Free (no ads, no paywall) | Yes (Hebrew + English) |
 
 Key differentiators:
 

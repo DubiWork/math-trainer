@@ -355,7 +355,7 @@ describe('App', () => {
       render(<App />)
 
       expect(screen.getByText('Oops!')).toBeTruthy()
-      expect(screen.getByText('Auth failed')).toBeTruthy()
+      expect(screen.getByText('Connection error')).toBeTruthy()
     })
 
     it('offers "Play Anyway" button on auth error', () => {

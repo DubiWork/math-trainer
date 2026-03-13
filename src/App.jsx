@@ -59,6 +59,9 @@ function App() {
   // Track which level was just completed (for LevelUpScreen)
   const [completedLevel, setCompletedLevel] = useState(null)
 
+  // Track whether the auth error has been dismissed via "Play Anyway"
+  const [errorDismissed, setErrorDismissed] = useState(false)
+
   // Combine loading states
   const loading = profileLoading || authLoading || progressLoading
 
@@ -187,7 +190,14 @@ function App() {
   }
 
   // Show error state if authentication failed (user can still play, progress won't persist)
-  if (authError) {
+  if (authError && !errorDismissed) {
+    const errorCode = authError.code ?? ''
+    const errorMsgKey =
+      errorCode === 'auth/network-request-failed' ? 'app.errors.network'
+        : errorCode === 'auth/too-many-requests' ? 'app.errors.tooManyRequests'
+          : errorCode === 'auth/internal-error' ? 'app.errors.internal'
+            : 'app.errors.generic'
+
     return (
       <div className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900 flex flex-col items-center justify-center p-4">
         <div className="text-center">
@@ -198,10 +208,13 @@ function App() {
             {t('app.errorConnection')}
           </p>
           <p className="text-sm text-white mt-2 opacity-75">
-            {authError.message}
+            {t(errorMsgKey)}
           </p>
           <button
-            onClick={() => setScreen('game')}
+            onClick={() => {
+              setErrorDismissed(true)
+              setScreen('game')
+            }}
             className="mt-6 bg-sonic-gold text-sonic-blue font-game px-8 py-4 rounded-full
                        hover:bg-yellow-400 transform hover:scale-105 transition-all
                        shadow-lg active:scale-95 text-xl"

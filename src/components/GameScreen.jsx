@@ -1,9 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import { Problem, AnswerButtons, ScoreDisplay, Feedback } from './index'
 import { LearningAid } from './aids'
 import { useGameState } from '../hooks'
+
+const STUCK_TIMEOUT_MS = 10000
 
 /**
  * GameScreen Component - Main game interface for Math Trainer
@@ -25,8 +27,9 @@ import { useGameState } from '../hooks'
  * @param {number} currentLevel - Current difficulty level (1-13, default 1)
  * @param {function} onLevelUp - Optional callback when confidence engine signals level-up
  * @param {object} activeProfile - Optional active profile (provides theme)
+ * @param {number} stuckTimeoutMs - Timeout before showing "Go Back" (default 10000, injectable for tests)
  */
-function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, currentLevel = 1, onLevelUp, activeProfile = null }) {
+function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, currentLevel = 1, onLevelUp, activeProfile = null, stuckTimeoutMs = STUCK_TIMEOUT_MS }) {
   const { t } = useTranslation()
   const {
     currentProblem,
@@ -45,6 +48,10 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
     shouldLevelUp,
   } = useGameState({ currentLevel, updateProgress, initialProgress })
 
+  // Timeout dead-end: show "Go Back" after stuckTimeoutMs of no interaction
+  const [showStuck, setShowStuck] = useState(false)
+  const stuckTimerRef = useRef(null)
+
   // Detect level-up: when confidence engine signals shouldLevelUp AND feedback
   // animation has cleared, notify the parent (App) to transition to LevelUpScreen.
   // The parent unmounts GameScreen, so no race condition with auto-advance.
@@ -53,6 +60,23 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
       onLevelUp(currentLevel)
     }
   }, [shouldLevelUp, showFeedback, onLevelUp, currentLevel])
+
+  // Start stuck timer on mount and reset whenever totalProblems changes
+  // (new problem presented) or showFeedback changes (user interacted).
+  useEffect(() => {
+    setShowStuck(false)
+    if (stuckTimerRef.current) {
+      clearTimeout(stuckTimerRef.current)
+    }
+    stuckTimerRef.current = setTimeout(() => {
+      setShowStuck(true)
+    }, stuckTimeoutMs)
+    return () => {
+      if (stuckTimerRef.current) {
+        clearTimeout(stuckTimerRef.current)
+      }
+    }
+  }, [totalProblems, showFeedback, stuckTimeoutMs])
 
   // Start game automatically if not playing
   // This handles the initial mount
@@ -144,6 +168,28 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
       {/* Footer Spacer - Ensures content doesn't touch bottom */}
       <footer className="h-8 md:h-12" aria-hidden="true" />
 
+      {/* Stuck Timeout - Non-intrusive "Go Back" escape hatch */}
+      {showStuck && (
+        <div
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          data-testid="stuck-banner"
+        >
+          <p className="text-white/80 font-game text-sm">{t('app.game.stuck')}</p>
+          <button
+            onClick={() => onGameEnd(null)}
+            className="
+              bg-white/20 hover:bg-white/30 text-white font-game text-sm
+              px-6 py-2 rounded-full border border-white/40
+              transform transition-all duration-200 hover:scale-105 active:scale-95
+              focus:outline-none focus:ring-2 focus:ring-white/50
+            "
+            data-testid="go-back-button"
+          >
+            {t('app.game.goBack')}
+          </button>
+        </div>
+      )}
+
       {/* Feedback Overlay - Shows on answer */}
       {showFeedback && (
         <Feedback isCorrect={isCorrect} />
@@ -166,6 +212,7 @@ GameScreen.propTypes = {
   activeProfile: PropTypes.shape({
     theme: PropTypes.string,
   }),
+  stuckTimeoutMs: PropTypes.number,
 }
 
 export default GameScreen

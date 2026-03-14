@@ -40,14 +40,14 @@ describe('mathProblems', () => {
   });
 
   describe('backward compatibility - no args', () => {
-    it('generateProblem() with no args uses level 2 defaults (operators +/-, range 1-10)', () => {
+    it('generateProblem() with no args uses level 2 defaults (operator -, range 0-5)', () => {
       for (let i = 0; i < 50; i++) {
         const problem = generateProblem();
-        expect(['+', '-']).toContain(problem.operator);
-        expect(problem.num1).toBeGreaterThanOrEqual(1);
-        expect(problem.num1).toBeLessThanOrEqual(10);
-        expect(problem.num2).toBeGreaterThanOrEqual(1);
-        expect(problem.num2).toBeLessThanOrEqual(10);
+        expect(problem.operator).toBe('-');
+        expect(problem.num1).toBeGreaterThanOrEqual(0);
+        expect(problem.num1).toBeLessThanOrEqual(5);
+        expect(problem.num2).toBeGreaterThanOrEqual(0);
+        expect(problem.num2).toBeLessThanOrEqual(5);
       }
     });
 
@@ -64,20 +64,20 @@ describe('mathProblems', () => {
 
   describe('level config usage', () => {
     it('passes level config through to generate correct operator types', () => {
-      const level1 = getLevelConfig(1); // addition only, 1-5
+      const level1 = getLevelConfig(1); // addition only, 0-5
       for (let i = 0; i < 50; i++) {
         const problem = generateProblem(level1);
         expect(problem.operator).toBe('+');
-        expect(problem.num1).toBeGreaterThanOrEqual(1);
+        expect(problem.num1).toBeGreaterThanOrEqual(0);
         expect(problem.num1).toBeLessThanOrEqual(5);
-        expect(problem.num2).toBeGreaterThanOrEqual(1);
+        expect(problem.num2).toBeGreaterThanOrEqual(0);
         expect(problem.num2).toBeLessThanOrEqual(5);
       }
     });
 
     it('generateProblems passes levelConfig through', () => {
-      const level3 = getLevelConfig(3); // subtraction only
-      const problems = generateProblems(20, level3);
+      const level2 = getLevelConfig(2); // subtraction only, 0-5
+      const problems = generateProblems(20, level2);
       problems.forEach(p => {
         expect(p.operator).toBe('-');
       });
@@ -97,12 +97,12 @@ describe('mathProblems', () => {
       }
     });
 
-    it('uses default multipliers when none specified (level 13)', () => {
-      const level13 = getLevelConfig(13);
+    it('uses default multipliers when none specified (level 14)', () => {
+      const level14 = getLevelConfig(14);
       const defaultMultipliers = [2, 3, 4, 5, 6, 7, 8, 9, 10];
       let sawMultiply = false;
       for (let i = 0; i < 200; i++) {
-        const problem = generateProblem(level13);
+        const problem = generateProblem(level14);
         if (problem.operator === '*') {
           sawMultiply = true;
           expect(defaultMultipliers).toContain(problem.num1);
@@ -184,12 +184,12 @@ describe('mathProblems', () => {
     });
   });
 
-  describe('mixed operators (level 13)', () => {
+  describe('mixed operators (level 14)', () => {
     it('produces all 4 operator types across many iterations', () => {
-      const level13 = getLevelConfig(13);
+      const level14 = getLevelConfig(14);
       const seenOps = new Set();
       for (let i = 0; i < 200; i++) {
-        const problem = generateProblem(level13);
+        const problem = generateProblem(level14);
         seenOps.add(problem.operator);
         // Validate each problem regardless of operator
         expect(problem).toHaveProperty('num1');
@@ -217,17 +217,17 @@ describe('mathProblems', () => {
 
   describe('property tests - operator invariants', () => {
     it('addition: correctAnswer always equals num1 + num2', () => {
-      const level2 = getLevelConfig(2);
+      const level3 = getLevelConfig(3); // addition only, 0-10
       for (let i = 0; i < 100; i++) {
-        const p = generateProblem(level2);
+        const p = generateProblem(level3);
         expect(p.correctAnswer).toBe(p.num1 + p.num2);
       }
     });
 
     it('subtraction: correctAnswer always equals num1 - num2', () => {
-      const level3 = getLevelConfig(3);
+      const level2 = getLevelConfig(2); // subtraction only, 0-5
       for (let i = 0; i < 100; i++) {
-        const p = generateProblem(level3);
+        const p = generateProblem(level2);
         expect(p.correctAnswer).toBe(p.num1 - p.num2);
       }
     });

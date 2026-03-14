@@ -26,6 +26,7 @@ import {
   verifyPin,
   MAX_PROFILES,
 } from '../utils/profiles'
+import { needsMigration, migrateProfile } from '../utils/migration'
 import {
   SESSION_KEY,
   Actions,
@@ -53,7 +54,16 @@ export default function ProfileProvider({ children }) {
 
   // ── Bootstrap: load profiles + restore session ────────────────────────
   useEffect(() => {
-    const profiles = getProfiles()
+    const raw = getProfiles()
+
+    // Transparently migrate any profiles created before the curriculum restructure
+    const profiles = raw.map((p) => {
+      if (!needsMigration(p)) return p
+      const migrated = migrateProfile(p)
+      updateProfileStorage(p.id, { currentLevel: migrated.currentLevel, levelVersion: migrated.levelVersion })
+      return migrated
+    })
+
     dispatch({ type: Actions.SET_PROFILES, payload: profiles })
 
     const storedId = sessionStorage.getItem(SESSION_KEY)

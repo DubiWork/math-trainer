@@ -63,19 +63,19 @@ describe('StartScreen — LevelMap integration', () => {
     renderStartScreen({ currentLevel: 5 })
     // Level 5 should be current
     const node5 = screen.getByTestId('level-node-5')
-    expect(node5.getAttribute('aria-label')).toBe('Level 5: Cross the 10 - current')
+    expect(node5.getAttribute('aria-label')).toBe('Level 5: Bridge the 10 (Add) - current')
   })
 
-  it('renders 13 level nodes inside LevelMap', () => {
+  it('renders 20 level nodes inside LevelMap', () => {
     renderStartScreen({ currentLevel: 1 })
     const items = screen.getAllByRole('listitem')
-    expect(items).toHaveLength(13)
+    expect(items).toHaveLength(20)
   })
 
   it('defaults currentLevel to 1 when not provided', () => {
     render(<StartScreen onStart={vi.fn()} />)
     const node1 = screen.getByTestId('level-node-1')
-    expect(node1.getAttribute('aria-label')).toBe('Level 1: First Steps - current')
+    expect(node1.getAttribute('aria-label')).toBe('Level 1: Add within 5 - current')
   })
 })
 

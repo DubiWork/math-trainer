@@ -25,21 +25,21 @@ describe('LevelMap', () => {
     vi.restoreAllMocks()
   })
 
-  // ── Renders all 13 level nodes ──────────────────────────────────────
+  // ── Renders all 20 level nodes ──────────────────────────────────────
 
-  it('renders 13 level nodes', () => {
+  it('renders 20 level nodes', () => {
     renderLevelMap({ currentLevel: 1 })
     const items = screen.getAllByRole('listitem')
-    expect(items).toHaveLength(13)
+    expect(items).toHaveLength(20)
   })
 
   // ── Level names displayed ───────────────────────────────────────────
 
   it('displays level names below each node', () => {
     renderLevelMap({ currentLevel: 1 })
-    expect(screen.getByText('First Steps')).toBeTruthy()
-    expect(screen.getByText('Addition Hero')).toBeTruthy()
-    expect(screen.getByText('Math Champion')).toBeTruthy()
+    expect(screen.getByText('Add within 5')).toBeTruthy()
+    expect(screen.getByText('Subtract within 5')).toBeTruthy()
+    expect(screen.getByText('Mixed All Ops (to 1000)')).toBeTruthy()
   })
 
   // ── Completed levels (< currentLevel) ───────────────────────────────
@@ -120,25 +120,25 @@ describe('LevelMap', () => {
     it('each node has role="listitem"', () => {
       renderLevelMap({ currentLevel: 1 })
       const items = screen.getAllByRole('listitem')
-      expect(items).toHaveLength(13)
+      expect(items).toHaveLength(20)
     })
 
     it('completed level has correct aria-label', () => {
       renderLevelMap({ currentLevel: 3 })
       const node1 = screen.getByTestId('level-node-1')
-      expect(node1.getAttribute('aria-label')).toBe('Level 1: First Steps - completed')
+      expect(node1.getAttribute('aria-label')).toBe('Level 1: Add within 5 - completed')
     })
 
     it('current level has correct aria-label', () => {
       renderLevelMap({ currentLevel: 3 })
       const node3 = screen.getByTestId('level-node-3')
-      expect(node3.getAttribute('aria-label')).toBe('Level 3: Minus Magic - current')
+      expect(node3.getAttribute('aria-label')).toBe('Level 3: Add to 10 - current')
     })
 
     it('locked level has correct aria-label', () => {
       renderLevelMap({ currentLevel: 3 })
       const node4 = screen.getByTestId('level-node-4')
-      expect(node4.getAttribute('aria-label')).toBe('Level 4: Mixed Warrior - locked')
+      expect(node4.getAttribute('aria-label')).toBe('Level 4: Mixed +/- to 10 - locked')
     })
   })
 
@@ -161,21 +161,21 @@ describe('LevelMap', () => {
       renderLevelMap({ currentLevel: 1 })
       // Level 1 is current (gold)
       const node1 = screen.getByTestId('level-node-1')
-      expect(node1.getAttribute('aria-label')).toBe('Level 1: First Steps - current')
+      expect(node1.getAttribute('aria-label')).toBe('Level 1: Add within 5 - current')
       // Level 2 is locked
       const node2 = screen.getByTestId('level-node-2')
-      expect(node2.getAttribute('aria-label')).toBe('Level 2: Addition Hero - locked')
+      expect(node2.getAttribute('aria-label')).toBe('Level 2: Subtract within 5 - locked')
     })
 
-    it('currentLevel=13 — 12 completed, last is current, none locked', () => {
-      renderLevelMap({ currentLevel: 13 })
-      // Level 12 is completed
-      const node12 = screen.getByTestId('level-node-12')
-      expect(node12.getAttribute('aria-label')).toBe('Level 12: Division Quest - completed')
-      // Level 13 is current
-      const node13 = screen.getByTestId('level-node-13')
-      expect(node13.getAttribute('aria-label')).toBe('Level 13: Math Champion - current')
-      // No locked levels - all 13 are either completed or current
+    it('currentLevel=20 — 19 completed, last is current, none locked', () => {
+      renderLevelMap({ currentLevel: 20 })
+      // Level 19 is completed
+      const node19 = screen.getByTestId('level-node-19')
+      expect(node19.getAttribute('aria-label')).toBe('Level 19: Division Mastery - completed')
+      // Level 20 is current
+      const node20 = screen.getByTestId('level-node-20')
+      expect(node20.getAttribute('aria-label')).toBe('Level 20: Mixed All Ops (to 1000) - current')
+      // No locked levels - all 20 are either completed or current
       const items = screen.getAllByRole('listitem')
       const lockedItems = items.filter(
         item => item.getAttribute('aria-label')?.includes('locked')
@@ -206,8 +206,8 @@ describe('LevelMap', () => {
     it('renders connecting lines between nodes', () => {
       renderLevelMap({ currentLevel: 1 })
       const lines = screen.getByTestId('level-map').querySelectorAll('[data-testid^="connector-"]')
-      // 12 connectors between 13 nodes
-      expect(lines).toHaveLength(12)
+      // 19 connectors between 20 nodes
+      expect(lines).toHaveLength(19)
     })
   })
 
@@ -217,7 +217,7 @@ describe('LevelMap', () => {
     it('renders without currentLevel prop (defaults handled gracefully)', () => {
       render(<LevelMap />)
       const items = screen.getAllByRole('listitem')
-      expect(items).toHaveLength(13)
+      expect(items).toHaveLength(20)
     })
   })
 })

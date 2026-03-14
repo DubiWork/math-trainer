@@ -9,7 +9,7 @@ import { createElement } from 'react'
 
 // Mock levels config (App imports MAX_LEVEL)
 vi.mock('./config/levels', () => ({
-  MAX_LEVEL: 13,
+  MAX_LEVEL: 20,
 }))
 
 // Mock useProfile hook
@@ -420,19 +420,19 @@ describe('App', () => {
       expect(gameScreen.getAttribute('data-current-level')).toBe('1')
     })
 
-    it('passes high currentLevel (13) through to GameScreen', () => {
+    it('passes high currentLevel (20) through to GameScreen', () => {
       mockProfileContext.activeProfile = {
         id: '1',
         nickname: 'Dubi',
         firebaseUid: 'uid-1',
-        currentLevel: 13,
+        currentLevel: 20,
       }
       render(<App />)
 
       fireEvent.click(screen.getByTestId('start-game'))
 
       const gameScreen = screen.getByTestId('game-screen')
-      expect(gameScreen.getAttribute('data-current-level')).toBe('13')
+      expect(gameScreen.getAttribute('data-current-level')).toBe('20')
     })
   })
 
@@ -513,12 +513,12 @@ describe('App', () => {
       expect(mockProfileContext.updateProfile).toHaveBeenCalledWith('1', { currentLevel: 4 })
     })
 
-    it('does NOT call updateProfile with currentLevel 14 when at max level (13)', () => {
+    it('does NOT call updateProfile with currentLevel 21 when at max level (20)', () => {
       mockProfileContext.activeProfile = {
         id: '1',
         nickname: 'Dubi',
         firebaseUid: 'uid-1',
-        currentLevel: 13,
+        currentLevel: 20,
       }
       render(<App />)
 
@@ -526,8 +526,8 @@ describe('App', () => {
       fireEvent.click(screen.getByTestId('trigger-level-up'))
       fireEvent.click(screen.getByTestId('continue-level-up'))
 
-      // Should NOT update profile to level 14
-      expect(mockProfileContext.updateProfile).not.toHaveBeenCalledWith('1', { currentLevel: 14 })
+      // Should NOT update profile to level 21
+      expect(mockProfileContext.updateProfile).not.toHaveBeenCalledWith('1', { currentLevel: 21 })
     })
 
     it('does not show levelup screen on initial render', () => {

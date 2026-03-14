@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Problem, AnswerButtons, ScoreDisplay, Feedback } from './index'
 import { LearningAid } from './aids'
 import { useGameState } from '../hooks'
+import { getLevelConfig } from '../config/levels'
 
 /**
  * GameScreen Component - Main game interface for Math Trainer
@@ -125,6 +126,7 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
         <LearningAid
           key={totalProblems}
           isStruggling={isStruggling}
+          levelConfig={getLevelConfig(currentLevel)}
           currentLevel={currentLevel}
           num1={currentProblem.num1}
           num2={currentProblem.num2}

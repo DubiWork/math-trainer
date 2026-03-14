@@ -2,22 +2,23 @@
  * LearningAid -- Orchestrator for visual learning aids
  *
  * Selects and renders the appropriate visual aid based on the current level
- * and the child's struggling state. Aids are only shown when the confidence
- * engine signals that the child is struggling.
+ * config and the child's struggling state. Aids are only shown when the
+ * confidence engine signals that the child is struggling.
  *
- * Level routing:
- *   - Levels 1-4  -> DotCounter (coloured dot groups)
- *   - Levels 5+   -> StrategyHint (text-based mental math strategies)
+ * Aid routing (grade/operationType-based):
+ *   - Grade 1 + integer-arithmetic + only +/- operators -> DotCounter
+ *   - All other configurations                          -> StrategyHint
  *
  * Dismiss behaviour:
  *   - "I got it!" button hides the aid for the current problem
  *   - Auto-resets when the parent supplies a new React `key` (new problem)
  *
  * @param {Object}         props
- * @param {boolean}        props.isStruggling  Whether the confidence engine signals struggle
- * @param {number}         props.currentLevel  Current difficulty level (1-13)
- * @param {number}         props.num1          Left operand
- * @param {number}         props.num2          Right operand
+ * @param {boolean}        props.isStruggling   Whether the confidence engine signals struggle
+ * @param {Object}         [props.levelConfig]  Full level config object (preferred)
+ * @param {number}         [props.currentLevel] Fallback level number (resolved via getLevelConfig)
+ * @param {number}         props.num1           Left operand
+ * @param {number}         props.num2           Right operand
  * @param {'+' | '-' | '*' | '/'}  props.operator  Arithmetic operator
  */
 
@@ -26,35 +27,29 @@ import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import DotCounter from './DotCounter'
 import StrategyHint from './StrategyHint'
-
-/** Maximum level that shows the DotCounter aid */
-const DOT_COUNTER_MAX_LEVEL = 4
-
-/** Operators that DotCounter and NumberLine support */
-const VISUAL_AID_OPERATORS = new Set(['+', '-'])
+import { getLevelConfig } from '../../config/levels'
 
 /**
- * Select the aid component for a given level and operator.
+ * Select the aid component based on level config properties.
  *
- * DotCounter (levels 1-4) only supports + and -. For * and / operators
- * at those levels, fall through to StrategyHint instead.
+ * Grade 1 integer-arithmetic levels that only use + and - operators
+ * show the DotCounter visual aid. Everything else uses StrategyHint.
  *
- * @param {number} level
- * @param {string} operator - '+', '-', '*', or '/'
- * @returns {Function|null} React component or null
+ * @param {Object} levelConfig - Full level configuration object
+ * @returns {Function} React component (DotCounter or StrategyHint)
  */
-function selectAid(level, operator) {
-  if (level >= 1 && level <= DOT_COUNTER_MAX_LEVEL && VISUAL_AID_OPERATORS.has(operator)) {
+function selectAid(levelConfig) {
+  if (
+    levelConfig.grade === 1 &&
+    levelConfig.operationType === 'integer-arithmetic' &&
+    levelConfig.operators.every((op) => ['+', '-'].includes(op))
+  ) {
     return DotCounter
   }
-  // Levels 5+ always use StrategyHint; levels 1-4 with * or / also fall through here
-  if (level >= 1) {
-    return StrategyHint
-  }
-  return null
+  return StrategyHint
 }
 
-function LearningAid({ isStruggling, currentLevel, num1, num2, operator }) {
+function LearningAid({ isStruggling, levelConfig, currentLevel, num1, num2, operator }) {
   const { t } = useTranslation()
   const [dismissed, setDismissed] = useState(false)
 
@@ -63,12 +58,10 @@ function LearningAid({ isStruggling, currentLevel, num1, num2, operator }) {
     return null
   }
 
-  const AidComponent = selectAid(currentLevel, operator)
+  // Resolve level config: prefer explicit prop, fall back to level number
+  const resolvedConfig = levelConfig ?? getLevelConfig(currentLevel)
 
-  // No aid available for this level tier
-  if (!AidComponent) {
-    return null
-  }
+  const AidComponent = selectAid(resolvedConfig)
 
   return (
     <div
@@ -106,7 +99,12 @@ function LearningAid({ isStruggling, currentLevel, num1, num2, operator }) {
 
 LearningAid.propTypes = {
   isStruggling: PropTypes.bool.isRequired,
-  currentLevel: PropTypes.number.isRequired,
+  levelConfig: PropTypes.shape({
+    grade: PropTypes.number.isRequired,
+    operationType: PropTypes.string.isRequired,
+    operators: PropTypes.arrayOf(PropTypes.string).isRequired,
+  }),
+  currentLevel: PropTypes.number,
   num1: PropTypes.number.isRequired,
   num2: PropTypes.number.isRequired,
   operator: PropTypes.oneOf(['+', '-', '*', '/']).isRequired,

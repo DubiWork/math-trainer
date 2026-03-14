@@ -265,4 +265,119 @@ describe('mathProblems', () => {
       expect(formatProblem({ num1: 12, num2: 4, operator: '*' })).toBe('12 * 4 = ?');
     });
   });
+
+  describe('numberRange field (new schema — no shim)', () => {
+    it('accepts config with numberRange directly (no minNumber/maxNumber shim)', () => {
+      const config = { operators: ['+'], numberRange: { min: 0, max: 5 } };
+      for (let i = 0; i < 50; i++) {
+        const problem = generateProblem(config);
+        expect(problem.operator).toBe('+');
+        expect(problem.num1).toBeGreaterThanOrEqual(0);
+        expect(problem.num1).toBeLessThanOrEqual(5);
+        expect(problem.num2).toBeGreaterThanOrEqual(0);
+        expect(problem.num2).toBeLessThanOrEqual(5);
+      }
+    });
+
+    it('3-digit level (range 100-999) generates valid addition problems', () => {
+      const level13 = getLevelConfig(13); // 3-Digit Add/Sub, numberRange 100-999
+      for (let i = 0; i < 50; i++) {
+        const problem = generateProblem(level13);
+        if (problem.operator === '+') {
+          expect(problem.num1).toBeGreaterThanOrEqual(100);
+          expect(problem.num1).toBeLessThanOrEqual(999);
+          expect(problem.num2).toBeGreaterThanOrEqual(100);
+          expect(problem.num2).toBeLessThanOrEqual(999);
+          expect(problem.correctAnswer).toBe(problem.num1 + problem.num2);
+        }
+      }
+    });
+
+    it('3-digit level (range 100-999) generates valid subtraction problems — never negative', () => {
+      const level13 = getLevelConfig(13);
+      for (let i = 0; i < 50; i++) {
+        const problem = generateProblem(level13);
+        if (problem.operator === '-') {
+          expect(problem.correctAnswer).toBeGreaterThanOrEqual(0);
+          expect(problem.num1).toBeGreaterThanOrEqual(problem.num2);
+          expect(problem.correctAnswer).toBe(problem.num1 - problem.num2);
+        }
+      }
+    });
+
+    it('4-digit level (range 1000-9999) generates valid addition problems', () => {
+      const level17 = getLevelConfig(17); // 4-Digit Add/Sub, numberRange 1000-9999
+      for (let i = 0; i < 50; i++) {
+        const problem = generateProblem(level17);
+        if (problem.operator === '+') {
+          expect(problem.num1).toBeGreaterThanOrEqual(1000);
+          expect(problem.num1).toBeLessThanOrEqual(9999);
+          expect(problem.num2).toBeGreaterThanOrEqual(1000);
+          expect(problem.num2).toBeLessThanOrEqual(9999);
+          expect(problem.correctAnswer).toBe(problem.num1 + problem.num2);
+        }
+      }
+    });
+
+    it('4-digit level subtraction never produces negative answer', () => {
+      const level17 = getLevelConfig(17);
+      for (let i = 0; i < 50; i++) {
+        const problem = generateProblem(level17);
+        if (problem.operator === '-') {
+          expect(problem.correctAnswer).toBeGreaterThanOrEqual(0);
+          expect(problem.num1).toBeGreaterThanOrEqual(problem.num2);
+        }
+      }
+    });
+
+    it('wrong answers are within reasonable range for large numbers (3-digit answer)', () => {
+      const level13 = getLevelConfig(13);
+      for (let i = 0; i < 50; i++) {
+        const problem = generateProblem(level13);
+        if (problem.operator === '+') {
+          // For a 3-digit answer, wrong options should be within ±50 of correct answer
+          const wrongOptions = problem.options.filter(o => o !== problem.correctAnswer);
+          wrongOptions.forEach(opt => {
+            expect(Math.abs(opt - problem.correctAnswer)).toBeLessThanOrEqual(50);
+          });
+        }
+      }
+    });
+
+    it('multiplication with multipliers array works for grade-3 levels', () => {
+      const level15 = getLevelConfig(15); // Times Tables ×6,×7
+      for (let i = 0; i < 100; i++) {
+        const problem = generateProblem(level15);
+        expect(problem.operator).toBe('*');
+        expect([6, 7]).toContain(problem.num1);
+        expect(problem.num2).toBeGreaterThanOrEqual(1);
+        expect(problem.num2).toBeLessThanOrEqual(10);
+        expect(problem.correctAnswer).toBe(problem.num1 * problem.num2);
+      }
+    });
+
+    it('division with divisors array works for grade-3 division mastery level', () => {
+      const level19 = getLevelConfig(19); // Division Mastery, divisors [2..10]
+      for (let i = 0; i < 100; i++) {
+        const problem = generateProblem(level19);
+        expect(problem.operator).toBe('/');
+        expect([2, 3, 4, 5, 6, 7, 8, 9, 10]).toContain(problem.num2);
+        expect(Number.isInteger(problem.correctAnswer)).toBe(true);
+        expect(problem.num1 % problem.num2).toBe(0);
+        expect(problem.correctAnswer).toBe(problem.num1 / problem.num2);
+      }
+    });
+
+    it('default config works when no levelConfig is passed', () => {
+      for (let i = 0; i < 30; i++) {
+        const problem = generateProblem();
+        expect(problem).toHaveProperty('num1');
+        expect(problem).toHaveProperty('num2');
+        expect(problem).toHaveProperty('operator');
+        expect(problem).toHaveProperty('correctAnswer');
+        expect(problem.options).toHaveLength(4);
+        expect(problem.options).toContain(problem.correctAnswer);
+      }
+    });
+  });
 });

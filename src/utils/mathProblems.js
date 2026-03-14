@@ -16,7 +16,7 @@ const GAME_CONFIG = {
 };
 
 /**
- * Default level config for backward compatibility (Level 2: Addition Hero, +/-, 1-10)
+ * Default level config — Level 2: Subtract within 5 (operators: ['-'], numberRange: 0-5)
  */
 const DEFAULT_CONFIG = getLevelConfig(2);
 
@@ -133,7 +133,9 @@ function generateWrongAnswers(correctAnswer, count, maxAnswer) {
  * // Returns multiplication problem using level 10 config
  */
 export function generateProblem(levelConfig = DEFAULT_CONFIG) {
-  const { operators, minNumber, maxNumber, multiplesOf, multipliers, divisors } = levelConfig;
+  const { operators, numberRange, multiplesOf, multipliers, divisors } = levelConfig;
+  const minNumber = numberRange.min;
+  const maxNumber = numberRange.max;
 
   // Pick random operator from level's operator list
   const operator = operators[getRandomInt(0, operators.length - 1)];

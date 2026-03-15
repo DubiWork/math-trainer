@@ -254,23 +254,16 @@ export const MAX_LEVEL = LEVELS.length
 
 /**
  * Returns the level config for a given level ID.
- * Includes backward-compatibility shim: adds minNumber and maxNumber
- * as aliases for numberRange.min and numberRange.max.
  *
  * @param {number} levelId - 1-based level identifier
- * @returns {Object} Level configuration with minNumber/maxNumber shim fields
+ * @returns {Object} Level configuration object with numberRange: { min, max }
  * @throws {Error} If levelId is out of range
  */
 export function getLevelConfig(levelId) {
   if (levelId < 1 || levelId > LEVELS.length) {
     throw new Error(`Invalid level: ${levelId}. Must be 1-${LEVELS.length}`)
   }
-  const level = LEVELS[levelId - 1]
-  return {
-    ...level,
-    minNumber: level.numberRange.min,
-    maxNumber: level.numberRange.max,
-  }
+  return LEVELS[levelId - 1]
 }
 
 /**

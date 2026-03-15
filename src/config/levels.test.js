@@ -86,22 +86,22 @@ describe('Level Configuration', () => {
       expect(() => getLevelConfig(21)).toThrow()
     })
 
-    it('returns minNumber/maxNumber shim fields', () => {
+    it('does not include minNumber/maxNumber shim fields', () => {
       const level = getLevelConfig(1)
-      expect(level.minNumber).toBe(level.numberRange.min)
-      expect(level.maxNumber).toBe(level.numberRange.max)
+      expect(level.minNumber).toBeUndefined()
+      expect(level.maxNumber).toBeUndefined()
     })
 
-    it('shim values match numberRange for level 8 (tens)', () => {
+    it('returns native numberRange for level 8 (tens)', () => {
       const level = getLevelConfig(8)
-      expect(level.minNumber).toBe(10)
-      expect(level.maxNumber).toBe(100)
+      expect(level.numberRange.min).toBe(10)
+      expect(level.numberRange.max).toBe(100)
     })
 
-    it('shim values match numberRange for level 20', () => {
+    it('returns native numberRange for level 20', () => {
       const level = getLevelConfig(20)
-      expect(level.minNumber).toBe(1)
-      expect(level.maxNumber).toBe(1000)
+      expect(level.numberRange.min).toBe(1)
+      expect(level.numberRange.max).toBe(1000)
     })
   })
 

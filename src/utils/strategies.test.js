@@ -940,13 +940,13 @@ describe('strategies', () => {
         if (!config.operators.includes('+')) continue;
         for (let i = 0; i < 50; i++) {
           const num1 = config.multiplesOf
-            ? Math.ceil(config.minNumber / config.multiplesOf) * config.multiplesOf
-              + Math.floor(Math.random() * ((config.maxNumber - config.minNumber) / config.multiplesOf)) * config.multiplesOf
-            : getRandomInt(config.minNumber, config.maxNumber);
+            ? Math.ceil(config.numberRange.min / config.multiplesOf) * config.multiplesOf
+              + Math.floor(Math.random() * ((config.numberRange.max - config.numberRange.min) / config.multiplesOf)) * config.multiplesOf
+            : getRandomInt(config.numberRange.min, config.numberRange.max);
           const num2 = config.multiplesOf
-            ? Math.ceil(config.minNumber / config.multiplesOf) * config.multiplesOf
-              + Math.floor(Math.random() * ((config.maxNumber - config.minNumber) / config.multiplesOf)) * config.multiplesOf
-            : getRandomInt(config.minNumber, config.maxNumber);
+            ? Math.ceil(config.numberRange.min / config.multiplesOf) * config.multiplesOf
+              + Math.floor(Math.random() * ((config.numberRange.max - config.numberRange.min) / config.multiplesOf)) * config.multiplesOf
+            : getRandomInt(config.numberRange.min, config.numberRange.max);
           const result = getStrategies(num1, num2, '+');
           expect(result.length).toBeGreaterThanOrEqual(1);
           count++;
@@ -962,13 +962,13 @@ describe('strategies', () => {
         if (!config.operators.includes('-')) continue;
         for (let i = 0; i < 50; i++) {
           let num1 = config.multiplesOf
-            ? Math.ceil(config.minNumber / config.multiplesOf) * config.multiplesOf
-              + Math.floor(Math.random() * ((config.maxNumber - config.minNumber) / config.multiplesOf)) * config.multiplesOf
-            : getRandomInt(config.minNumber, config.maxNumber);
+            ? Math.ceil(config.numberRange.min / config.multiplesOf) * config.multiplesOf
+              + Math.floor(Math.random() * ((config.numberRange.max - config.numberRange.min) / config.multiplesOf)) * config.multiplesOf
+            : getRandomInt(config.numberRange.min, config.numberRange.max);
           let num2 = config.multiplesOf
-            ? Math.ceil(config.minNumber / config.multiplesOf) * config.multiplesOf
-              + Math.floor(Math.random() * ((num1 - config.minNumber) / config.multiplesOf)) * config.multiplesOf
-            : getRandomInt(config.minNumber, num1);
+            ? Math.ceil(config.numberRange.min / config.multiplesOf) * config.multiplesOf
+              + Math.floor(Math.random() * ((num1 - config.numberRange.min) / config.multiplesOf)) * config.multiplesOf
+            : getRandomInt(config.numberRange.min, num1);
           // Ensure num1 >= num2
           if (num1 < num2) [num1, num2] = [num2, num1];
           const result = getStrategies(num1, num2, '-');

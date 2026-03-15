@@ -22,15 +22,13 @@ vi.mock('../config/levels', () => ({
     id: i + 1,
     name: `Level ${i + 1}`,
     operators: ['+'],
-    minNumber: 1,
-    maxNumber: 10,
+    numberRange: { min: 1, max: 10 },
   })),
   getLevelConfig: vi.fn((id) => ({
     id: id ?? 1,
     name: `Level ${id ?? 1}`,
     operators: ['+'],
-    minNumber: 1,
-    maxNumber: 10,
+    numberRange: { min: 1, max: 10 },
   })),
 }))
 

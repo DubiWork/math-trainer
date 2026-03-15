@@ -7,12 +7,12 @@
  *
  * When the player completes the final level (MAX_LEVEL), a special
  * "Champion" variant is shown with a trophy emoji, a distinct title,
- * and a "Play Again at Level 13!" button that does NOT increment.
+ * and a "Play Again at Level MAX_LEVEL!" button that does NOT increment.
  *
  * Visual MVP: emoji hero + CSS confetti particles, no audio.
  *
  * @param {Object}   props
- * @param {number}   props.completedLevel  The level just completed (1-13)
+ * @param {number}   props.completedLevel  The level just completed (1-MAX_LEVEL)
  * @param {Function} props.onContinue      Callback when user clicks Continue
  */
 
@@ -34,10 +34,19 @@ const CONFETTI_COLORS = [
 ]
 
 function LevelUpScreen({ completedLevel, onContinue }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const completedLevelConfig = LEVELS[completedLevel - 1]
   const isChampion = completedLevel >= MAX_LEVEL
   const nextLevelConfig = isChampion ? null : LEVELS[completedLevel]
+
+  /** Returns locale-aware level name (Hebrew or English). */
+  function getLevelName(levelConfig) {
+    if (!levelConfig) return undefined
+    return i18n.language === 'he' ? (levelConfig.nameHe ?? levelConfig.name) : levelConfig.name
+  }
+
+  const completedName = getLevelName(completedLevelConfig)
+  const nextName = getLevelName(nextLevelConfig)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900 flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -74,7 +83,7 @@ function LevelUpScreen({ completedLevel, onContinue }) {
       <div role="status" aria-live="polite" className="sr-only">
         {isChampion
           ? t('levelup.srChampion', { count: MAX_LEVEL })
-          : t('levelup.srComplete', { completed: completedLevelConfig?.name, next: nextLevelConfig?.name })}
+          : t('levelup.srComplete', { completed: completedName, next: nextName })}
       </div>
 
       {/* Main heading */}
@@ -86,13 +95,13 @@ function LevelUpScreen({ completedLevel, onContinue }) {
       <p className="text-xl md:text-2xl font-game text-white text-center mb-1">
         {isChampion
           ? t('levelup.masteredAll', { count: MAX_LEVEL })
-          : completedLevelConfig?.name}
+          : completedName}
       </p>
 
       {/* Next level subheading (normal flow only) */}
       {nextLevelConfig && (
         <p className="text-lg md:text-xl font-game text-yellow-200 text-center mb-8">
-          {t('levelup.next', { name: nextLevelConfig.name })}
+          {t('levelup.next', { name: nextName })}
         </p>
       )}
 

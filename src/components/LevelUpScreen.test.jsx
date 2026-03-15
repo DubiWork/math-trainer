@@ -4,24 +4,31 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 
-// Mock levels config
+// Mock levels config — 20 levels matching the real schema
 vi.mock('../config/levels', () => ({
   LEVELS: [
-    { id: 1, name: 'First Steps' },
-    { id: 2, name: 'Addition Hero' },
-    { id: 3, name: 'Minus Magic' },
-    { id: 4, name: 'Mixed Warrior' },
-    { id: 5, name: 'Cross the 10' },
-    { id: 6, name: 'Subtract 20' },
-    { id: 7, name: 'Mixed 20' },
-    { id: 8, name: 'Tens Master' },
-    { id: 9, name: 'Century Runner' },
-    { id: 10, name: 'Speed of 2s' },
-    { id: 11, name: 'Times Tables' },
-    { id: 12, name: 'Division Quest' },
-    { id: 13, name: 'Math Champion' },
+    { id: 1, name: 'Add within 5', nameHe: 'חיבור עד 5' },
+    { id: 2, name: 'Subtract within 5', nameHe: 'חיסור עד 5' },
+    { id: 3, name: 'Add to 10', nameHe: 'חיבור עד 10' },
+    { id: 4, name: 'Mixed +/- to 10', nameHe: 'חיבור וחיסור עד 10' },
+    { id: 5, name: 'Bridge the 10 (Add)', nameHe: 'חציית ה-10 (חיבור)' },
+    { id: 6, name: 'Bridge the 10 (Sub)', nameHe: 'חציית ה-10 (חיסור)' },
+    { id: 7, name: 'Mixed +/- to 20', nameHe: 'חיבור וחיסור עד 20' },
+    { id: 8, name: 'Tens Structure', nameHe: 'מבנה העשרות' },
+    { id: 9, name: 'Automaticity +/- to 20', nameHe: 'אוטומטיות עד 20' },
+    { id: 10, name: 'Multiply ×2,×5,×10', nameHe: 'כפל ב-2, 5, 10' },
+    { id: 11, name: 'Times Tables ×3,×4', nameHe: 'לוח הכפל ×3, ×4' },
+    { id: 12, name: 'Easy Division', nameHe: 'חילוק קל' },
+    { id: 13, name: '3-Digit Add/Sub', nameHe: 'חיבור וחיסור תלת-ספרתי' },
+    { id: 14, name: 'Mixed Operations to 100', nameHe: 'פעולות מעורבות עד 100' },
+    { id: 15, name: 'Times Tables ×6,×7', nameHe: 'לוח הכפל ×6, ×7' },
+    { id: 16, name: 'Times Tables ×8,×9', nameHe: 'לוח הכפל ×8, ×9' },
+    { id: 17, name: '4-Digit Add/Sub', nameHe: 'חיבור וחיסור ארבע-ספרתי' },
+    { id: 18, name: 'Mixed All Ops (to 100)', nameHe: 'כל הפעולות עד 100' },
+    { id: 19, name: 'Division Mastery', nameHe: 'שליטה בחילוק' },
+    { id: 20, name: 'Mixed All Ops (to 1000)', nameHe: 'כל הפעולות עד 1000' },
   ],
-  MAX_LEVEL: 13,
+  MAX_LEVEL: 20,
 }))
 
 // Import after mocks
@@ -46,12 +53,12 @@ describe('LevelUpScreen', () => {
 
     it('displays the completed level name', () => {
       render(<LevelUpScreen completedLevel={3} onContinue={mockOnContinue} />)
-      expect(screen.getAllByText(/Minus Magic/).length).toBeGreaterThanOrEqual(1)
+      expect(screen.getAllByText(/Add to 10/).length).toBeGreaterThanOrEqual(1)
     })
 
     it('displays the next level name for mid-range levels', () => {
       render(<LevelUpScreen completedLevel={5} onContinue={mockOnContinue} />)
-      expect(screen.getAllByText(/Subtract 20/).length).toBeGreaterThanOrEqual(1)
+      expect(screen.getAllByText(/Bridge the 10 \(Sub\)/).length).toBeGreaterThanOrEqual(1)
     })
 
     it('renders hero emoji with bounce animation', () => {
@@ -96,108 +103,107 @@ describe('LevelUpScreen', () => {
 
   // ── Max level guard ────────────────────────────────────────────────
 
-  describe('max level (level 13)', () => {
-    it('does not show "Next" level name when completed level is 13', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+  describe('max level (level 20)', () => {
+    it('does not show "Next" level name when completed level is 20', () => {
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
       expect(screen.queryByText(/Next:/)).toBeNull()
     })
 
-    it('shows a different CTA for max level (no level number 14)', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+    it('shows a different CTA for max level (no level number 21)', () => {
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
       const button = screen.getByRole('button')
-      expect(button.textContent).not.toContain('Level 14')
+      expect(button.textContent).not.toContain('Level 21')
     })
 
     it('CTA button still calls onContinue for max level', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
       fireEvent.click(screen.getByRole('button'))
       expect(mockOnContinue).toHaveBeenCalledTimes(1)
     })
   })
 
-  // ── Champion variant (level 13 completion) ───────────────────────
+  // ── Champion variant (level 20 completion) ───────────────────────
 
   describe('champion variant', () => {
     it('shows "Math Champion!" heading instead of "Level Complete!"', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
       expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Math Champion!')
       expect(screen.queryByText('Level Complete!')).toBeNull()
     })
 
     it('shows trophy emoji instead of rocket', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
       const hero = screen.getByTestId('hero-emoji')
       expect(hero.textContent).toBe('\uD83C\uDFC6')
       expect(hero.textContent).not.toBe('\uD83D\uDE80')
     })
 
-    it('shows "You mastered all 13 levels!" message', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
-      expect(screen.getByText('You mastered all 13 levels!')).toBeTruthy()
+    it('shows "You mastered all 20 levels!" message', () => {
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
+      expect(screen.getByText('You mastered all 20 levels!')).toBeTruthy()
     })
 
-    it('shows "Play Again at Level 13!" button', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+    it('shows "Play Again at Level 20!" button', () => {
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
       const button = screen.getByRole('button')
-      expect(button.textContent).toBe('Play Again at Level 13!')
+      expect(button.textContent).toBe('Play Again at Level 20!')
     })
 
     it('button has correct aria-label for champion', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
       const button = screen.getByRole('button')
-      expect(button.getAttribute('aria-label')).toBe('Play Again at Level 13')
+      expect(button.getAttribute('aria-label')).toBe('Play Again at Level 20')
     })
 
     it('screen-reader announcement mentions mastering all levels', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
       const status = screen.getByRole('status')
-      expect(status.textContent).toContain('mastered all 13 levels')
+      expect(status.textContent).toContain('mastered all 20 levels')
     })
 
     it('confetti still renders in champion mode', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
       const particles = screen.getAllByTestId('confetti-particle')
       expect(particles.length).toBeGreaterThanOrEqual(8)
     })
 
     it('hero emoji still has bounce animation in champion mode', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
       const hero = screen.getByTestId('hero-emoji')
       expect(hero.className).toContain('animate-bounce-hero')
     })
 
     it('does not show the completed level config name as sub-message', () => {
-      render(<LevelUpScreen completedLevel={13} onContinue={mockOnContinue} />)
-      // The sub-message should be "You mastered all 13 levels!" not the level name
-      // The level name "Math Champion" could appear in heading — but NOT as level config display
-      const paragraphs = screen.getAllByText(/mastered all 13/)
+      render(<LevelUpScreen completedLevel={20} onContinue={mockOnContinue} />)
+      // The sub-message should be "You mastered all 20 levels!" not the level name
+      const paragraphs = screen.getAllByText(/mastered all 20/)
       expect(paragraphs.length).toBeGreaterThanOrEqual(1)
     })
   })
 
-  // ── Boundary: level 12 to 13 (normal level-up) ───────────────────
+  // ── Boundary: level 19 to 20 (normal level-up) ───────────────────
 
-  describe('boundary: level 12 (normal level-up to 13)', () => {
-    it('shows "Level Complete!" heading for level 12', () => {
-      render(<LevelUpScreen completedLevel={12} onContinue={mockOnContinue} />)
+  describe('boundary: level 19 (normal level-up to 20)', () => {
+    it('shows "Level Complete!" heading for level 19', () => {
+      render(<LevelUpScreen completedLevel={19} onContinue={mockOnContinue} />)
       expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Level Complete!')
     })
 
-    it('shows rocket emoji for level 12', () => {
-      render(<LevelUpScreen completedLevel={12} onContinue={mockOnContinue} />)
+    it('shows rocket emoji for level 19', () => {
+      render(<LevelUpScreen completedLevel={19} onContinue={mockOnContinue} />)
       const hero = screen.getByTestId('hero-emoji')
       expect(hero.textContent).toBe('\uD83D\uDE80')
     })
 
-    it('shows "Continue to Level 13!" button for level 12', () => {
-      render(<LevelUpScreen completedLevel={12} onContinue={mockOnContinue} />)
-      const button = screen.getByRole('button', { name: /Continue to Level 13/i })
-      expect(button.textContent).toBe('Continue to Level 13!')
+    it('shows "Continue to Level 20!" button for level 19', () => {
+      render(<LevelUpScreen completedLevel={19} onContinue={mockOnContinue} />)
+      const button = screen.getByRole('button', { name: /Continue to Level 20/i })
+      expect(button.textContent).toBe('Continue to Level 20!')
     })
 
-    it('shows Next: Math Champion for level 12', () => {
-      render(<LevelUpScreen completedLevel={12} onContinue={mockOnContinue} />)
-      expect(screen.getByText(/Next: Math Champion/)).toBeTruthy()
+    it('shows Next: Mixed All Ops (to 1000) for level 19', () => {
+      render(<LevelUpScreen completedLevel={19} onContinue={mockOnContinue} />)
+      expect(screen.getByText(/Next: Mixed All Ops \(to 1000\)/)).toBeTruthy()
     })
   })
 
@@ -206,20 +212,20 @@ describe('LevelUpScreen', () => {
   describe('various completed levels', () => {
     it('renders correctly for level 1', () => {
       render(<LevelUpScreen completedLevel={1} onContinue={mockOnContinue} />)
-      expect(screen.getAllByText(/First Steps/).length).toBeGreaterThanOrEqual(1)
-      expect(screen.getAllByText(/Addition Hero/).length).toBeGreaterThanOrEqual(1)
+      expect(screen.getAllByText(/Add within 5/).length).toBeGreaterThanOrEqual(1)
+      expect(screen.getAllByText(/Subtract within 5/).length).toBeGreaterThanOrEqual(1)
     })
 
     it('renders correctly for level 7', () => {
       render(<LevelUpScreen completedLevel={7} onContinue={mockOnContinue} />)
-      expect(screen.getAllByText(/Mixed 20/).length).toBeGreaterThanOrEqual(1)
-      expect(screen.getAllByText(/Tens Master/).length).toBeGreaterThanOrEqual(1)
+      expect(screen.getAllByText(/Mixed \+\/- to 20/).length).toBeGreaterThanOrEqual(1)
+      expect(screen.getAllByText(/Tens Structure/).length).toBeGreaterThanOrEqual(1)
     })
 
     it('renders correctly for level 12', () => {
       render(<LevelUpScreen completedLevel={12} onContinue={mockOnContinue} />)
-      expect(screen.getAllByText(/Division Quest/).length).toBeGreaterThanOrEqual(1)
-      expect(screen.getAllByText(/Math Champion/).length).toBeGreaterThanOrEqual(1)
+      expect(screen.getAllByText(/Easy Division/).length).toBeGreaterThanOrEqual(1)
+      expect(screen.getAllByText(/3-Digit Add\/Sub/).length).toBeGreaterThanOrEqual(1)
     })
   })
 

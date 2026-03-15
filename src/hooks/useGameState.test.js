@@ -18,7 +18,7 @@ vi.mock('../utils/mathProblems', () => ({
 
 // Mock getLevelConfig so tests don't depend on real level data
 vi.mock('../config/levels', () => ({
-  LEVELS: Array.from({ length: 13 }, (_, i) => ({
+  LEVELS: Array.from({ length: 20 }, (_, i) => ({
     id: i + 1,
     name: `Level ${i + 1}`,
     operators: ['+'],
@@ -627,14 +627,14 @@ describe('useGameState - currentLevel prop threading', () => {
     expect(getLevelConfig).toHaveBeenCalledWith(1)
   })
 
-  it('should clamp currentLevel above 13 to 13', () => {
+  it('should clamp currentLevel above 20 to 20', () => {
     const { result } = renderHook(() => useGameState({ currentLevel: 99 }))
 
     act(() => {
       result.current.startGame()
     })
 
-    expect(getLevelConfig).toHaveBeenCalledWith(13)
+    expect(getLevelConfig).toHaveBeenCalledWith(20)
   })
 
   it('should clamp negative currentLevel to 1', () => {

@@ -12,7 +12,7 @@
  * - Firebase (useFirebase, useGameProgress): fully mocked
  * - useProfile: mocked with controllable activeProfile
  * - Child components: lightweight createElement stubs exposing callbacks
- * - levels config: real LEVELS + MAX_LEVEL to test actual boundary at 13
+ * - levels config: real LEVELS + MAX_LEVEL to test actual boundary at 20
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
@@ -20,39 +20,53 @@ import { createElement } from 'react'
 
 // ── Mocks ────────────────────────────────────────────────────────────────────
 
-// Mock levels config — use real values
+// Mock levels config — 20 levels matching the real schema
 vi.mock('../../config/levels', () => ({
-  MAX_LEVEL: 13,
+  MAX_LEVEL: 20,
   LEVELS: [
-    { id: 1, name: 'First Steps' },
-    { id: 2, name: 'Addition Hero' },
-    { id: 3, name: 'Minus Magic' },
-    { id: 4, name: 'Mixed Warrior' },
-    { id: 5, name: 'Cross the 10' },
-    { id: 6, name: 'Subtract 20' },
-    { id: 7, name: 'Mixed 20' },
-    { id: 8, name: 'Tens Master' },
-    { id: 9, name: 'Century Runner' },
-    { id: 10, name: 'Speed of 2s' },
-    { id: 11, name: 'Times Tables' },
-    { id: 12, name: 'Division Quest' },
-    { id: 13, name: 'Math Champion' },
+    { id: 1, name: 'Add within 5', nameHe: 'חיבור עד 5' },
+    { id: 2, name: 'Subtract within 5', nameHe: 'חיסור עד 5' },
+    { id: 3, name: 'Add to 10', nameHe: 'חיבור עד 10' },
+    { id: 4, name: 'Mixed +/- to 10', nameHe: 'חיבור וחיסור עד 10' },
+    { id: 5, name: 'Bridge the 10 (Add)', nameHe: 'חציית ה-10 (חיבור)' },
+    { id: 6, name: 'Bridge the 10 (Sub)', nameHe: 'חציית ה-10 (חיסור)' },
+    { id: 7, name: 'Mixed +/- to 20', nameHe: 'חיבור וחיסור עד 20' },
+    { id: 8, name: 'Tens Structure', nameHe: 'מבנה העשרות' },
+    { id: 9, name: 'Automaticity +/- to 20', nameHe: 'אוטומטיות עד 20' },
+    { id: 10, name: 'Multiply ×2,×5,×10', nameHe: 'כפל ב-2, 5, 10' },
+    { id: 11, name: 'Times Tables ×3,×4', nameHe: 'לוח הכפל ×3, ×4' },
+    { id: 12, name: 'Easy Division', nameHe: 'חילוק קל' },
+    { id: 13, name: '3-Digit Add/Sub', nameHe: 'חיבור וחיסור תלת-ספרתי' },
+    { id: 14, name: 'Mixed Operations to 100', nameHe: 'פעולות מעורבות עד 100' },
+    { id: 15, name: 'Times Tables ×6,×7', nameHe: 'לוח הכפל ×6, ×7' },
+    { id: 16, name: 'Times Tables ×8,×9', nameHe: 'לוח הכפל ×8, ×9' },
+    { id: 17, name: '4-Digit Add/Sub', nameHe: 'חיבור וחיסור ארבע-ספרתי' },
+    { id: 18, name: 'Mixed All Ops (to 100)', nameHe: 'כל הפעולות עד 100' },
+    { id: 19, name: 'Division Mastery', nameHe: 'שליטה בחילוק' },
+    { id: 20, name: 'Mixed All Ops (to 1000)', nameHe: 'כל הפעולות עד 1000' },
   ],
   getLevelConfig: (id) => ({ id, name: `Level ${id}` }),
   default: [
-    { id: 1, name: 'First Steps' },
-    { id: 2, name: 'Addition Hero' },
-    { id: 3, name: 'Minus Magic' },
-    { id: 4, name: 'Mixed Warrior' },
-    { id: 5, name: 'Cross the 10' },
-    { id: 6, name: 'Subtract 20' },
-    { id: 7, name: 'Mixed 20' },
-    { id: 8, name: 'Tens Master' },
-    { id: 9, name: 'Century Runner' },
-    { id: 10, name: 'Speed of 2s' },
-    { id: 11, name: 'Times Tables' },
-    { id: 12, name: 'Division Quest' },
-    { id: 13, name: 'Math Champion' },
+    { id: 1, name: 'Add within 5', nameHe: 'חיבור עד 5' },
+    { id: 2, name: 'Subtract within 5', nameHe: 'חיסור עד 5' },
+    { id: 3, name: 'Add to 10', nameHe: 'חיבור עד 10' },
+    { id: 4, name: 'Mixed +/- to 10', nameHe: 'חיבור וחיסור עד 10' },
+    { id: 5, name: 'Bridge the 10 (Add)', nameHe: 'חציית ה-10 (חיבור)' },
+    { id: 6, name: 'Bridge the 10 (Sub)', nameHe: 'חציית ה-10 (חיסור)' },
+    { id: 7, name: 'Mixed +/- to 20', nameHe: 'חיבור וחיסור עד 20' },
+    { id: 8, name: 'Tens Structure', nameHe: 'מבנה העשרות' },
+    { id: 9, name: 'Automaticity +/- to 20', nameHe: 'אוטומטיות עד 20' },
+    { id: 10, name: 'Multiply ×2,×5,×10', nameHe: 'כפל ב-2, 5, 10' },
+    { id: 11, name: 'Times Tables ×3,×4', nameHe: 'לוח הכפל ×3, ×4' },
+    { id: 12, name: 'Easy Division', nameHe: 'חילוק קל' },
+    { id: 13, name: '3-Digit Add/Sub', nameHe: 'חיבור וחיסור תלת-ספרתי' },
+    { id: 14, name: 'Mixed Operations to 100', nameHe: 'פעולות מעורבות עד 100' },
+    { id: 15, name: 'Times Tables ×6,×7', nameHe: 'לוח הכפל ×6, ×7' },
+    { id: 16, name: 'Times Tables ×8,×9', nameHe: 'לוח הכפל ×8, ×9' },
+    { id: 17, name: '4-Digit Add/Sub', nameHe: 'חיבור וחיסור ארבע-ספרתי' },
+    { id: 18, name: 'Mixed All Ops (to 100)', nameHe: 'כל הפעולות עד 100' },
+    { id: 19, name: 'Division Mastery', nameHe: 'שליטה בחילוק' },
+    { id: 20, name: 'Mixed All Ops (to 1000)', nameHe: 'כל הפעולות עד 1000' },
   ],
 }))
 
@@ -214,7 +228,7 @@ describe('Level Progression Integration', () => {
       const testCases = [
         { from: 1, to: 2 },
         { from: 6, to: 7 },
-        { from: 12, to: 13 },
+        { from: 19, to: 20 },
       ]
 
       testCases.forEach(({ from, to }) => {
@@ -234,32 +248,32 @@ describe('Level Progression Integration', () => {
 
   // ── 2. Max level (champion) flow ───────────────────────────────────────
 
-  describe('max level flow (champion at level 13)', () => {
+  describe('max level flow (champion at level 20)', () => {
     it('shows champion celebration screen at max level', () => {
-      setProfile(13)
+      setProfile(20)
       render(<App />)
 
       fireEvent.click(screen.getByTestId('start-game'))
       fireEvent.click(screen.getByTestId('trigger-level-up'))
 
       expect(screen.getByTestId('levelup-screen')).toBeTruthy()
-      expect(screen.getByTestId('levelup-screen').getAttribute('data-completed-level')).toBe('13')
+      expect(screen.getByTestId('levelup-screen').getAttribute('data-completed-level')).toBe('20')
     })
 
-    it('does NOT call updateProfile with level 14 when at max level', () => {
-      setProfile(13)
+    it('does NOT call updateProfile with level 21 when at max level', () => {
+      setProfile(20)
       render(<App />)
 
       fireEvent.click(screen.getByTestId('start-game'))
       fireEvent.click(screen.getByTestId('trigger-level-up'))
       fireEvent.click(screen.getByTestId('continue-level-up'))
 
-      // updateProfile should NOT be called at all (nextLevel=14 > MAX_LEVEL=13)
+      // updateProfile should NOT be called at all (nextLevel=21 > MAX_LEVEL=20)
       expect(mockProfileCtx.updateProfile).not.toHaveBeenCalled()
     })
 
     it('returns to game screen after champion celebration', () => {
-      setProfile(13)
+      setProfile(20)
       render(<App />)
 
       fireEvent.click(screen.getByTestId('start-game'))
@@ -270,17 +284,17 @@ describe('Level Progression Integration', () => {
       expect(screen.queryByTestId('levelup-screen')).toBeNull()
     })
 
-    it('stays at level 13 in GameScreen after champion continue', () => {
-      setProfile(13)
+    it('stays at level 20 in GameScreen after champion continue', () => {
+      setProfile(20)
       render(<App />)
 
       fireEvent.click(screen.getByTestId('start-game'))
       fireEvent.click(screen.getByTestId('trigger-level-up'))
       fireEvent.click(screen.getByTestId('continue-level-up'))
 
-      // GameScreen should still receive currentLevel=13
+      // GameScreen should still receive currentLevel=20
       const gameScreen = screen.getByTestId('game-screen')
-      expect(gameScreen.getAttribute('data-current-level')).toBe('13')
+      expect(gameScreen.getAttribute('data-current-level')).toBe('20')
     })
   })
 
@@ -308,12 +322,12 @@ describe('Level Progression Integration', () => {
       expect(startScreen.getAttribute('data-current-level')).toBe('1')
     })
 
-    it('passes currentLevel=13 for max-level profile', () => {
-      setProfile(13)
+    it('passes currentLevel=20 for max-level profile', () => {
+      setProfile(20)
       render(<App />)
 
       const startScreen = screen.getByTestId('start-screen')
-      expect(startScreen.getAttribute('data-current-level')).toBe('13')
+      expect(startScreen.getAttribute('data-current-level')).toBe('20')
     })
   })
 
@@ -478,22 +492,22 @@ describe('Level Progression Integration', () => {
       expect(mockProfileCtx.updateProfile).toHaveBeenCalledWith('profile-1', { currentLevel: 2 })
     })
 
-    it('level 12 -> 13: last normal level-up', () => {
-      setProfile(12)
+    it('level 19 -> 20: last normal level-up', () => {
+      setProfile(19)
       render(<App />)
 
       fireEvent.click(screen.getByTestId('start-game'))
       fireEvent.click(screen.getByTestId('trigger-level-up'))
 
       // Should show normal celebration (not champion)
-      expect(screen.getByTestId('levelup-screen').getAttribute('data-completed-level')).toBe('12')
+      expect(screen.getByTestId('levelup-screen').getAttribute('data-completed-level')).toBe('19')
 
       fireEvent.click(screen.getByTestId('continue-level-up'))
-      expect(mockProfileCtx.updateProfile).toHaveBeenCalledWith('profile-1', { currentLevel: 13 })
+      expect(mockProfileCtx.updateProfile).toHaveBeenCalledWith('profile-1', { currentLevel: 20 })
     })
 
-    it('level 13 (max): no profile update beyond max', () => {
-      setProfile(13)
+    it('level 20 (max): no profile update beyond max', () => {
+      setProfile(20)
       render(<App />)
 
       fireEvent.click(screen.getByTestId('start-game'))

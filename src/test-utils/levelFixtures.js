@@ -3,7 +3,8 @@
  *
  * Re-exports the real LEVELS and MAX_LEVEL from the config so tests
  * always reflect the current schema without hardcoding magic numbers.
- * Also provides helpers for building lightweight test-specific level objects.
+ * Also provides a createMockLevel helper for building lightweight
+ * test-specific level objects.
  */
 
 import { LEVELS, MAX_LEVEL, OPERATION_TYPES, GRADES, getLevelConfig } from '../config/levels'

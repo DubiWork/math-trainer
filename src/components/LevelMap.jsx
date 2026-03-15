@@ -1,7 +1,7 @@
 /**
  * LevelMap -- Horizontal scrollable level progress visualization
  *
- * Displays 13 level checkpoints in a horizontal row.
+ * Displays all 20 level checkpoints in a horizontal row.
  * Each level shows its completion state:
  *   - Completed (< currentLevel): green star
  *   - Current (=== currentLevel): gold pulsing node
@@ -11,7 +11,7 @@
  * Auto-scrolls to show the current level on mount.
  *
  * @param {Object} props
- * @param {number} [props.currentLevel=1] The player's current level (1-13)
+ * @param {number} [props.currentLevel=1] The player's current level (1-20)
  */
 
 import { useRef, useEffect } from 'react'
@@ -35,10 +35,12 @@ function getLevelStatus(levelId, currentLevel) {
  * Single level node with icon, circle, and label.
  */
 function LevelNode({ level, status, nodeRef }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const isCompleted = status === 'completed'
   const isCurrent = status === 'current'
   const isLocked = status === 'locked'
+
+  const levelName = i18n.language === 'he' ? (level.nameHe ?? level.name) : level.name
 
   const statusText = isCompleted
     ? t('levelmap.completed')
@@ -49,7 +51,7 @@ function LevelNode({ level, status, nodeRef }) {
   return (
     <div
       role="listitem"
-      aria-label={t('levelmap.levelStatus', { id: level.id, name: level.name, status: statusText })}
+      aria-label={t('levelmap.levelStatus', { id: level.id, name: levelName, status: statusText })}
       data-testid={`level-node-${level.id}`}
       ref={nodeRef}
       className="flex flex-col items-center snap-center shrink-0 w-16 md:w-20"
@@ -103,7 +105,7 @@ function LevelNode({ level, status, nodeRef }) {
           ${isLocked ? 'text-gray-500' : ''}
         `}
       >
-        {level.name}
+        {levelName}
       </span>
     </div>
   )
@@ -113,6 +115,7 @@ LevelNode.propTypes = {
   level: PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
+    nameHe: PropTypes.string,
   }).isRequired,
   status: PropTypes.oneOf(['completed', 'current', 'locked']).isRequired,
   nodeRef: PropTypes.oneOfType([

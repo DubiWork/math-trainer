@@ -16,7 +16,25 @@ const GAME_CONFIG = {
 };
 
 /**
- * Default level config for backward compatibility (Level 2: Addition Hero, +/-, 1-10)
+ * Computes a wrong-answer spread that scales with the magnitude of the correct answer.
+ * Small answers (0-20): ±3
+ * Medium answers (21-99): ±10
+ * Large answers (100-999): ±30
+ * Very large answers (1000+): ±50
+ *
+ * @param {number} correctAnswer - The correct answer
+ * @returns {number} The range offset to use when generating wrong answers
+ */
+function getWrongAnswerRange(correctAnswer) {
+  const abs = Math.abs(correctAnswer);
+  if (abs >= 1000) return 50;
+  if (abs >= 100) return 30;
+  if (abs >= 21) return 10;
+  return GAME_CONFIG.WRONG_ANSWER_RANGE;
+}
+
+/**
+ * Default level config — Level 2: Subtract within 5 (operators: ['-'], numberRange: 0-5)
  */
 const DEFAULT_CONFIG = getLevelConfig(2);
 
@@ -61,7 +79,10 @@ function shuffleArray(array) {
 }
 
 /**
- * Generates wrong answers that are close to the correct answer
+ * Generates wrong answers that are close to the correct answer.
+ * The spread scales with the magnitude of the correct answer so that
+ * wrong options remain meaningfully distinguishable for large numbers.
+ *
  * @param {number} correctAnswer - The correct answer
  * @param {number} count - Number of wrong answers to generate
  * @param {number} [maxAnswer] - Maximum plausible answer value
@@ -74,9 +95,11 @@ function generateWrongAnswers(correctAnswer, count, maxAnswer) {
   const wrongAnswers = new Set();
   const minAnswer = 0; // Allow 0 as a plausible wrong answer
 
-  // Generate wrong answers within +-3 of correct answer
+  const range = getWrongAnswerRange(correctAnswer);
+
+  // Generate wrong answers within ±range of correct answer
   const possibleWrong = [];
-  for (let offset = -GAME_CONFIG.WRONG_ANSWER_RANGE; offset <= GAME_CONFIG.WRONG_ANSWER_RANGE; offset++) {
+  for (let offset = -range; offset <= range; offset++) {
     if (offset === 0) continue; // Skip the correct answer
     const candidate = correctAnswer + offset;
     if (candidate >= minAnswer && candidate <= maxAnswer) {
@@ -93,7 +116,7 @@ function generateWrongAnswers(correctAnswer, count, maxAnswer) {
   }
 
   // If we still need more wrong answers (edge cases), expand the range
-  let expandedOffset = GAME_CONFIG.WRONG_ANSWER_RANGE + 1;
+  let expandedOffset = range + 1;
   while (wrongAnswers.size < count) {
     const candidatePlus = correctAnswer + expandedOffset;
     const candidateMinus = correctAnswer - expandedOffset;
@@ -133,7 +156,9 @@ function generateWrongAnswers(correctAnswer, count, maxAnswer) {
  * // Returns multiplication problem using level 10 config
  */
 export function generateProblem(levelConfig = DEFAULT_CONFIG) {
-  const { operators, minNumber, maxNumber, multiplesOf, multipliers, divisors } = levelConfig;
+  const { operators, numberRange, multiplesOf, multipliers, divisors } = levelConfig;
+  const minNumber = numberRange.min;
+  const maxNumber = numberRange.max;
 
   // Pick random operator from level's operator list
   const operator = operators[getRandomInt(0, operators.length - 1)];

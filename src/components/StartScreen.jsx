@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
+import { useProfile } from '../context/useProfile'
 import LevelMap from './LevelMap'
 import { getTheme } from '../config/themes'
 
@@ -24,16 +26,65 @@ import { getTheme } from '../config/themes'
  * @param {number} [currentLevel=1] - The player's current level (1-13)
  */
 function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile = null }) {
+  const { t, i18n } = useTranslation()
+  const { updateProfile } = useProfile()
   const theme = getTheme(activeProfile?.theme)
 
   // Check if user has previous progress to display
   const hasPreviousProgress = progress && (progress.score > 0 || progress.streak > 0)
+
+  const currentLang = activeProfile?.language || i18n.language || 'he'
+
+  const handleLanguageToggle = (lang) => {
+    if (lang === currentLang) return
+    if (activeProfile) {
+      updateProfile(activeProfile.id, { language: lang })
+    }
+    i18n.changeLanguage(lang)
+    document.documentElement.lang = lang
+    document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr'
+  }
 
   return (
     <div
       className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900
                  flex flex-col items-center justify-center p-6 relative overflow-hidden"
     >
+      {/* Language Toggle — compact pill for parent use */}
+      <div
+        className="absolute top-4 end-4 z-20 flex rounded-full overflow-hidden
+                   border border-white/30 text-sm font-game"
+        role="radiogroup"
+        aria-label="Language selection"
+        data-testid="language-toggle"
+      >
+        <button
+          role="radio"
+          aria-checked={currentLang === 'he'}
+          aria-label="Hebrew"
+          onClick={() => handleLanguageToggle('he')}
+          className={`px-3 py-1.5 transition-colors duration-200 ${
+            currentLang === 'he'
+              ? 'bg-sonic-blue text-white'
+              : 'bg-white/10 text-white/60 hover:bg-white/20'
+          }`}
+        >
+          HE
+        </button>
+        <button
+          role="radio"
+          aria-checked={currentLang === 'en'}
+          aria-label="English"
+          onClick={() => handleLanguageToggle('en')}
+          className={`px-3 py-1.5 transition-colors duration-200 ${
+            currentLang === 'en'
+              ? 'bg-sonic-blue text-white'
+              : 'bg-white/10 text-white/60 hover:bg-white/20'
+          }`}
+        >
+          EN
+        </button>
+      </div>
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         {/* Floating stars */}
@@ -50,7 +101,7 @@ function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile
           className="text-4xl md:text-5xl lg:text-6xl font-game text-white
                      drop-shadow-lg mb-4 animate-pulse-scale"
         >
-          {theme.titlePrefix} Math Trainer!
+          {t('start.title')}
         </h1>
 
         {/* Hero Emoji Row */}
@@ -60,7 +111,7 @@ function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile
 
         {/* Subtitle */}
         <p className="text-xl md:text-2xl font-game text-white/90 mb-8 drop-shadow-md">
-          Time to boost your math power!
+          {t('start.subtitle')}
         </p>
 
         {/* Previous Progress Display */}
@@ -69,10 +120,10 @@ function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile
             className="bg-black/30 rounded-2xl p-6 mb-8 backdrop-blur-sm
                        transform transition-all duration-300 hover:scale-105"
             role="status"
-            aria-label={`Your best: ${progress.score} points, ${progress.streak} streak`}
+            aria-label={`${t('start.yourBest')} ${progress.score} ${t('start.points')}, ${progress.streak} ${t('start.streak')}`}
           >
             <p className="text-lg md:text-xl font-game text-sonic-gold mb-2">
-              Your Best:
+              {t('start.yourBest')}
             </p>
             <div className="flex justify-center items-center gap-6 flex-wrap">
               {/* Best Score */}
@@ -81,7 +132,7 @@ function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile
                   {progress.score}
                 </p>
                 <p className="text-sm md:text-base text-white/70 font-game">
-                  points
+                  {t('start.points')}
                 </p>
               </div>
 
@@ -97,7 +148,7 @@ function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile
                   <span className="text-2xl" role="img" aria-label="fire">&#x1F525;</span>
                 </div>
                 <p className="text-sm md:text-base text-white/70 font-game">
-                  streak
+                  {t('start.streak')}
                 </p>
               </div>
             </div>
@@ -105,7 +156,7 @@ function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile
             {/* Accuracy if available */}
             {progress.totalProblems > 0 && (
               <p className="text-base text-white/80 font-game mt-4">
-                Accuracy: {Math.round((progress.correctAnswers / progress.totalProblems) * 100)}%
+                {t('start.accuracy', { percent: Math.round((progress.correctAnswers / progress.totalProblems) * 100) })}
               </p>
             )}
           </div>
@@ -130,21 +181,21 @@ function StartScreen({ onStart, progress = null, currentLevel = 1, activeProfile
             focus:outline-none focus:ring-4 focus:ring-yellow-300
             animate-pulse-scale
           "
-          aria-label="Start the math game"
+          aria-label={t('start.startButton')}
         >
-          Start Game!
+          {t('start.startButton')}
         </button>
 
         {/* Encouraging Tip */}
         <p className="text-lg md:text-xl font-game text-white/70 mt-8">
-          <span role="img" aria-label="star">&#x2B50;</span> Tap the correct answer to score points!{' '}
+          <span role="img" aria-label="star">&#x2B50;</span> {t('start.tip')}{' '}
           <span role="img" aria-label="star">&#x2B50;</span>
         </p>
       </div>
 
       {/* Bottom Decoration */}
       <div className="absolute bottom-4 text-center text-white/40 font-game text-sm">
-        Math is fun!
+        {t('start.footer')}
       </div>
     </div>
   )

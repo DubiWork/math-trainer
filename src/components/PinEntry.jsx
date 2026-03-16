@@ -24,6 +24,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 
 /** @type {number} Required PIN length */
@@ -39,6 +40,7 @@ function PinEntry({
   maxAttempts = 3,
   cooldownSeconds = 30,
 }) {
+  const { t } = useTranslation()
   const [digits, setDigits] = useState('')
   const [shaking, setShaking] = useState(false)
   const [cooldownRemaining, setCooldownRemaining] = useState(0)
@@ -131,14 +133,14 @@ function PinEntry({
       className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm
                  flex items-center justify-center p-4"
       role="dialog"
-      aria-label={`Enter PIN for ${profileName}`}
+      aria-label={t('pin.enterPinFor', { name: profileName })}
       aria-modal="true"
     >
       <div className="bg-gradient-to-b from-sonic-blue to-blue-900
                       rounded-3xl p-6 w-full max-w-xs shadow-2xl">
         {/* Header */}
         <h2 className="text-xl font-game text-white text-center mb-1 drop-shadow-md">
-          Enter PIN
+          {t('pin.enterPin')}
         </h2>
         <p className="text-sm font-game text-white/70 text-center mb-5" dir="auto">
           {profileName}
@@ -149,7 +151,7 @@ function PinEntry({
           className={`flex justify-center gap-3 mb-5 ${shaking ? 'animate-shake' : ''}`}
           role="status"
           aria-live="polite"
-          aria-label={`${digits.length} of ${PIN_LENGTH} digits entered`}
+          aria-label={t('pin.digitsEntered', { count: digits.length, total: PIN_LENGTH })}
         >
           {Array.from({ length: PIN_LENGTH }).map((_, i) => (
             <div
@@ -185,7 +187,7 @@ function PinEntry({
             className="text-red-300 text-sm font-game text-center mb-3"
             role="alert"
           >
-            Too many tries! Wait {cooldownRemaining}s
+            {t('pin.tooManyTries', { seconds: cooldownRemaining })}
           </p>
         )}
 
@@ -204,7 +206,7 @@ function PinEntry({
                              transition-all duration-150
                              active:scale-90 disabled:opacity-30
                              focus:outline-none focus:ring-2 focus:ring-sonic-gold"
-                  aria-label="Delete last digit"
+                  aria-label={t('pin.deleteDigit')}
                 >
                   &#x232B;
                 </button>
@@ -221,9 +223,9 @@ function PinEntry({
                              transition-all duration-150
                              active:scale-90
                              focus:outline-none focus:ring-2 focus:ring-red-300"
-                  aria-label="Cancel PIN entry"
+                  aria-label={t('pin.cancelPin')}
                 >
-                  Back
+                  {t('pin.back')}
                 </button>
               )
             }
@@ -239,7 +241,7 @@ function PinEntry({
                            transition-all duration-150
                            active:scale-90 disabled:opacity-30
                            focus:outline-none focus:ring-2 focus:ring-sonic-gold"
-                aria-label={`Digit ${key}`}
+                aria-label={t('pin.digit', { key })}
               >
                 {key}
               </button>
@@ -250,7 +252,7 @@ function PinEntry({
         {/* Loading indicator */}
         {isVerifying && (
           <p className="text-white/70 text-sm font-game text-center mt-4 animate-pulse">
-            Checking...
+            {t('pin.checking')}
           </p>
         )}
       </div>

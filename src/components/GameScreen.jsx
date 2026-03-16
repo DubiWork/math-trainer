@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { Problem, AnswerButtons, ScoreDisplay, Feedback } from './index'
 import { LearningAid } from './aids'
 import { useGameState } from '../hooks'
@@ -26,6 +27,7 @@ import { useGameState } from '../hooks'
  * @param {object} activeProfile - Optional active profile (provides theme)
  */
 function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, currentLevel = 1, onLevelUp, activeProfile = null }) {
+  const { t } = useTranslation()
   const {
     currentProblem,
     score,
@@ -63,7 +65,7 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
   if (!currentProblem) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900 flex items-center justify-center">
-        <p className="text-white font-game text-2xl">Loading...</p>
+        <p className="text-white font-game text-2xl">{t('game.loading')}</p>
       </div>
     )
   }
@@ -87,7 +89,7 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
       <header className="flex justify-between items-start gap-4 mb-6 md:mb-8">
         {/* Score Display */}
         <div className="flex-1">
-          <ScoreDisplay score={score} streak={streak} theme={activeProfile?.theme} />
+          <ScoreDisplay score={score} streak={streak} />
         </div>
 
         {/* Exit Button */}
@@ -102,9 +104,9 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
             hover:scale-105 active:scale-95
             focus:outline-none focus:ring-2 focus:ring-red-300
           "
-          aria-label="Exit game and return to start screen"
+          aria-label={t('game.exit')}
         >
-          Exit
+          {t('game.exit')}
         </button>
       </header>
 
@@ -144,7 +146,7 @@ function GameScreen({ onGameEnd, updateProgress = null, initialProgress = null, 
 
       {/* Feedback Overlay - Shows on answer */}
       {showFeedback && (
-        <Feedback isCorrect={isCorrect} theme={activeProfile?.theme} />
+        <Feedback isCorrect={isCorrect} />
       )}
     </div>
   )

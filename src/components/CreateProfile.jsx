@@ -24,6 +24,7 @@
  */
 
 import { useReducer, useCallback, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { signInAnonymously } from 'firebase/auth'
 import { auth } from '../firebase/config'
@@ -77,7 +78,7 @@ function wizardReducer(state, action) {
       return { ...state, pinHash: action.payload, step: 4, error: null }
 
     case WizardActions.CONFIRM_MISMATCH:
-      return { ...state, error: 'PINs do not match. Try again!' }
+      return { ...state, error: 'create.pinMismatch' }
 
     case WizardActions.SET_SUBMITTING:
       return { ...state, isSubmitting: action.payload, error: null }
@@ -139,11 +140,12 @@ const THEME_BORDER = {
  * @param {number} props.currentStep Current step (1-based)
  */
 function StepIndicator({ currentStep }) {
+  const { t } = useTranslation()
   return (
     <div
       className="flex justify-center gap-3 mb-6"
       role="group"
-      aria-label="Profile creation progress"
+      aria-label={t('create.progress')}
     >
       {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
         const stepNum = i + 1
@@ -160,7 +162,7 @@ function StepIndicator({ currentStep }) {
               ${!isFilled && !isCurrent ? 'border-2 border-white/30 bg-transparent' : ''}
             `}
             aria-current={isCurrent ? 'step' : undefined}
-            aria-label={`Step ${stepNum} of ${TOTAL_STEPS}${isCurrent ? ', current' : isFilled ? ', completed' : ''}`}
+            aria-label={isCurrent ? t('create.stepCurrent', { step: stepNum, total: TOTAL_STEPS }) : isFilled ? t('create.stepCompleted', { step: stepNum, total: TOTAL_STEPS }) : t('create.stepOf', { step: stepNum, total: TOTAL_STEPS })}
           />
         )
       })}
@@ -175,6 +177,7 @@ StepIndicator.propTypes = {
 // ---- CreateProfile Component -----------------------------------------------
 
 function CreateProfile({ onComplete, onCancel }) {
+  const { t } = useTranslation()
   const [state, dispatch] = useReducer(wizardReducer, wizardInitialState)
   const nicknameInputRef = useRef(null)
   const nextButtonRef = useRef(null)
@@ -275,8 +278,10 @@ function CreateProfile({ onComplete, onCancel }) {
   const handleThemeKeyDown = useCallback((e) => {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
       e.preventDefault()
+      const isRtl = document.documentElement.dir === 'rtl'
+      const isForward = isRtl ? e.key === 'ArrowLeft' : e.key === 'ArrowRight'
       const currentIndex = VALID_THEMES.indexOf(selectedTheme)
-      const nextIndex = e.key === 'ArrowRight'
+      const nextIndex = isForward
         ? (currentIndex + 1) % VALID_THEMES.length
         : (currentIndex - 1 + VALID_THEMES.length) % VALID_THEMES.length
       setSelectedTheme(VALID_THEMES[nextIndex])
@@ -297,7 +302,7 @@ function CreateProfile({ onComplete, onCancel }) {
       }
     } catch {
       if (isMountedRef.current) {
-        dispatch({ type: WizardActions.SET_ERROR, payload: 'Could not process PIN. Try again.' })
+        dispatch({ type: WizardActions.SET_ERROR, payload: 'create.pinError' })
       }
     }
   }, [])
@@ -342,7 +347,7 @@ function CreateProfile({ onComplete, onCancel }) {
       if (!isMountedRef.current) return
       const message = err?.message?.includes('Maximum')
         ? err.message
-        : 'Could not create hero. Try again!'
+        : 'create.createError'
       dispatch({ type: WizardActions.SET_ERROR, payload: message })
     }
   }, [state.pinHash, state.nickname, state.theme, onComplete])
@@ -386,9 +391,9 @@ function CreateProfile({ onComplete, onCancel }) {
           className="text-white/70 font-game text-sm py-3 px-4 min-h-[44px]
                      hover:text-white transition-colors duration-150
                      focus:outline-none focus:ring-2 focus:ring-sonic-gold rounded-lg"
-          aria-label="Cancel profile creation"
+          aria-label={t('create.cancelLabel')}
         >
-          Cancel
+          {t('create.cancel')}
         </button>
       )
     }
@@ -399,9 +404,9 @@ function CreateProfile({ onComplete, onCancel }) {
         className="text-white/70 font-game text-sm py-3 px-4 min-h-[44px]
                    hover:text-white transition-colors duration-150
                    focus:outline-none focus:ring-2 focus:ring-sonic-gold rounded-lg"
-        aria-label="Go back to previous step"
+        aria-label={t('create.backLabel')}
       >
-        Back
+        {t('create.back')}
       </button>
     )
   }
@@ -412,7 +417,7 @@ function CreateProfile({ onComplete, onCancel }) {
   const renderNicknameStep = () => (
     <div className="flex flex-col items-center gap-4 w-full max-w-sm">
       <h2 className="text-2xl md:text-3xl font-game text-white drop-shadow-md text-center">
-        What is your name?
+        {t('create.whatIsYourName')}
       </h2>
 
       <div className="w-full bg-black/20 backdrop-blur-sm rounded-2xl p-4">
@@ -422,15 +427,15 @@ function CreateProfile({ onComplete, onCancel }) {
           value={nicknameInput}
           onChange={handleNicknameChange}
           onKeyDown={handleNicknameKeyDown}
-          placeholder="Type your name..."
+          placeholder={t('create.typeName')}
           dir="auto"
           maxLength={MAX_NICKNAME_LENGTH * 2}
           className="w-full bg-transparent text-2xl font-game text-white text-center
                      placeholder-white/40 outline-none"
-          aria-label="Enter your nickname"
+          aria-label={t('create.enterNickname')}
         />
         <p className="text-white/70 text-xs font-game text-center mt-2">
-          {remainingChars} characters left
+          {t('create.charsLeft', { count: remainingChars })}
         </p>
       </div>
 
@@ -446,9 +451,9 @@ function CreateProfile({ onComplete, onCancel }) {
                    hover:scale-105 active:scale-95
                    disabled:opacity-40 disabled:hover:scale-100
                    focus:outline-none focus:ring-4 focus:ring-yellow-300"
-        aria-label="Continue to theme selection"
+        aria-label={t('create.continueToTheme')}
       >
-        Next
+        {t('create.next')}
       </button>
 
       {renderBackCancel()}
@@ -459,13 +464,13 @@ function CreateProfile({ onComplete, onCancel }) {
   const renderThemeStep = () => (
     <div className="flex flex-col items-center gap-4 w-full max-w-sm">
       <h2 className="text-2xl md:text-3xl font-game text-white drop-shadow-md text-center">
-        Choose your hero!
+        {t('create.chooseHero')}
       </h2>
 
       <div
         className="grid grid-cols-2 gap-4 w-full"
         role="radiogroup"
-        aria-label="Select a theme"
+        aria-label={t('create.selectTheme')}
         onKeyDown={handleThemeKeyDown}
       >
         {VALID_THEMES.map((themeId) => {
@@ -475,7 +480,7 @@ function CreateProfile({ onComplete, onCancel }) {
               key={themeId}
               role="radio"
               aria-checked={isSelected}
-              aria-label={`${THEME_LABEL[themeId]} theme`}
+              aria-label={t('create.themeLabel', { name: THEME_LABEL[themeId] })}
               onClick={() => setSelectedTheme(themeId)}
               className={`
                 relative bg-black/20 backdrop-blur-sm rounded-2xl p-4
@@ -498,7 +503,7 @@ function CreateProfile({ onComplete, onCancel }) {
               </span>
               {isSelected && (
                 <span
-                  className="absolute top-2 right-2 text-sonic-gold text-xl"
+                  className="absolute top-2 end-2 text-sonic-gold text-xl"
                   aria-hidden="true"
                 >
                   &#x2714;
@@ -522,9 +527,9 @@ function CreateProfile({ onComplete, onCancel }) {
                    hover:scale-105 active:scale-95
                    disabled:opacity-40 disabled:hover:scale-100
                    focus:outline-none focus:ring-4 focus:ring-yellow-300"
-        aria-label="Continue to PIN entry"
+        aria-label={t('create.continueToPin')}
       >
-        Next
+        {t('create.next')}
       </button>
 
       {renderBackCancel()}
@@ -535,11 +540,11 @@ function CreateProfile({ onComplete, onCancel }) {
   const renderPinStep = () => (
     <PinEntry
       key="pin-set"
-      profileName="Choose a secret PIN"
+      profileName={t('create.choosePinTitle')}
       onSubmit={handlePinSet}
       onCancel={handleBack}
       isVerifying={false}
-      error={state.error}
+      error={state.error ? t(state.error) : null}
       attempts={0}
       maxAttempts={999}
       cooldownSeconds={0}
@@ -550,11 +555,11 @@ function CreateProfile({ onComplete, onCancel }) {
   const renderPinConfirmStep = () => (
     <PinEntry
       key="pin-confirm"
-      profileName="Confirm your PIN"
+      profileName={t('create.confirmPinTitle')}
       onSubmit={handlePinConfirm}
       onCancel={handleBack}
       isVerifying={state.isSubmitting}
-      error={state.error}
+      error={state.error ? t(state.error) : null}
       attempts={0}
       maxAttempts={999}
       cooldownSeconds={0}
@@ -569,14 +574,14 @@ function CreateProfile({ onComplete, onCancel }) {
         className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900
                     flex flex-col items-center justify-center p-6"
         role="dialog"
-        aria-label="Create a new hero profile"
+        aria-label={t('create.dialogLabel')}
       >
         <div className="text-center animate-pulse motion-reduce:animate-none">
           <span className="text-6xl block mb-4" role="img" aria-hidden="true">
             {THEME_EMOJI[state.theme] || '\u{1F31F}'}
           </span>
           <h2 className="text-2xl md:text-3xl font-game text-white drop-shadow-md">
-            Creating your hero...
+            {t('create.creatingHero')}
           </h2>
         </div>
       </div>
@@ -587,8 +592,8 @@ function CreateProfile({ onComplete, onCancel }) {
     // Error happened during profile creation (not PIN mismatch).
     // If it is a creation-phase error (post-PIN-confirm), show retry overlay.
     // PIN mismatch errors are handled inline by PinEntry's error prop.
-    const isCreationError = state.error !== 'PINs do not match. Try again!'
-      && state.error !== 'Could not process PIN. Try again.'
+    const isCreationError = state.error !== 'create.pinMismatch'
+      && state.error !== 'create.pinError'
 
     if (isCreationError) {
       return (
@@ -596,11 +601,11 @@ function CreateProfile({ onComplete, onCancel }) {
           className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900
                       flex flex-col items-center justify-center p-6"
           role="dialog"
-          aria-label="Create a new hero profile"
+          aria-label={t('create.dialogLabel')}
         >
           <div className="text-center">
             <p className="text-red-300 text-lg font-game mb-6" role="alert">
-              {state.error}
+              {t(state.error)}
             </p>
             <button
               onClick={handleRetry}
@@ -612,9 +617,9 @@ function CreateProfile({ onComplete, onCancel }) {
                          motion-reduce:transition-none
                          hover:scale-105 active:scale-95
                          focus:outline-none focus:ring-4 focus:ring-yellow-300"
-              aria-label="Try creating your hero again"
+              aria-label={t('create.tryAgainLabel')}
             >
-              Try Again
+              {t('create.tryAgain')}
             </button>
             <div className="mt-4">
               <button
@@ -622,9 +627,9 @@ function CreateProfile({ onComplete, onCancel }) {
                 className="text-white/70 font-game text-sm py-3 px-4 min-h-[44px]
                            hover:text-white transition-colors duration-150
                            focus:outline-none focus:ring-2 focus:ring-sonic-gold rounded-lg"
-                aria-label="Go back to previous step"
+                aria-label={t('create.backLabel')}
               >
-                Back
+                {t('create.back')}
               </button>
             </div>
           </div>
@@ -644,7 +649,7 @@ function CreateProfile({ onComplete, onCancel }) {
       className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900
                   flex flex-col items-center justify-center p-6"
       role="dialog"
-      aria-label="Create a new hero profile"
+      aria-label={t('create.dialogLabel')}
     >
       <StepIndicator currentStep={state.step} />
 

@@ -4,7 +4,7 @@
 Defines every critical user path that MUST continue working after each deployment.
 Test automators implement the scenarios listed here in `tests/e2e/regression/`.
 
-**Last updated:** 2026-03-11
+**Last updated:** 2026-03-13
 **Maintained by:** QA / Tech Lead
 **Workflow:** `.github/workflows/regression.yml` (daily at 08:00 UTC + manual dispatch)
 
@@ -18,7 +18,8 @@ Test automators implement the scenarios listed here in `tests/e2e/regression/`.
 | #11 | Level Config + Problem Generator | 2026-03-08 | v1.1.0 | `src/config/levels.js`, `src/utils/mathProblems.js` |
 | #14 | Confidence Engine | 2026-03-08 | -- | `src/hooks/useConfidence.js`, `src/hooks/useGameState.js` |
 | #17 | Multi-Profile System | 2026-03-09 | v1.2.0 | `src/utils/profiles.js`, `src/context/ProfileContext.jsx`, `src/components/ProfileSwitcher.jsx`, `src/components/CreateProfile.jsx`, `src/components/PinEntry.jsx` |
-| #25 | Learning Aids (Tier 1 + Tier 2) | Staging (pending promotion) | -- | `src/components/aids/LearningAid.jsx`, `src/components/aids/DotCounter.jsx`, `src/components/aids/StrategyHint.jsx`, `src/utils/strategies.js` |
+| #25 | Learning Aids (Tier 1 + Tier 2) | 2026-03-12 | v1.3.0 | `src/components/aids/LearningAid.jsx`, `src/components/aids/DotCounter.jsx`, `src/components/aids/StrategyHint.jsx`, `src/utils/strategies.js` |
+| #28 | Level Progression UI | 2026-03-13 | v1.4.0 | `src/components/LevelUpScreen.jsx`, `src/components/LevelMap.jsx`, `src/components/GameScreen.jsx`, `src/App.jsx` |
 
 ---
 
@@ -95,7 +96,7 @@ Test automators implement the scenarios listed here in `tests/e2e/regression/`.
 | REG-041 | #17 | Anonymous auth works | Firebase anonymous sign-in completes without error; `user.uid` is set (check no auth error screen) | `tests/e2e/regression/profiles.spec.js` | P0 |
 | REG-042 | #17 | Profile nickname validation | Empty nickname rejected; nickname > 12 Unicode chars rejected; whitespace-only rejected | `tests/e2e/regression/profiles.spec.js` | P1 |
 
-### Learning Aids (Epic #25) -- Staging Only Until Promoted
+### Learning Aids (Epic #25)
 
 | ID | Epic | Scenario | Expected Behavior | Test File | Priority |
 |----|------|----------|-------------------|-----------|----------|
@@ -111,6 +112,29 @@ Test automators implement the scenarios listed here in `tests/e2e/regression/`.
 | REG-052 | #25 | At least one strategy guaranteed for every +/- problem | For any valid addition or subtraction problem, `getStrategies()` returns a non-empty array (count-on/count-back as fallback) | `tests/e2e/regression/learning-aids.spec.js` | P0 |
 | REG-053 | #25 | Accessibility: aid has aria-live or role=region | The learning aid container or strategy hint includes appropriate ARIA attributes for screen readers | `tests/e2e/regression/learning-aids.spec.js` | P1 |
 | REG-054 | #25 | Dismiss button meets 44px touch target | The "I got it!" button has `min-h-[44px]` (at least 44px height) for mobile accessibility | `tests/e2e/regression/learning-aids.spec.js` | P1 |
+
+### Level Progression UI (Epic #28)
+
+| ID | Epic | Scenario | Expected Behavior | Test File | Priority |
+|----|------|----------|-------------------|-----------|----------|
+| REG-061 | #28 | Level map renders 13 nodes on StartScreen | `LevelMap` is visible with 13 `[data-testid^="level-node-"]` elements | `tests/e2e/regression/level-progression.spec.js` | P0 |
+| REG-062 | #28 | Level map has accessible list structure | Container has `role="list"` + `aria-label="Level progress map"`, 13 `role="listitem"` children | `tests/e2e/regression/level-progression.spec.js` | P0 |
+| REG-063 | #28 | New profile starts at level 1 (current node) | Level-node-1 has `aria-label` containing "current" | `tests/e2e/regression/level-progression.spec.js` | P0 |
+| REG-064 | #28 | Locked levels show lock icons | Levels above current have `aria-label` containing "locked" and a visible lock icon | `tests/e2e/regression/level-progression.spec.js` | P0 |
+| REG-065 | #28 | 12 connectors rendered between level nodes | 12 `[data-testid^="connector-"]` elements exist in the level map | `tests/e2e/regression/level-progression.spec.js` | P1 |
+| REG-066 | #28 | Level node aria-labels include name and status | Node 1 label contains "First Steps", node 13 label contains "Math Champion" + "locked" | `tests/e2e/regression/level-progression.spec.js` | P0 |
+| REG-067 | #28 | Play button starts game screen | Clicking Play transitions from StartScreen to GameScreen with visible problem | `tests/e2e/regression/level-progression.spec.js` | P0 |
+| REG-068 | #28 | Game screen shows answer buttons | GameScreen renders multiple answer option buttons for the current problem | `tests/e2e/regression/level-progression.spec.js` | P0 |
+| REG-069 | #28 | LevelUpScreen heading structure | "Level Complete!" heading visible after level-up trigger (deferred -- unit-tested) | `tests/e2e/regression/level-progression.spec.js` | P1 |
+| REG-070 | #28 | LevelUpScreen confetti particles | 12 confetti particles render with staggered CSS animation (deferred -- unit-tested) | `tests/e2e/regression/level-progression.spec.js` | P1 |
+| REG-071 | #28 | LevelUpScreen hero emoji visible | Rocket emoji (or trophy for champion) visible with bounce animation (deferred -- unit-tested) | `tests/e2e/regression/level-progression.spec.js` | P1 |
+| REG-072 | #28 | Continue button meets 44px touch target | "Continue to Level N!" button has `min-h-[44px]` (deferred -- unit-tested) | `tests/e2e/regression/level-progression.spec.js` | P1 |
+| REG-073 | #28 | Screen-reader level-up announcement | `role="status"` + `aria-live="polite"` with level completion text (deferred -- unit-tested) | `tests/e2e/regression/level-progression.spec.js` | P1 |
+| REG-074 | #28 | Champion variant at max level | "Math Champion!" heading, trophy emoji, "Play Again at Level 13!" CTA (deferred -- unit-tested) | `tests/e2e/regression/level-progression.spec.js` | P1 |
+| REG-075 | #28 | Only one screen visible at a time | StartScreen disappears when game starts; no overlap of screens | `tests/e2e/regression/level-progression.spec.js` | P0 |
+| REG-076 | #28 | Exit during game returns to start | Clicking exit/back from GameScreen returns to StartScreen with Play button | `tests/e2e/regression/level-progression.spec.js` | P0 |
+| REG-077 | #28 | No console errors during transitions | Game start and exit produce zero critical console errors | `tests/e2e/regression/level-progression.spec.js` | P0 |
+| REG-078 | #28 | Reduced motion disables level map pulse | With `prefers-reduced-motion: reduce`, `animate-pulse-gold` animation is suppressed | `tests/e2e/regression/level-progression.spec.js` | P1 |
 
 ### Cross-Cutting / Integration
 
@@ -134,6 +158,7 @@ Test automators implement the scenarios listed here in `tests/e2e/regression/`.
 | `tests/e2e/regression/confidence.spec.js` | REG-019 through REG-031 | 13 |
 | `tests/e2e/regression/profiles.spec.js` | REG-032 through REG-042 | 11 |
 | `tests/e2e/regression/learning-aids.spec.js` | REG-043 through REG-054 | 12 |
+| `tests/e2e/regression/level-progression.spec.js` | REG-061 through REG-078 | 18 |
 | `tests/e2e/regression/integration.spec.js` | REG-055 through REG-060 | 6 |
 
 ---
@@ -165,9 +190,9 @@ focus on **observable UI behavior** -- confirming the module's output is correct
 
 ## Summary
 
-- **Total scenarios:** 60
-- **P0 (critical -- must pass for deploy confidence):** 33
-- **P1 (important -- should pass, investigate if failing):** 27
+- **Total scenarios:** 78
+- **P0 (critical -- must pass for deploy confidence):** 42
+- **P1 (important -- should pass, investigate if failing):** 36
 
 ### P0 Breakdown by Epic
 
@@ -178,6 +203,7 @@ focus on **observable UI behavior** -- confirming the module's output is correct
 | Confidence (#14) | 7 | Scoring deltas, level-up trigger, struggling flags, clamping |
 | Profiles (#17) | 6 | Create, select with PIN, reject wrong PIN, persist, anonymous auth |
 | Learning Aids (#25) | 4 | Show/hide based on struggling state, correct aid per level tier |
+| Level Progression (#28) | 9 | Level map renders, accessible, current/locked states, game transitions, screen isolation |
 | Integration | 4 | Confidence wired to GameScreen, aids visible, full flow works |
 
 ---
@@ -188,5 +214,5 @@ focus on **observable UI behavior** -- confirming the module's output is correct
    assign scenario IDs in sequence (REG-NNN), create a corresponding test file entry, and update the Summary totals.
 2. **When a scenario is retired:** Do not delete it. Mark it as `RETIRED` with a date and reason in the Scenario column.
 3. **When the regression workflow changes:** Update the Environments and Test Type Classification sections.
-4. **Epic #25 scenarios (REG-043 to REG-054)** run on staging only until the epic is promoted to main.
-   After promotion, they run on both environments automatically (the workflow checks `tests/e2e/regression/` existence).
+4. **Epic #25 scenarios (REG-043 to REG-054)** now run on both staging and production (promoted v1.3.0, 2026-03-12).
+5. **Epic #28 scenarios (REG-061 to REG-078)** graduated 2026-03-13 (promoted v1.4.0). Level-up celebration tests (REG-069 to REG-074) are deferred from E2E — they require triggering `shouldLevelUp` which needs many correct answers. These scenarios are fully covered by 117 unit/integration tests in `src/`. When a test fixture or reduced-threshold mode is available, unskip these tests.

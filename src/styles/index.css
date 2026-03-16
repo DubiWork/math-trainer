@@ -10,6 +10,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* RTL-aware step direction: -1 for LTR (slides from left), 1 for RTL (slides from right) */
+:root {
+  --step-dir: -1;
+}
+:root[dir="rtl"] {
+  --step-dir: 1;
+}
+
 /* PWA optimizations */
 html {
   overflow-y: scroll;

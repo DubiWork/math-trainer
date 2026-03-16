@@ -1,9 +1,11 @@
 /**
  * @vitest-environment happy-dom
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { renderHook, act, waitFor, cleanup } from '@testing-library/react'
 import { createElement } from 'react'
+import { I18nextProvider } from 'react-i18next'
+import i18n from 'i18next'
 
 // ─── localStorage mock ────────────────────────────────────────────────────────
 
@@ -91,7 +93,9 @@ function makeProfile(overrides = {}) {
 }
 
 function wrapper({ children }) {
-  return createElement(ProfileProvider, null, children)
+  return createElement(I18nextProvider, { i18n },
+    createElement(ProfileProvider, null, children)
+  )
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -102,6 +106,10 @@ describe('ProfileContext + useProfile', () => {
     sessionMock.clear()
     profilesUtil.__reset()
     vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    cleanup()
   })
 
   // ── Bootstrap ─────────────────────────────────────────────────────────
@@ -418,6 +426,136 @@ describe('ProfileContext + useProfile', () => {
         renderHook(() => useProfile())
       }).toThrow('useProfile must be used within a <ProfileProvider>')
       spy.mockRestore()
+    })
+  })
+
+  // ── Language sync with document ─────────────────────────────────────
+
+  describe('language sync', () => {
+    beforeEach(async () => {
+      // Reset i18n and document state before each language test
+      await i18n.changeLanguage('en')
+      document.documentElement.lang = 'en'
+      document.documentElement.dir = 'ltr'
+    })
+
+    it('defaults to he + rtl when no active profile', async () => {
+      profilesUtil.__setProfiles([])
+
+      renderHook(() => useProfile(), { wrapper })
+      await act(async () => {})
+
+      expect(document.documentElement.lang).toBe('he')
+      expect(document.documentElement.dir).toBe('rtl')
+    })
+
+    it('sets document lang and dir when profile with language is activated', async () => {
+      const profile = makeProfile({ id: 'p1', language: 'en' })
+      profilesUtil.__setProfiles([profile])
+      profilesUtil.verifyPin.mockResolvedValue(true)
+
+      const { result } = renderHook(() => useProfile(), { wrapper })
+      await act(async () => {})
+
+      await act(async () => {
+        await result.current.selectProfile(profile, '1234')
+      })
+
+      await waitFor(() => {
+        expect(document.documentElement.lang).toBe('en')
+        expect(document.documentElement.dir).toBe('ltr')
+      })
+    })
+
+    it('sets rtl when Hebrew profile is activated', async () => {
+      const profile = makeProfile({ id: 'p1', language: 'he' })
+      profilesUtil.__setProfiles([profile])
+      profilesUtil.verifyPin.mockResolvedValue(true)
+
+      const { result } = renderHook(() => useProfile(), { wrapper })
+      await act(async () => {})
+
+      await act(async () => {
+        await result.current.selectProfile(profile, '1234')
+      })
+
+      expect(document.documentElement.lang).toBe('he')
+      expect(document.documentElement.dir).toBe('rtl')
+    })
+
+    it('defaults to he when profile has no language field', async () => {
+      // Simulate a pre-i18n profile without a language field
+      const profile = makeProfile({ id: 'p1' })
+      delete profile.language
+      profilesUtil.__setProfiles([profile])
+      profilesUtil.verifyPin.mockResolvedValue(true)
+
+      const { result } = renderHook(() => useProfile(), { wrapper })
+      await act(async () => {})
+
+      await act(async () => {
+        await result.current.selectProfile(profile, '1234')
+      })
+
+      expect(document.documentElement.lang).toBe('he')
+      expect(document.documentElement.dir).toBe('rtl')
+    })
+
+    it('reverts to he + rtl when active profile is cleared', async () => {
+      const profile = makeProfile({ id: 'p1', language: 'en' })
+      profilesUtil.__setProfiles([profile])
+      profilesUtil.verifyPin.mockResolvedValue(true)
+
+      const { result } = renderHook(() => useProfile(), { wrapper })
+      await act(async () => {})
+
+      // Activate English profile
+      await act(async () => {
+        await result.current.selectProfile(profile, '1234')
+      })
+
+      await waitFor(() => {
+        expect(document.documentElement.dir).toBe('ltr')
+      })
+
+      // Clear active profile
+      act(() => {
+        result.current.clearActiveProfile()
+      })
+
+      // Should revert to Hebrew defaults
+      await waitFor(() => {
+        expect(document.documentElement.lang).toBe('he')
+        expect(document.documentElement.dir).toBe('rtl')
+      })
+    })
+
+    it('updates document direction when profile language is updated', async () => {
+      const profile = makeProfile({ id: 'p1', language: 'he' })
+      profilesUtil.__setProfiles([profile])
+      profilesUtil.verifyPin.mockResolvedValue(true)
+
+      const { result } = renderHook(() => useProfile(), { wrapper })
+      await act(async () => {})
+
+      // Activate Hebrew profile
+      await act(async () => {
+        await result.current.selectProfile(profile, '1234')
+      })
+
+      await waitFor(() => {
+        expect(document.documentElement.dir).toBe('rtl')
+      })
+
+      // Update language to English
+      act(() => {
+        result.current.updateProfile('p1', { language: 'en' })
+      })
+
+      await waitFor(() => {
+        expect(document.documentElement.lang).toBe('en')
+        expect(document.documentElement.dir).toBe('ltr')
+      })
     })
   })
 })

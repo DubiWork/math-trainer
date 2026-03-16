@@ -3,7 +3,8 @@
  *
  * Detects applicable mental math strategies for addition, subtraction,
  * multiplication, and division problems and returns step-by-step
- * explanations. Designed for children at grade 1-2 reading level.
+ * explanations as i18n-ready objects.
+ * Designed for children at grade 1-2 reading level.
  *
  * Addition/Subtraction strategies are ordered by priority:
  *   doubles > near-doubles > bridging > count-on/count-back.
@@ -16,8 +17,8 @@
  * Division strategies:
  *   halving > inverse-multiplication (universal fallback).
  *
- * All step text is defined as extractable template constants for future
- * i18n support (issue #22).
+ * Steps are returned as { key, params } objects for i18n support.
+ * Translation happens at the component level (StrategyHint calls t()).
  */
 
 // ─── Strategy IDs ───────────────────────────────────────────────────────────
@@ -38,29 +39,29 @@ export const STRATEGY_IDS = {
   HALVING: 'halving',
 };
 
-// ─── Strategy Names ─────────────────────────────────────────────────────────
+// ─── Strategy Name Keys ─────────────────────────────────────────────────────
 
-/** @type {Object.<string, string>} Human-readable strategy names */
-const STRATEGY_NAMES = {
-  [STRATEGY_IDS.BRIDGING_ADD]: 'Bridge to 10',
-  [STRATEGY_IDS.BRIDGING_SUB]: 'Bridge to 10',
-  [STRATEGY_IDS.DOUBLES]: 'Use Doubles',
-  [STRATEGY_IDS.NEAR_DOUBLES]: 'Near Doubles',
-  [STRATEGY_IDS.COUNT_ON]: 'Count On',
-  [STRATEGY_IDS.COUNT_BACK]: 'Count Back',
-  [STRATEGY_IDS.REPEATED_ADDITION]: 'Repeated Addition',
-  [STRATEGY_IDS.COMMUTATIVE_MULT]: 'Swap the Numbers',
-  [STRATEGY_IDS.TIMES_TEN]: 'Times Ten',
-  [STRATEGY_IDS.DOUBLES_MULT]: 'Use Doubles',
-  [STRATEGY_IDS.INVERSE_MULT]: 'Think Multiplication',
-  [STRATEGY_IDS.HALVING]: 'Halving',
+/** @type {Object.<string, string>} Translation keys for strategy names */
+const STRATEGY_NAME_KEYS = {
+  [STRATEGY_IDS.BRIDGING_ADD]: 'strategy.names.bridging_add',
+  [STRATEGY_IDS.BRIDGING_SUB]: 'strategy.names.bridging_sub',
+  [STRATEGY_IDS.DOUBLES]: 'strategy.names.doubles',
+  [STRATEGY_IDS.NEAR_DOUBLES]: 'strategy.names.near_doubles',
+  [STRATEGY_IDS.COUNT_ON]: 'strategy.names.count_on',
+  [STRATEGY_IDS.COUNT_BACK]: 'strategy.names.count_back',
+  [STRATEGY_IDS.REPEATED_ADDITION]: 'strategy.names.repeated_addition',
+  [STRATEGY_IDS.COMMUTATIVE_MULT]: 'strategy.names.commutative_mult',
+  [STRATEGY_IDS.TIMES_TEN]: 'strategy.names.times_ten',
+  [STRATEGY_IDS.DOUBLES_MULT]: 'strategy.names.doubles_mult',
+  [STRATEGY_IDS.INVERSE_MULT]: 'strategy.names.inverse_mult',
+  [STRATEGY_IDS.HALVING]: 'strategy.names.halving',
 };
 
-// ─── Step Templates (extractable for i18n #22) ─────────────────────────────
+// ─── Step Templates (i18n-ready) ────────────────────────────────────────────
 
 /**
  * Step template functions for each strategy.
- * Each returns an array of strings (max 3 steps, <=30 chars each).
+ * Each returns an array of { key, params } objects (max 3 steps).
  * Steps NEVER reveal the final answer — use '?' instead.
  *
  * @type {Object.<string, Function>}
@@ -81,9 +82,9 @@ const STEP_TEMPLATES = {
     const remainder = addend - complement;
     const tens = base + complement;
     return [
-      `Make ${tens}: ${base}+${complement}=${tens}`,
-      `Left over: ${addend}-${complement}=${remainder}`,
-      `Add: ${tens}+${remainder}=?`,
+      { key: 'strategy.bridgingAdd.step1', params: { tens, base, complement } },
+      { key: 'strategy.bridgingAdd.step2', params: { addend, complement, remainder } },
+      { key: 'strategy.bridgingAdd.step3', params: { tens, remainder } },
     ];
   },
 
@@ -92,23 +93,23 @@ const STEP_TEMPLATES = {
     const tens = num1 - onesOfNum1;
     const remainder = num2 - onesOfNum1;
     return [
-      `Go to ${tens}: ${num1}-${onesOfNum1}=${tens}`,
-      `Left: ${num2}-${onesOfNum1}=${remainder}`,
-      `Take away: ${tens}-${remainder}=?`,
+      { key: 'strategy.bridgingSub.step1', params: { tens, num1, onesOfNum1 } },
+      { key: 'strategy.bridgingSub.step2', params: { num2, onesOfNum1, remainder } },
+      { key: 'strategy.bridgingSub.step3', params: { tens, remainder } },
     ];
   },
 
   doubles_add: (num1) => {
     return [
-      `It's a double!`,
-      `Think: ${num1}+${num1}=?`,
+      { key: 'strategy.doublesAdd.step1', params: {} },
+      { key: 'strategy.doublesAdd.step2', params: { num1 } },
     ];
   },
 
   doubles_sub: (num1) => {
     return [
-      `Half of ${num1} is ?`,
-      `${num1}-?=?`,
+      { key: 'strategy.doublesSub.step1', params: { num1 } },
+      { key: 'strategy.doublesSub.step2', params: { num1 } },
     ];
   },
 
@@ -116,8 +117,8 @@ const STEP_TEMPLATES = {
     const smaller = Math.min(num1, num2);
     const doubleVal = smaller + smaller;
     return [
-      `Double ${smaller}: ${smaller}+${smaller}=${doubleVal}`,
-      `Add 1 more: ${doubleVal}+1=?`,
+      { key: 'strategy.nearDoublesAdd.step1', params: { smaller, doubleVal } },
+      { key: 'strategy.nearDoublesAdd.step2', params: { doubleVal } },
     ];
   },
 
@@ -125,8 +126,8 @@ const STEP_TEMPLATES = {
     const half = Math.floor(num1 / 2);
     const approx = num1 % 2 === 0 ? '' : '~';
     return [
-      `Half of ${num1} is ${approx}${half}`,
-      `Adjust by 1: ${num1}-${num2}=?`,
+      { key: 'strategy.nearDoublesSub.step1', params: { num1, approx, half } },
+      { key: 'strategy.nearDoublesSub.step2', params: { num1, num2 } },
     ];
   },
 
@@ -143,16 +144,16 @@ const STEP_TEMPLATES = {
         ? `${countSeq.join(',')},?`
         : '?';
       return [
-        `Start at ${larger}`,
-        `Count up ${smaller}: ${seqParts}`,
-        `You land on ?`,
+        { key: 'strategy.countOn.step1', params: { larger } },
+        { key: 'strategy.countOn.step2enum', params: { smaller, seqParts } },
+        { key: 'strategy.countOn.step3', params: {} },
       ];
     }
     // Large-operand fallback: no enumeration
     return [
-      `Start at ${larger}`,
-      `Count up ${smaller} more`,
-      `You land on ?`,
+      { key: 'strategy.countOn.step1', params: { larger } },
+      { key: 'strategy.countOn.step2more', params: { smaller } },
+      { key: 'strategy.countOn.step3', params: {} },
     ];
   },
 
@@ -166,16 +167,16 @@ const STEP_TEMPLATES = {
         ? `${countSeq.join(',')},?`
         : '?';
       return [
-        `Start at ${num1}`,
-        `Count back ${num2}: ${seqParts}`,
-        `You land on ?`,
+        { key: 'strategy.countBack.step1', params: { num1 } },
+        { key: 'strategy.countBack.step2enum', params: { num2, seqParts } },
+        { key: 'strategy.countBack.step3', params: {} },
       ];
     }
     // Large-operand fallback: no enumeration
     return [
-      `Start at ${num1}`,
-      `Count back ${num2} steps`,
-      `You land on ?`,
+      { key: 'strategy.countBack.step1', params: { num1 } },
+      { key: 'strategy.countBack.step2steps', params: { num2 } },
+      { key: 'strategy.countBack.step3', params: {} },
     ];
   },
 
@@ -187,31 +188,31 @@ const STEP_TEMPLATES = {
     const times = num1 <= num2 ? num2 : num1;
     const addends = Array.from({ length: times }, () => base).join('+');
     return [
-      `${times} groups of ${base}`,
-      `${addends}=?`,
+      { key: 'strategy.repeatedAddition.step1', params: { times, base } },
+      { key: 'strategy.repeatedAddition.step2', params: { addends } },
     ];
   },
 
   commutative_mult: (num1, num2) => {
     return [
-      `Don't know ${num1}x${num2}?`,
-      `Try ${num2}x${num1}=?`,
+      { key: 'strategy.commutativeMult.step1', params: { num1, num2 } },
+      { key: 'strategy.commutativeMult.step2', params: { num2, num1 } },
     ];
   },
 
   times_ten: (num1, num2) => {
     const other = num1 === 10 ? num2 : num1;
     return [
-      `Any numberx10: add a zero!`,
-      `${other}x10=?`,
+      { key: 'strategy.timesTen.step1', params: {} },
+      { key: 'strategy.timesTen.step2', params: { other } },
     ];
   },
 
   doubles_mult: (num1, num2) => {
     const other = num1 === 2 ? num2 : num1;
     return [
-      `x2 = double it!`,
-      `Double ${other}=?`,
+      { key: 'strategy.doublesMult.step1', params: {} },
+      { key: 'strategy.doublesMult.step2', params: { other } },
     ];
   },
 
@@ -219,15 +220,15 @@ const STEP_TEMPLATES = {
 
   inverse_mult: (num1, num2) => {
     return [
-      `${num1} / ${num2} = ?`,
-      `Think: ${num2} x ? = ${num1}`,
+      { key: 'strategy.inverseMult.step1', params: { num1, num2 } },
+      { key: 'strategy.inverseMult.step2', params: { num2, num1 } },
     ];
   },
 
   halving: (num1) => {
     return [
-      `Divide by 2 = half!`,
-      `Half of ${num1} = ?`,
+      { key: 'strategy.halving.step1', params: {} },
+      { key: 'strategy.halving.step2', params: { num1 } },
     ];
   },
 };
@@ -363,16 +364,7 @@ function isHalving(num2) {
  * @param {number} num1 - First operand
  * @param {number} num2 - Second operand
  * @param {string} operator - Mathematical operator ('+', '-', '*', '/')
- * @returns {Array<{id: string, name: string, steps: string[]}>} Ordered strategies
- *
- * @example
- * getStrategies(8, 5, '+');
- * // [{ id: 'bridging_add', name: 'Bridge to 10', steps: ['Make 10: 8+2=10', ...] },
- * //  { id: 'count_on', name: 'Count On', steps: ['Start at 8', ...] }]
- *
- * @example
- * getStrategies(3, 4, '*');
- * // [{ id: 'repeated_addition', name: 'Repeated Addition', steps: [...] }, ...]
+ * @returns {Array<{id: string, nameKey: string, steps: Array<{key: string, params: Object}>}>}
  */
 export function getStrategies(num1, num2, operator) {
   const strategies = [];
@@ -382,7 +374,7 @@ export function getStrategies(num1, num2, operator) {
     if (isDoubles(num1, num2)) {
       strategies.push({
         id: STRATEGY_IDS.DOUBLES,
-        name: STRATEGY_NAMES[STRATEGY_IDS.DOUBLES],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.DOUBLES],
         steps: STEP_TEMPLATES.doubles_add(num1),
       });
     }
@@ -391,7 +383,7 @@ export function getStrategies(num1, num2, operator) {
     if (isNearDoubles(num1, num2)) {
       strategies.push({
         id: STRATEGY_IDS.NEAR_DOUBLES,
-        name: STRATEGY_NAMES[STRATEGY_IDS.NEAR_DOUBLES],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.NEAR_DOUBLES],
         steps: STEP_TEMPLATES.near_doubles_add(num1, num2),
       });
     }
@@ -400,7 +392,7 @@ export function getStrategies(num1, num2, operator) {
     if (isBridgingAdd(num1, num2)) {
       strategies.push({
         id: STRATEGY_IDS.BRIDGING_ADD,
-        name: STRATEGY_NAMES[STRATEGY_IDS.BRIDGING_ADD],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.BRIDGING_ADD],
         steps: STEP_TEMPLATES.bridging_add(num1, num2),
       });
     }
@@ -409,23 +401,23 @@ export function getStrategies(num1, num2, operator) {
     if (isCountOn(num1, num2)) {
       strategies.push({
         id: STRATEGY_IDS.COUNT_ON,
-        name: STRATEGY_NAMES[STRATEGY_IDS.COUNT_ON],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.COUNT_ON],
         steps: STEP_TEMPLATES.count_on(num1, num2),
       });
     } else if (strategies.length === 0) {
       // Universal fallback for addition problems with no other strategy
       strategies.push({
         id: STRATEGY_IDS.COUNT_ON,
-        name: STRATEGY_NAMES[STRATEGY_IDS.COUNT_ON],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.COUNT_ON],
         steps: STEP_TEMPLATES.count_on(num1, num2),
       });
     }
   } else if (operator === '-') {
-    // Priority 1: doubles (num1 === num2 → answer is 0)
+    // Priority 1: doubles (num1 === num2 -> answer is 0)
     if (isDoubles(num1, num2)) {
       strategies.push({
         id: STRATEGY_IDS.DOUBLES,
-        name: STRATEGY_NAMES[STRATEGY_IDS.DOUBLES],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.DOUBLES],
         steps: STEP_TEMPLATES.doubles_sub(num1),
       });
     }
@@ -434,7 +426,7 @@ export function getStrategies(num1, num2, operator) {
     if (isNearDoubles(num1, num2)) {
       strategies.push({
         id: STRATEGY_IDS.NEAR_DOUBLES,
-        name: STRATEGY_NAMES[STRATEGY_IDS.NEAR_DOUBLES],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.NEAR_DOUBLES],
         steps: STEP_TEMPLATES.near_doubles_sub(num1, num2),
       });
     }
@@ -443,7 +435,7 @@ export function getStrategies(num1, num2, operator) {
     if (isBridgingSub(num1, num2)) {
       strategies.push({
         id: STRATEGY_IDS.BRIDGING_SUB,
-        name: STRATEGY_NAMES[STRATEGY_IDS.BRIDGING_SUB],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.BRIDGING_SUB],
         steps: STEP_TEMPLATES.bridging_sub(num1, num2),
       });
     }
@@ -452,14 +444,14 @@ export function getStrategies(num1, num2, operator) {
     if (isCountBack(num2)) {
       strategies.push({
         id: STRATEGY_IDS.COUNT_BACK,
-        name: STRATEGY_NAMES[STRATEGY_IDS.COUNT_BACK],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.COUNT_BACK],
         steps: STEP_TEMPLATES.count_back(num1, num2),
       });
     } else if (strategies.length === 0) {
       // Universal fallback for subtraction problems with no other strategy
       strategies.push({
         id: STRATEGY_IDS.COUNT_BACK,
-        name: STRATEGY_NAMES[STRATEGY_IDS.COUNT_BACK],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.COUNT_BACK],
         steps: STEP_TEMPLATES.count_back(num1, num2),
       });
     }
@@ -468,7 +460,7 @@ export function getStrategies(num1, num2, operator) {
     if (isTimesTen(num1, num2)) {
       strategies.push({
         id: STRATEGY_IDS.TIMES_TEN,
-        name: STRATEGY_NAMES[STRATEGY_IDS.TIMES_TEN],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.TIMES_TEN],
         steps: STEP_TEMPLATES.times_ten(num1, num2),
       });
     }
@@ -477,7 +469,7 @@ export function getStrategies(num1, num2, operator) {
     if (isDoublesMult(num1, num2)) {
       strategies.push({
         id: STRATEGY_IDS.DOUBLES_MULT,
-        name: STRATEGY_NAMES[STRATEGY_IDS.DOUBLES_MULT],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.DOUBLES_MULT],
         steps: STEP_TEMPLATES.doubles_mult(num1, num2),
       });
     }
@@ -486,7 +478,7 @@ export function getStrategies(num1, num2, operator) {
     if (isRepeatedAddition(num1, num2)) {
       strategies.push({
         id: STRATEGY_IDS.REPEATED_ADDITION,
-        name: STRATEGY_NAMES[STRATEGY_IDS.REPEATED_ADDITION],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.REPEATED_ADDITION],
         steps: STEP_TEMPLATES.repeated_addition(num1, num2),
       });
     }
@@ -495,7 +487,7 @@ export function getStrategies(num1, num2, operator) {
     if (isCommutativeMult(num1, num2)) {
       strategies.push({
         id: STRATEGY_IDS.COMMUTATIVE_MULT,
-        name: STRATEGY_NAMES[STRATEGY_IDS.COMMUTATIVE_MULT],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.COMMUTATIVE_MULT],
         steps: STEP_TEMPLATES.commutative_mult(num1, num2),
       });
     }
@@ -504,7 +496,7 @@ export function getStrategies(num1, num2, operator) {
     if (strategies.length === 0) {
       strategies.push({
         id: STRATEGY_IDS.REPEATED_ADDITION,
-        name: STRATEGY_NAMES[STRATEGY_IDS.REPEATED_ADDITION],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.REPEATED_ADDITION],
         steps: STEP_TEMPLATES.repeated_addition(num1, num2),
       });
     }
@@ -513,7 +505,7 @@ export function getStrategies(num1, num2, operator) {
     if (isHalving(num2)) {
       strategies.push({
         id: STRATEGY_IDS.HALVING,
-        name: STRATEGY_NAMES[STRATEGY_IDS.HALVING],
+        nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.HALVING],
         steps: STEP_TEMPLATES.halving(num1),
       });
     }
@@ -521,7 +513,7 @@ export function getStrategies(num1, num2, operator) {
     // Priority 2 / Universal fallback: inverse multiplication
     strategies.push({
       id: STRATEGY_IDS.INVERSE_MULT,
-      name: STRATEGY_NAMES[STRATEGY_IDS.INVERSE_MULT],
+      nameKey: STRATEGY_NAME_KEYS[STRATEGY_IDS.INVERSE_MULT],
       steps: STEP_TEMPLATES.inverse_mult(num1, num2),
     });
   }

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useFirebase, useGameProgress } from './hooks'
 import { StartScreen, GameScreen, ResultScreen, LevelUpScreen, ProfileSwitcher, CreateProfile } from './components'
 import { useProfile } from './context/useProfile'
@@ -33,6 +34,7 @@ import { MAX_LEVEL } from './config/levels'
  * - Session statistics between screens
  */
 function App() {
+  const { t } = useTranslation()
   const { activeProfile, isLoading: profileLoading, clearActiveProfile, createAndActivate, updateProfile } = useProfile()
   const { user, loading: authLoading, error: authError } = useFirebase()
   const {
@@ -152,14 +154,14 @@ function App() {
       <div className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900 flex flex-col items-center justify-center p-4">
         <div className="animate-pulse">
           <h1 className="text-4xl md:text-6xl font-game text-sonic-gold drop-shadow-lg text-center">
-            Loading...
+            {t('app.loading')}
           </h1>
           <p className="text-xl text-white mt-4 font-game text-center">
             {profileLoading
-              ? 'Loading heroes...'
+              ? t('app.loadingHeroes')
               : authLoading
-                ? 'Connecting to Sonic Speed!'
-                : 'Loading your progress...'}
+                ? t('app.loadingConnection')
+                : t('app.loadingProgress')}
           </p>
         </div>
       </div>
@@ -190,10 +192,10 @@ function App() {
       <div className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900 flex flex-col items-center justify-center p-4">
         <div className="text-center">
           <h1 className="text-4xl md:text-6xl font-game text-red-500 drop-shadow-lg">
-            Oops!
+            {t('app.errorTitle')}
           </h1>
           <p className="text-xl text-white mt-4 font-game">
-            Could not connect to save your progress
+            {t('app.errorConnection')}
           </p>
           <p className="text-sm text-white mt-2 opacity-75">
             {authError.message}
@@ -204,7 +206,7 @@ function App() {
                        hover:bg-yellow-400 transform hover:scale-105 transition-all
                        shadow-lg active:scale-95 text-xl"
           >
-            Play Anyway!
+            {t('app.playAnyway')}
           </button>
         </div>
       </div>
@@ -247,7 +249,6 @@ function App() {
           sessionStats={sessionStats}
           onPlayAgain={handlePlayAgain}
           onExit={handleExit}
-          theme={activeProfile?.theme}
         />
       )}
     </>

@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 
 /**
  * AnswerButtons Component - Grid of answer options in Sonic theme
@@ -11,6 +12,8 @@ import PropTypes from 'prop-types'
  * @param {boolean} disabled - Whether buttons are disabled (during feedback)
  */
 function AnswerButtons({ options, onAnswer, disabled = false }) {
+  const { t } = useTranslation()
+
   const handleClick = (answer) => {
     if (!disabled) {
       onAnswer(answer)
@@ -28,7 +31,7 @@ function AnswerButtons({ options, onAnswer, disabled = false }) {
     <div
       className="grid grid-cols-2 gap-3 md:gap-4 w-full max-w-md mx-auto mt-6"
       role="group"
-      aria-label="Answer Options"
+      aria-label={t('problem.answerOptions')}
     >
       {options.map((answer, index) => (
         <button
@@ -51,7 +54,7 @@ function AnswerButtons({ options, onAnswer, disabled = false }) {
                    focus:outline-none focus:ring-4 focus:ring-yellow-300`
             }
           `}
-          aria-label={`Answer: ${answer}`}
+          aria-label={t('problem.answer', { answer })}
         >
           {answer}
         </button>

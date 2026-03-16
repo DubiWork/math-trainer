@@ -21,6 +21,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useProfile } from '../context/useProfile'
 import { MAX_PIN_ATTEMPTS, COOLDOWN_SECONDS } from '../context/profileReducer'
@@ -43,6 +44,7 @@ const THEME_BORDER = {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 function ProfileSwitcher({ onCreateProfile, onProfileActivated }) {
+  const { t } = useTranslation()
   const {
     profiles,
     selectProfile,
@@ -79,19 +81,19 @@ function ProfileSwitcher({ onCreateProfile, onProfileActivated }) {
           }
         } else {
           setAttempts((prev) => prev + 1)
-          setPinError('Oops! Wrong PIN. Try again.')
+          setPinError(t('profile.pinError'))
           // Haptic feedback (feature-detected)
           if (navigator.vibrate) {
             navigator.vibrate(100)
           }
         }
       } catch {
-        setPinError('Something went wrong. Try again.')
+        setPinError(t('profile.genericError'))
       } finally {
         setIsVerifying(false)
       }
     },
-    [selectedProfile, selectProfile, onProfileActivated]
+    [selectedProfile, selectProfile, onProfileActivated, t]
   )
 
   // ── PIN cancel ───────────────────────────────────────────────────────
@@ -107,10 +109,10 @@ function ProfileSwitcher({ onCreateProfile, onProfileActivated }) {
       <div className="min-h-screen bg-gradient-to-b from-sonic-blue to-blue-900
                       flex flex-col items-center justify-center p-6">
         <h1 className="text-3xl md:text-4xl font-game text-white drop-shadow-lg mb-4 text-center">
-          Welcome to Math Trainer!
+          {t('profile.welcomeTitle')}
         </h1>
         <p className="text-lg font-game text-white/80 mb-8 text-center">
-          Create your first hero to start playing!
+          {t('profile.welcomeSubtitle')}
         </p>
         <button
           onClick={onCreateProfile}
@@ -121,9 +123,9 @@ function ProfileSwitcher({ onCreateProfile, onProfileActivated }) {
                      transform transition-all duration-300
                      hover:scale-110 active:scale-95
                      focus:outline-none focus:ring-4 focus:ring-yellow-300"
-          aria-label="Create your first hero profile"
+          aria-label={t('profile.createFirstHero')}
         >
-          + Create Hero
+          {t('profile.createHero')}
         </button>
       </div>
     )
@@ -135,7 +137,7 @@ function ProfileSwitcher({ onCreateProfile, onProfileActivated }) {
                     flex flex-col items-center p-6">
       {/* Title */}
       <h1 className="text-3xl md:text-4xl font-game text-white drop-shadow-lg mb-8 mt-8 text-center">
-        Who&apos;s playing?
+        {t('profile.title')}
       </h1>
 
       {/* Grid */}
@@ -153,7 +155,7 @@ function ProfileSwitcher({ onCreateProfile, onProfileActivated }) {
               hover:scale-105 active:scale-95
               focus:outline-none focus:ring-2 focus:ring-sonic-gold
             `}
-            aria-label={`Select ${profile.nickname}, Level ${profile.currentLevel}`}
+            aria-label={t('profile.selectProfile', { name: profile.nickname, level: profile.currentLevel })}
           >
             {/* Avatar */}
             <span className="text-4xl" role="img" aria-hidden="true">
@@ -165,7 +167,7 @@ function ProfileSwitcher({ onCreateProfile, onProfileActivated }) {
             </span>
             {/* Level badge */}
             <span className="text-xs font-game text-sonic-gold bg-sonic-gold/20 px-2 py-0.5 rounded-full">
-              Level {profile.currentLevel}
+              {t('profile.level', { level: profile.currentLevel })}
             </span>
           </button>
         ))}
@@ -181,10 +183,10 @@ function ProfileSwitcher({ onCreateProfile, onProfileActivated }) {
                        hover:scale-105 hover:border-sonic-gold/50 active:scale-95
                        focus:outline-none focus:ring-2 focus:ring-sonic-gold
                        min-h-[140px]"
-            aria-label="Create a new hero profile"
+            aria-label={t('profile.createNewHero')}
           >
             <span className="text-4xl text-white/50">+</span>
-            <span className="text-sm font-game text-white/50">Add Hero</span>
+            <span className="text-sm font-game text-white/50">{t('profile.addHero')}</span>
           </button>
         )}
       </div>
